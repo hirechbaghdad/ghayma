@@ -1,0 +1,107 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: dokploy
+      POSTGRES_PASSWORD: amukds4wi9001583845717ad2
+      POSTGRES_DB: dokploy
+    volumes:
+      - dokploy-postgres-database:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dokploy -d dokploy -h localhost -p 5432"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+
+  redis:
+    image: redis:7
+    volumes:
+      - redis-data-volume:/data
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+
+  dokploy:
+    image: atlanexis-coreos:latest
+    # depends_on/condition is honored by docker-compose for non-swarm use;
+    # when using `docker stack deploy` ordering is handled by other means (healthchecks / service readiness).
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      # DB connection using same user/db/password as the postgres service above
+      DATABASE_URL: postgres://dokploy:amukds4wi9001583845717ad2@db:5432/dokploy
+      PGHOST: db
+      PGPORT: "5432"
+      PGUSER: dokploy
+      PGPASSWORD: amukds4wi9001583845717ad2
+      PGDATABASE: dokploy
+      # Set ADVERTISE_ADDR externally (export ADVERTISE_ADDR=...), defaults to empty here
+      ADVERTISE_ADDR: ${ADVERTISE_ADDR:-}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/dokploy:/etc/dokploy
+      - dokploy-docker-config:/root/.docker
+    ports:
+      - target: 3000
+        published: 3000
+        protocol: tcp
+        mode: host
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        order: stop-first
+      placement:
+        constraints:
+          - node.role == manager
+      # The script sets --endpoint-mode dnsrr when running inside Proxmox LXC.
+      # Leaving endpoint_mode:dnsrr here matches that behavior. Remove if you don't want DNSRR.
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+
+  dokploy-traefik:
+    image: traefik:v3.5.0
+    volumes:
+      - /etc/dokploy/traefik/traefik.yml:/etc/traefik/traefik.yml
+      - /etc/dokploy/traefik/dynamic:/etc/dokploy/traefik/dynamic
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+      - target: 443
+        published: 443
+        protocol: tcp
+        mode: host
+      - target: 443
+        published: 443
+        protocol: udp
+        mode: host
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+
+volumes:
+  dokploy-postgres-database:
+  redis-data-volume:
+  dokploy-docker-config:
