@@ -1,0 +1,9 @@
+export declare const validateDocker: () => string;
+export declare const validateRClone: () => string;
+export declare const validateSwarm: () => string;
+export declare const validateNixpacks: () => string;
+export declare const validateRailpack: () => string;
+export declare const validateBuildpacks: () => string;
+export declare const validateMainDirectory: () => string;
+export declare const validateDokployNetwork: () => string;
+export declare const serverValidate: (serverId: string) => Promise<string>;

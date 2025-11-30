@@ -1,0 +1,126 @@
+import nodemailer from "nodemailer";
+export const sendEmailNotification = async (connection, subject, htmlContent) => {
+    try {
+        const { smtpServer, smtpPort, username, password, fromAddress, toAddresses, } = connection;
+        const transporter = nodemailer.createTransport({
+            host: smtpServer,
+            port: smtpPort,
+            auth: { user: username, pass: password },
+        });
+        await transporter.sendMail({
+            from: fromAddress,
+            to: toAddresses.join(", "),
+            subject,
+            html: htmlContent,
+            textEncoding: "base64",
+        });
+    }
+    catch (err) {
+        console.log(err);
+        throw new Error(`Failed to send email notification ${err instanceof Error ? err.message : "Unknown error"}`);
+    }
+};
+export const sendDiscordNotification = async (connection, embed) => {
+    try {
+        const response = await fetch(connection.webhookUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ embeds: [embed] }),
+        });
+        if (!response.ok) {
+            throw new Error(`Failed to send discord notification ${response.statusText}`);
+        }
+    }
+    catch (err) {
+        console.log("error", err);
+        throw new Error(`Failed to send discord notification ${err instanceof Error ? err.message : "Unknown error"}`);
+    }
+};
+export const sendTelegramNotification = async (connection, messageText, inlineButton) => {
+    try {
+        const url = `https://api.telegram.org/bot${connection.botToken}/sendMessage`;
+        await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                chat_id: connection.chatId,
+                message_thread_id: connection.messageThreadId,
+                text: messageText,
+                parse_mode: "HTML",
+                disable_web_page_preview: true,
+                reply_markup: {
+                    inline_keyboard: inlineButton,
+                },
+            }),
+        });
+    }
+    catch (err) {
+        console.log(err);
+    }
+};
+export const sendSlackNotification = async (connection, message) => {
+    try {
+        const response = await fetch(connection.webhookUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(message),
+        });
+        if (!response.ok) {
+            throw new Error(`Failed to send slack notification ${response.statusText}`);
+        }
+    }
+    catch (err) {
+        console.log("error", err);
+        throw new Error(`Failed to send slack notification ${err instanceof Error ? err.message : "Unknown error"}`);
+    }
+};
+export const sendGotifyNotification = async (connection, title, message) => {
+    const response = await fetch(`${connection.serverUrl}/message`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-Gotify-Key": connection.appToken,
+        },
+        body: JSON.stringify({
+            title: title,
+            message: message,
+            priority: connection.priority,
+            extras: {
+                "client::display": {
+                    contentType: "text/plain",
+                },
+            },
+        }),
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to send Gotify notification: ${response.statusText}`);
+    }
+};
+export const sendNtfyNotification = async (connection, title, tags, actions, message) => {
+    const response = await fetch(`${connection.serverUrl}/${connection.topic}`, {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${connection.accessToken}`,
+            "X-Priority": connection.priority?.toString() || "3",
+            "X-Title": title,
+            "X-Tags": tags,
+            "X-Actions": actions,
+        },
+        body: message,
+    });
+    if (!response.ok) {
+        throw new Error(`Failed to send ntfy notification: ${response.statusText}`);
+    }
+};
+export const sendLarkNotification = async (connection, message) => {
+    try {
+        await fetch(connection.webhookUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(message),
+        });
+    }
+    catch (err) {
+        console.log(err);
+    }
+};
