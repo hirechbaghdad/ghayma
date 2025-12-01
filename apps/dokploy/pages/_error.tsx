@@ -16,12 +16,12 @@ export default function Custom404({ statusCode, error }: Props) {
 				<header className="mb-auto flex justify-center z-50 w-full py-4">
 					<nav className="px-4 sm:px-6 lg:px-8" aria-label="Global">
 						<Link
-							href="https://dokploy.com"
+							href="https://atlanexis.com"
 							target="_blank"
 							className="flex flex-row items-center gap-2"
 						>
 							<Logo />
-							<span className="font-medium text-sm">Dokploy</span>
+							<span className="font-medium text-sm">Atlanexis CloudOS Node</span>
 						</Link>
 					</nav>
 				</header>
@@ -41,7 +41,7 @@ export default function Custom404({ statusCode, error }: Props) {
 						<p className="mt-3 text-muted-foreground">
 							{statusCode === 404
 								? "Sorry, we couldn't find your page."
-								: "Oops, something went wrong."}
+								: "Haja marahich normal hnaya, check the log."}
 						</p>
 						{error && (
 							<div className="mt-3 text-red-500">
@@ -81,11 +81,11 @@ export default function Custom404({ statusCode, error }: Props) {
 					<div className="max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8">
 						<p className="text-sm text-gray-500">
 							<Link
-								href="https://github.com/Dokploy/dokploy/issues"
+								href="https://bugs.atlanexis.com/nodeos"
 								target="_blank"
 								className="underline hover:text-primary transition-colors"
 							>
-								Submit Log in issue on Github
+								Submit Log in issue on Atlanexis Console Web
 							</Link>
 						</p>
 					</div>
