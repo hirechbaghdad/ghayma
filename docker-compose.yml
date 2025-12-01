@@ -4,13 +4,13 @@ services:
   db:
     image: postgres:16
     environment:
-      POSTGRES_USER: dokploy
+      POSTGRES_USER: atlanexis
       POSTGRES_PASSWORD: amukds4wi9001583845717ad2
-      POSTGRES_DB: dokploy
+      POSTGRES_DB: atlanexis
     volumes:
-      - dokploy-postgres-database:/var/lib/postgresql/data
+      - atlanexis-postgres-database:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U dokploy -d dokploy -h localhost -p 5432"]
+      test: ["CMD-SHELL", "pg_isready -U atlanexis -d atlanexis -h localhost -p 5432"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -33,8 +33,8 @@ services:
       restart_policy:
         condition: on-failure
 
-  dokploy:
-    image: atlanexis-coreos:latest
+  atlanexis-cloudos:
+    image: atlanexis/atlanexis-cloudos:latest
     # depends_on/condition is honored by docker-compose for non-swarm use;
     # when using `docker stack deploy` ordering is handled by other means (healthchecks / service readiness).
     depends_on:
@@ -44,18 +44,18 @@ services:
         condition: service_started
     environment:
       # DB connection using same user/db/password as the postgres service above
-      DATABASE_URL: postgres://dokploy:amukds4wi9001583845717ad2@db:5432/dokploy
+      DATABASE_URL: postgres://atlanexis:amukds4wi9001583845717ad2@db:5432/atlanexis
       PGHOST: db
       PGPORT: "5432"
-      PGUSER: dokploy
+      PGUSER: atlanexis
       PGPASSWORD: amukds4wi9001583845717ad2
-      PGDATABASE: dokploy
+      PGDATABASE: atlanexis
       # Set ADVERTISE_ADDR externally (export ADVERTISE_ADDR=...), defaults to empty here
       ADVERTISE_ADDR: ${ADVERTISE_ADDR:-}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /etc/dokploy:/etc/dokploy
-      - dokploy-docker-config:/root/.docker
+      - atlanexis-docker-config:/root/.docker
     ports:
       - target: 3000
         published: 3000
@@ -75,7 +75,7 @@ services:
       restart_policy:
         condition: on-failure
 
-  dokploy-traefik:
+  atlanexis-traefik:
     image: traefik:v3.5.0
     volumes:
       - /etc/dokploy/traefik/traefik.yml:/etc/traefik/traefik.yml
@@ -102,6 +102,6 @@ services:
         condition: on-failure
 
 volumes:
-  dokploy-postgres-database:
+  atlanexis-postgres-database:
   redis-data-volume:
-  dokploy-docker-config:
+  atlanexis-docker-config:
