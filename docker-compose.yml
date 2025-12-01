@@ -50,6 +50,8 @@ services:
       PGUSER: atlanexis
       PGPASSWORD: amukds4wi9001583845717ad2
       PGDATABASE: atlanexis
+      REDIS_HOST: redis 
+      REDIS_PORT: "6379" # Redis default port
       # Set ADVERTISE_ADDR externally (export ADVERTISE_ADDR=...), defaults to empty here
       ADVERTISE_ADDR: ${ADVERTISE_ADDR:-}
     volumes:
