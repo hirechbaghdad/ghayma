@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 @layer base {
-    /* --- GLOBAL BACKGROUND BLUR EFFECT --- */
+
     body {
         position: relative;
         background-color: transparent !important;
@@ -13,124 +13,85 @@
     body::before {
         content: '';
         position: fixed;
-        /* These offsets ensure the blur edges don't show */
         top: -50px;
         left: -50px;
         right: -50px;
         bottom: -50px;
-        z-index: -1; /* Positioned behind the UI */
-
-        /* !!! IMPORTANT: BASE64 IMAGE FOR OFFLINE SUPPORT !!!
-        You must convert your desired image to a Base64 string and replace the content below.
-        This simple SVG is a placeholder for a solid dark background:
-        */
-        url('https://www.atlanexis.com/data/wallpaper.jpg');
+        z-index: -1;
+        background-image: url('https://www.atlanexis.com/data/wallpaper.jpg');
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
-
-        /* Apply a heavy blur to the background image */
         filter: blur(20px);
         -webkit-filter: blur(20px);
     }
-    /* --- END GLOBAL BACKGROUND BLUR EFFECT --- */
 
     :root {
-        /* --- LIGHT MODE COLORS: HIGH OPACITY BACKGROUNDS (e.g., / 0.95) --- */
         --terminal-paste: rgba(0, 0, 0, 0.2);
-        --background: 0 0% 100% / 0; /* Fully transparent background to show blurred image */
+        --background: 0 0% 100% / 0;
         --foreground: 240 10% 3.9%;
-
-        --card: 0 0% 100% / 0.95; /* Increased opacity for cards */
+        --card: 0 0% 100% / 0.95;
         --card-foreground: 240 10% 3.9%;
-
-        --popover: 0 0% 100% / 0.95; /* Increased opacity for popovers */
+        --popover: 0 0% 100% / 0.95;
         --popover-foreground: 240 10% 3.9%;
-
-        /* PRIMARY BUTTONS: Light Mint Green #ccffdc (134 100% 93%) */
         --primary: 134 100% 93%;
         --primary-foreground: 240 5.9% 10%;
-
-        /* SECONDARY/SIDEBAR BUTTONS: Light Mint Green #ccffdc */
         --secondary: 134 100% 93%;
         --secondary-foreground: 240 5.9% 10%;
-
-        --muted: 240 4.8% 95.9% / 0.95; /* Increased opacity */
+        --muted: 240 4.8% 95.9% / 0.95;
         --muted-foreground: 240 3.8% 46.1%;
-
-        --accent: 240 4.8% 95.9% / 0.95; /* Increased opacity */
+        --accent: 240 4.8% 95.9% / 0.95;
         --accent-foreground: 240 5.9% 10%;
-
         --destructive: 0 84.2% 50.2%;
         --destructive-foreground: 0 0% 98%;
-
         --border: 240 5.9% 90%;
-        --input: 240 5.9% 90% / 0.95; /* Increased opacity */
+        --input: 240 5.9% 90% / 0.95;
         --ring: 240 10% 3.9%;
-
         --radius: 0.5rem;
         --overlay: rgba(0, 0, 0, 0.2);
-
         --chart-1: 173 58% 39%;
         --chart-2: 12 76% 61%;
         --chart-3: 197 37% 24%;
         --chart-4: 43 74% 66%;
         --chart-5: 27 87% 67%;
-
-        /* SIDEBAR LIGHT MODE */
-        --sidebar-background: 0 0% 98% / 0.95; /* Increased opacity for sidebar */
+        --sidebar-background: 0 0% 98% / 0.95;
         --sidebar-foreground: 240 5.3% 26.1%;
         --sidebar-primary: 240 5.9% 10%;
         --sidebar-primary-foreground: 0 0% 98%;
-        --sidebar-accent: 134 100% 93%; /* Light Mint Green #ccffdc */
+        --sidebar-accent: 134 100% 93%;
         --sidebar-accent-foreground: 240 5.9% 10%;
         --sidebar-border: 220 13% 91%;
         --sidebar-ring: 217.2 91.2% 59.8%;
     }
 
     .dark {
-        /* --- DARK MODE SAAS PALETTE: HIGH OPACITY BACKGROUNDS (e.g., / 0.9) --- */
         --terminal-paste: rgba(255, 255, 255, 0.2);
-        --background: 220 10% 8% / 0; /* Fully transparent background to show blurred image */
+        --background: 220 10% 8% / 0;
         --foreground: 210 20% 98%;
-
-        --card: 220 10% 12% / 0.9; /* Increased opacity for cards */
+        --card: 220 10% 12% / 0.9;
         --card-foreground: 210 20% 98%;
-
-        --popover: 220 10% 12% / 0.9; /* Increased opacity for popovers */
+        --popover: 220 10% 12% / 0.9;
         --popover-foreground: 210 20% 98%;
-
-        /* PRIMARY BUTTONS: Professional Blue Accent (#2573e8) */
         --primary: 217 91% 59%;
         --primary-foreground: 210 20% 98%;
-
-        /* Secondary/Accent elements: Darker gray/charcoal */
-        --secondary: 220 10% 18% / 0.95; /* Increased opacity */
+        --secondary: 220 10% 18% / 0.95;
         --secondary-foreground: 210 20% 98%;
-
-        --muted: 220 10% 12% / 0.9; /* Increased opacity */
+        --muted: 220 10% 12% / 0.9;
         --muted-foreground: 210 5% 64.9%;
-
-        --accent: 220 10% 18% / 0.95; /* Increased opacity */
+        --accent: 220 10% 18% / 0.95;
         --accent-foreground: 210 20% 98%;
-
         --destructive: 355 84.2% 50.2%;
         --destructive-foreground: 210 20% 98%;
-
         --border: 220 10% 25%;
-        --input: 220 10% 12% / 0.9; /* Increased opacity */
+        --input: 220 10% 12% / 0.9;
         --ring: 217 91% 59%;
-
         --overlay: rgba(0, 0, 0, 0.5);
-
         --chart-1: 220 70% 50%;
         --chart-5: 160 60% 45%;
         --chart-3: 30 80% 55%;
         --chart-4: 280 65% 60%;
         --chart-2: 340 75% 55%;
-
-        /* SIDEBAR DARK MODE */
-        --sidebar-background: 220 10% 8% / 0.95; /* Increased opacity for sidebar */
+        --sidebar-background: 220 10% 8% / 0.95;
         --sidebar-foreground: 210 20% 98%;
         --sidebar-primary: 217 91% 59%;
         --sidebar-primary-foreground: 0 0% 100%;
@@ -184,7 +145,9 @@
 }
 
 .xterm-viewport {
-    border-radius: 0.75rem /* 12px */ !important;
+    border-radius: 0.75rem
+        /* 12px */
+        !important;
 }
 
 .xterm .xterm-viewport {
@@ -196,14 +159,17 @@
 }
 
 @layer utilities {
+
     /* Chrome, Safari and Opera */
     .no-scrollbar::-webkit-scrollbar {
         display: none;
     }
 
     .no-scrollbar {
-        -ms-overflow-style: none; /* IE and Edge */
-        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none;
+        /* IE and Edge */
+        scrollbar-width: none;
+        /* Firefox */
     }
 }
 
@@ -235,18 +201,22 @@
         transform: scale(1);
         opacity: 0.7;
     }
+
     25% {
         transform: scale(1.1);
         opacity: 1;
     }
+
     50% {
         transform: scale(1);
         opacity: 0.7;
     }
+
     75% {
         transform: scale(1.1);
         opacity: 1;
     }
+
     100% {
         transform: scale(1);
         opacity: 0.7;
@@ -256,6 +226,7 @@
 .animate-heartbeat {
     animation: heartbeat 2.5s infinite;
 }
+
 @media (prefers-color-scheme: dark) {
     .swagger-ui {
         background-color: white;
