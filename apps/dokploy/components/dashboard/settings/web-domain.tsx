@@ -153,7 +153,7 @@ export const WebDomain = () => {
 												<FormControl>
 													<Input
 														className="w-full"
-														placeholder={"dokploy.com"}
+														placeholder={"alg1.cloud.atlanexis.com"}
 														{...field}
 													/>
 												</FormControl>
@@ -175,7 +175,7 @@ export const WebDomain = () => {
 												<FormControl>
 													<Input
 														className="w-full"
-														placeholder={"Dp4kz@example.com"}
+														placeholder={"ssl@atlanexis.com"}
 														{...field}
 													/>
 												</FormControl>

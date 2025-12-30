@@ -166,7 +166,7 @@ export function AddOrganization({ organizationId }: Props) {
 									<FormLabel className="text-right">Logo URL</FormLabel>
 									<FormControl>
 										<Input
-											placeholder="https://example.com/logo.png"
+											placeholder="https://atlanexis.com/logo.png"
 											{...field}
 											value={field.value || ""}
 											className="col-span-3"
