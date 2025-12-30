@@ -325,15 +325,15 @@ export const setupSwarm = () => `
 	`;
 
 const setupNetwork = () => `
-	# Check if the dokploy-network already exists
-	if docker network ls | grep -q 'dokploy-network'; then
-		echo "Network dokploy-network already exists ✅"
+	# Check if the atlanexis-network already exists
+	if docker network ls | grep -q 'atlanexis-network'; then
+		echo "Network atlanexis-network already exists ✅"
 	else
-		# Create the dokploy-network if it doesn't exist
-		if docker network create --driver overlay --attachable dokploy-network; then
+		# Create the atlanexis-network if it doesn't exist
+		if docker network create --driver overlay --attachable atlanexis-network; then
 			echo "Network created ✅"
 		else
-			echo "Failed to create dokploy-network ❌" >&2
+			echo "Failed to create atlanexis-network ❌" >&2
 			exit 1
 		fi
 	fi
@@ -587,7 +587,7 @@ export const createTraefikInstance = () => {
 				-p ${TRAEFIK_HTTP3_PORT}:${TRAEFIK_HTTP3_PORT}/udp \
 				traefik:v$TRAEFIK_VERSION
 
-			docker network connect dokploy-network dokploy-traefik;
+			docker network connect atlanexis-network dokploy-traefik;
 			echo "Traefik version $TRAEFIK_VERSION installed ✅"
 		fi
 	`;

@@ -75,7 +75,7 @@ export const initializeStandaloneTraefik = async ({
 		Image: imageName,
 		NetworkingConfig: {
 			EndpointsConfig: {
-				"dokploy-network": {},
+				"atlanexis-network": {},
 			},
 		},
 		ExposedPorts: exposedPorts,
@@ -150,7 +150,7 @@ export const initializeTraefikService = async ({
 					},
 				],
 			},
-			Networks: [{ Target: "dokploy-network" }],
+			Networks: [{ Target: "atlanexis-network" }],
 			Placement: {
 				Constraints: ["node.role==manager"],
 			},
@@ -271,7 +271,7 @@ export const getDefaultTraefikConfig = () => {
 						docker: {
 							exposedByDefault: false,
 							watch: true,
-							network: "dokploy-network",
+							network: "atlanexis-network",
 						},
 					}),
 			file: {
@@ -330,7 +330,7 @@ export const getDefaultServerTraefikConfig = () => {
 			docker: {
 				exposedByDefault: false,
 				watch: true,
-				network: "dokploy-network",
+				network: "atlanexis-network",
 			},
 			file: {
 				directory: "/etc/dokploy/traefik/dynamic",

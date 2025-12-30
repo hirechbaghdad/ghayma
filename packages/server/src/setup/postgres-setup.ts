@@ -3,26 +3,26 @@ import { docker } from "../constants";
 import { pullImage } from "../utils/docker/utils";
 export const initializePostgres = async () => {
 	const imageName = "postgres:16";
-	const containerName = "dokploy-postgres";
+	const containerName = "atlanexis-postgres";
 	const settings: CreateServiceOptions = {
 		Name: containerName,
 		TaskTemplate: {
 			ContainerSpec: {
 				Image: imageName,
 				Env: [
-					"POSTGRES_USER=dokploy",
-					"POSTGRES_DB=dokploy",
+					"POSTGRES_USER=atlanexis",
+					"POSTGRES_DB=atlanexis",
 					"POSTGRES_PASSWORD=amukds4wi9001583845717ad2",
 				],
 				Mounts: [
 					{
 						Type: "volume",
-						Source: "dokploy-postgres",
+						Source: "atlanexis-postgres",
 						Target: "/var/lib/postgresql/data",
 					},
 				],
 			},
-			Networks: [{ Target: "dokploy-network" }],
+			Networks: [{ Target: "atlanexis-network" }],
 			Placement: {
 				Constraints: ["node.role==manager"],
 			},
