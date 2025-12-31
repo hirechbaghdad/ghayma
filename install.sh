@@ -14,7 +14,7 @@ is_proxmox_lxc() {
 
 install_atlanexis() {
     VERSION_TAG=$(detect_version)
-    DOCKER_IMAGE="atlanexis/atlanexis-cloudos:${VERSION_TAG}"
+    DOCKER_IMAGE="atlanexis/ghayma:1.0.5"
     
     echo "Starting Atlanexis CloudOS Installation (Version: ${VERSION_TAG})"
 
@@ -49,7 +49,7 @@ install_atlanexis() {
     echo "Using Advertise Address: $advertise_addr"
 
     docker swarm init --advertise-addr "$advertise_addr" ${DOCKER_SWARM_INIT_ARGS:-}
-    docker network create --driver overlay --attachable dokploy-network
+    docker network create --driver overlay --attachable atlanexis-network
 
     # 4. Configuration Directory & Traefik Setup
     # This prevents Docker from creating directories where files should be
@@ -74,6 +74,13 @@ entryPoints:
     address: ":80"
   websecure:
     address: ":443"
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: hirechbaghdad@atlanexis.com
+      storage: /etc/dokploy/traefik/dynamic/acme.json
+      httpChallenge:
+        entryPoint: web
 EOF
 
     # Create Traefik Dynamic Config for the main app
@@ -97,7 +104,7 @@ EOF
     docker service create \
       --name db \
       --constraint 'node.role==manager' \
-      --network dokploy-network \
+      --network atlanexis-network \
       --env POSTGRES_USER=atlanexis \
       --env POSTGRES_DB=atlanexis \
       --env POSTGRES_PASSWORD=amukds4wi9001583845717ad2 \
@@ -109,7 +116,7 @@ EOF
     docker service create \
       --name redis \
       --constraint 'node.role==manager' \
-      --network dokploy-network \
+      --network atlanexis-network \
       --mount type=volume,source=redis-data-volume,target=/data \
       redis:7
 
@@ -124,7 +131,7 @@ EOF
     docker service create \
       --name atlanexis-cloudos \
       --replicas 1 \
-      --network dokploy-network \
+      --network atlanexis-network \
       --mount type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock \
       --mount type=bind,source=/etc/dokploy,target=/etc/dokploy \
       --mount type=volume,source=atlanexis-docker-config,target=/root/.docker \
@@ -147,7 +154,7 @@ EOF
     docker service create \
       --name atlanexis-traefik \
       --constraint 'node.role==manager' \
-      --network dokploy-network \
+      --network atlanexis-network \
       --mount type=bind,source=/etc/dokploy/traefik/traefik.yml,target=/etc/traefik/traefik.yml \
       --mount type=bind,source=/etc/dokploy/traefik/dynamic,target=/etc/dokploy/traefik/dynamic \
       --mount type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock \
@@ -165,10 +172,11 @@ EOF
 
 update_atlanexis() {
     VERSION_TAG=$(detect_version)
-    DOCKER_IMAGE="atlanexis/atlanexis-cloudos:${VERSION_TAG}"
+    DOCKER_IMAGE="atlanexis/ghayma:1.0.5"
     echo "Updating to $DOCKER_IMAGE..."
     docker pull "$DOCKER_IMAGE"
     docker service update --image "$DOCKER_IMAGE" atlanexis-cloudos
+    echo "Update complete!" 
 }
 
 if [ "$1" = "update" ]; then
