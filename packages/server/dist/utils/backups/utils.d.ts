@@ -1,0 +1,14 @@
+import type { BackupSchedule } from "../../services/backup.js";
+import type { Destination } from "../../services/destination.js";
+export declare const scheduleBackup: (backup: BackupSchedule) => void;
+export declare const removeScheduleBackup: (backupId: string) => void;
+export declare const normalizeS3Path: (prefix: string) => string;
+export declare const getS3Credentials: (destination: Destination) => string[];
+export declare const getPostgresBackupCommand: (database: string, databaseUser: string) => string;
+export declare const getMariadbBackupCommand: (database: string, databaseUser: string, databasePassword: string) => string;
+export declare const getMysqlBackupCommand: (database: string, databasePassword: string) => string;
+export declare const getMongoBackupCommand: (database: string, databaseUser: string, databasePassword: string) => string;
+export declare const getServiceContainerCommand: (appName: string) => string;
+export declare const getComposeContainerCommand: (appName: string, serviceName: string, composeType: "stack" | "docker-compose" | undefined) => string;
+export declare const generateBackupCommand: (backup: BackupSchedule) => string | null;
+export declare const getBackupCommand: (backup: BackupSchedule, rcloneCommand: string, logPath: string) => string;

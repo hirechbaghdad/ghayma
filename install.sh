@@ -172,7 +172,11 @@ EOF
 
 update_atlanexis() {
     VERSION_TAG=$(detect_version)
+<<<<<<< HEAD
     DOCKER_IMAGE="atlanexis/ghayma:1.0.5"
+=======
+    DOCKER_IMAGE="atlanexis/atlanexis-cloudos:1.0.5"
+>>>>>>> 9949bd1 (new version 1.1)
     echo "Updating to $DOCKER_IMAGE..."
     docker pull "$DOCKER_IMAGE"
     docker service update --image "$DOCKER_IMAGE" atlanexis-cloudos

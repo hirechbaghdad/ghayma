@@ -27,6 +27,7 @@ import {
 	Server,
 	ShieldCheck,
 	Star,
+	StoreIcon,
 	Trash2,
 	User,
 	Users,
@@ -214,6 +215,13 @@ const MENU: Menu = {
 			icon: Boxes,
 			// Only enabled for admins in non-cloud environments
 			isEnabled: ({ auth, isCloud }) => !!(auth?.role === "owner" && !isCloud),
+		},
+		// Inside your sidebar component or config
+		{
+			isSingle: true,
+  			title: "Version Info",
+			url: "/dashboard/version-info",
+			icon: StoreIcon,
 		},
 
 		// Legacy unused menu, adjusted to the new structure
