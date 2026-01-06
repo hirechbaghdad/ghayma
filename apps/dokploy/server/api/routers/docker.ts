@@ -13,22 +13,22 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import http from "http";
 
-// Helper to query Docker Socket without external libraries
-const queryDocker = (path: string): Promise<any> => {
+const queryDocker = (path: string, method: "GET" | "POST" | "DELETE" = "GET"): Promise<any> => {
     return new Promise((resolve, reject) => {
         const options = {
             socketPath: "/var/run/docker.sock",
             path: path,
-            method: "GET",
+            method: method,
         };
         const req = http.request(options, (res) => {
             let data = "";
             res.on("data", (chunk) => (data += chunk));
             res.on("end", () => {
+                if (!data) return resolve({ success: true });
                 try {
                     resolve(JSON.parse(data));
                 } catch (e) {
-                    resolve([]);
+                    resolve({ success: true });
                 }
             });
         });
@@ -52,31 +52,59 @@ export const dockerRouter = createTRPCRouter({
             return await getContainers(input.serverId);
         }),
 
-    getVolumes: protectedProcedure
-        .input(z.object({ serverId: z.string().optional() }))
-        .query(async () => {
-            const result = await queryDocker("/volumes");
-            return result.Volumes || [];
+    getVolumes: protectedProcedure.query(async () => {
+        const result = await queryDocker("/volumes");
+        return result.Volumes || [];
+    }),
+
+    getNetworks: protectedProcedure.query(async () => {
+        return await queryDocker("/networks");
+    }),
+
+    getImages: protectedProcedure.query(async () => {
+        return await queryDocker("/images/json");
+    }),
+
+    startContainer: protectedProcedure
+        .input(z.object({ id: z.string() }))
+        .mutation(async ({ input }) => {
+            return await queryDocker(`/containers/${input.id}/start`, "POST");
         }),
 
-    getNetworks: protectedProcedure
-        .input(z.object({ serverId: z.string().optional() }))
-        .query(async () => {
-            return await queryDocker("/networks");
+    stopContainer: protectedProcedure
+        .input(z.object({ id: z.string() }))
+        .mutation(async ({ input }) => {
+            return await queryDocker(`/containers/${input.id}/stop`, "POST");
         }),
 
-    getImages: protectedProcedure
-        .input(z.object({ serverId: z.string().optional() }))
-        .query(async () => {
-            return await queryDocker("/images/json");
+    removeContainer: protectedProcedure
+        .input(z.object({ id: z.string() }))
+        .mutation(async ({ input }) => {
+            // v=true removes associated volumes if they are anonymous
+            return await queryDocker(`/containers/${input.id}?force=true&v=true`, "DELETE");
         }),
 
     restartContainer: protectedProcedure
-        .input(z.object({
-            containerId: z.string().min(1).regex(containerIdRegex),
-        }))
+        .input(z.object({ containerId: z.string().min(1).regex(containerIdRegex) }))
         .mutation(async ({ input }) => {
             return await containerRestart(input.containerId);
+        }),
+
+    deleteImage: protectedProcedure
+        .input(z.object({ id: z.string() }))
+        .mutation(async ({ input }) => {
+            return await queryDocker(`/images/${input.id}?force=true`, "DELETE");
+        }),
+
+    deleteVolume: protectedProcedure
+        .input(z.object({ name: z.string() }))
+        .mutation(async ({ input }) => {
+            return await queryDocker(`/volumes/${input.name}`, "DELETE");
+        }),
+
+    pruneSystem: protectedProcedure
+        .mutation(async () => {
+            return await queryDocker("/images/prune", "POST");
         }),
 
     getConfig: protectedProcedure

@@ -1,10 +1,11 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal, RotateCcw, Terminal, FileText } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal, Play, Square, RotateCw, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
     DropdownMenuContent,
+    DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
@@ -19,40 +20,111 @@ import { toast } from "sonner";
 export const columns: ColumnDef<Container>[] = [
     {
         accessorKey: "name",
-        header: ({ column }) => (
-            <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="p-0 hover:bg-transparent">
-                Name <ArrowUpDown className="ml-2 h-4 w-4" />
-            </Button>
-        ),
-        cell: ({ row }) => <div className="font-mono font-medium text-blue-400">{row.getValue("name")}</div>,
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Name
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            );
+        },
+        cell: ({ row }) => {
+            return <div className="font-mono text-sm">{row.getValue("name")}</div>;
+        },
     },
     {
         accessorKey: "state",
-        header: "State",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    State
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            );
+        },
         cell: ({ row }) => {
             const value = row.getValue("state") as string;
-            const isRunning = value === "running";
             return (
-                <Badge className="capitalize border-none px-3" variant={isRunning ? "default" : "secondary"}>
-                   <span className={`mr-2 h-1.5 w-1.5 rounded-full ${isRunning ? 'bg-green-500 animate-pulse' : 'bg-slate-500'}`} />
-                   {value}
-                </Badge>
+                <div className="capitalize">
+                    <Badge
+                        variant={
+                            value === "running"
+                                ? "default"
+                                : value === "failed"
+                                    ? "destructive"
+                                    : "secondary"
+                        }
+                    >
+                        {value}
+                    </Badge>
+                </div>
             );
         },
     },
     {
         accessorKey: "status",
-        header: "Uptime",
-        cell: ({ row }) => <div className="text-xs text-muted-foreground">{row.getValue("status")}</div>,
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Status
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            );
+        },
+        cell: ({ row }) => {
+            return <div className="capitalize text-xs text-slate-400">{row.getValue("status")}</div>;
+        },
+    },
+    {
+        accessorKey: "image",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Image
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            );
+        },
+        cell: ({ row }) => <div className="lowercase text-xs truncate max-w-[150px]">{row.getValue("image")}</div>,
     },
     {
         id: "actions",
-        header: () => <div className="text-right mr-4">Management</div>,
+        enableHiding: false,
         cell: ({ row }) => {
             const container = row.original;
             const utils = api.useContext();
+            const isRunning = container.state === "running";
 
-            const { mutate: restart, isLoading: isRestarting } = api.docker.restartContainer.useMutation({
+            // Power Mutations
+            const { mutate: start } = api.docker.startContainer.useMutation({
+                onSuccess: () => {
+                    toast.success("Container started");
+                    utils.docker.getContainers.invalidate();
+                },
+                onError: (err) => toast.error(err.message)
+            });
+
+            const { mutate: stop } = api.docker.stopContainer.useMutation({
+                onSuccess: () => {
+                    toast.success("Container stopped");
+                    utils.docker.getContainers.invalidate();
+                },
+                onError: (err) => toast.error(err.message)
+            });
+
+            const { mutate: restart } = api.docker.restartContainer.useMutation({
                 onSuccess: () => {
                     toast.success("Container restarted");
                     utils.docker.getContainers.invalidate();
@@ -60,39 +132,94 @@ export const columns: ColumnDef<Container>[] = [
                 onError: (err) => toast.error(err.message)
             });
 
-            return (
-                <div className="flex items-center justify-end gap-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-8 border-slate-800 bg-slate-900/40 text-xs"
-                        onClick={() => restart({ containerId: container.containerId })}
-                        disabled={isRestarting}
-                    >
-                        <RotateCcw className={`h-3 w-3 mr-2 ${isRestarting ? 'animate-spin' : ''}`} />
-                        Restart
-                    </Button>
+            const { mutate: remove } = api.docker.removeContainer.useMutation({
+                onSuccess: () => {
+                    toast.success("Container removed from engine");
+                    utils.docker.getContainers.invalidate();
+                },
+                onError: (err) => toast.error(`Removal failed: ${err.message}`)
+            });
 
+            return (
+                <div className="flex items-center gap-2">
+                    {/* POWER CONTROLS GROUP */}
+                    <div className="flex items-center bg-muted/50 rounded-md border p-0.5">
+                        {isRunning ? (
+                            <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-7 w-7 text-amber-500 hover:bg-amber-500/10"
+                                onClick={() => stop({ id: container.containerId })}
+                            >
+                                <Square className="h-3.5 w-3.5 fill-current" />
+                            </Button>
+                        ) : (
+                            <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-7 w-7 text-emerald-500 hover:bg-emerald-500/10"
+                                onClick={() => start({ id: container.containerId })}
+                            >
+                                <Play className="h-3.5 w-3.5 fill-current" />
+                            </Button>
+                        )}
+                        <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-7 w-7 text-blue-500 hover:bg-blue-500/10"
+                            onClick={() => restart({ containerId: container.containerId })}
+                        >
+                            <RotateCw className="h-3.5 w-3.5" />
+                        </Button>
+                    </div>
+
+                    {/* DROP DOWN MENU */}
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0 border border-slate-800">
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">Open menu</span>
                                 <MoreHorizontal className="h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-52 bg-slate-900 border-slate-800">
-                            <DropdownMenuLabel className="text-[10px] uppercase text-slate-500">Monitoring</DropdownMenuLabel>
-                            <ShowDockerModalLogs containerId={container.containerId} serverId={container.serverId}>
-                                <div className="flex items-center px-2 py-1.5 text-sm hover:bg-slate-800 cursor-pointer rounded-sm">
-                                    <FileText className="mr-2 h-4 w-4" /> View Logs
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            
+                            <ShowDockerModalLogs
+                                containerId={container.containerId}
+                                serverId={container.serverId}
+                            >
+                                <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground">
+                                    View Logs
                                 </div>
                             </ShowDockerModalLogs>
-                            <DockerTerminalModal containerId={container.containerId} serverId={container.serverId || ""}>
-                                <div className="flex items-center px-2 py-1.5 text-sm hover:bg-slate-800 cursor-pointer rounded-sm">
-                                    <Terminal className="mr-2 h-4 w-4" /> Terminal
+
+                            <ShowContainerConfig
+                                containerId={container.containerId}
+                                serverId={container.serverId || ""}
+                            />
+
+                            <DockerTerminalModal
+                                containerId={container.containerId}
+                                serverId={container.serverId || ""}
+                            >
+                                <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground">
+                                    Terminal
                                 </div>
                             </DockerTerminalModal>
-                            <DropdownMenuSeparator className="bg-slate-800" />
-                            <ShowContainerConfig containerId={container.containerId} serverId={container.serverId || ""} />
+
+                            <DropdownMenuSeparator />
+
+                            <DropdownMenuItem 
+                                className="text-red-500 focus:text-red-500 focus:bg-red-500/10 gap-2 cursor-pointer"
+                                onClick={() => {
+                                    if (confirm(`Are you sure you want to permanently delete container "${container.name}"?`)) {
+                                        remove({ id: container.containerId });
+                                    }
+                                }}
+                            >
+                                <Trash2 className="h-4 w-4" />
+                                Delete Container
+                            </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
