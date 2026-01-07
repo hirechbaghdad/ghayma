@@ -1,11 +1,11 @@
 <div align="center">
-  <a href="https://dokploy.com">
-    <img src=".github/sponsors/logo.png" alt="Dokploy - Open Source Alternative to Vercel, Heroku and Netlify." width="100%"  />
+  <a href="https://atlanexis.com">
+    <img src="./apps/dokploy/public/logo.svg" alt="Atlanexis Systems - Building technology that matters" width="100%"  />
   </a>
   </br>
   </br>
   <p>Join us on Discord for help, feedback, and discussions!</p>
-  <a href="https://discord.gg/2tBnJ3jDJc">
+  <a href="https://discord.gg/xjTmxqKk">
     <img src="https://discordapp.com/api/guilds/1234073262418563112/widget.png?style=banner2" alt="Discord Shield"/>
   </a>
 </div>
@@ -13,21 +13,7 @@
 
 
 
-<div align="center" markdown="1">
-   <sup>Special thanks to:</sup>
-   <br>
-   <br>
-   <a href="https://tuple.app/dokploy">
-     <img src=".github/sponsors/tuple.png" alt="Tuple's sponsorship image" width="400"/>
-   </a>
-
-### [Tuple, the premier screen sharing app for developers](https://tuple.app/dokploy)
-[Available for MacOS & Windows](https://tuple.app/dokploy)<br>
-
-</div>
-
-
-Dokploy is a free, self-hostable Platform as a Service (PaaS) that simplifies the deployment and management of applications and databases.
+Ghayma Cloud is a free, self-hostable Platform as a Service (PaaS) that simplifies the deployment and management of applications and databases.
 
 
 ## ✨ Features
@@ -48,94 +34,189 @@ Dokploy includes multiple features to make your life easier.
 - **Multi Server**: Deploy and manage your applications remotely to external servers.
 - **Self-Hosted**: Self-host Dokploy on your VPS.
 
-## 🚀 Getting Started
+# Contributing
 
-To get started, run the following command on a VPS:
+Hey, thanks for your interest in contributing to Dokploy! We appreciate your help and taking your time to contribute.
 
-Want to skip the installation process? [Try the Dokploy Cloud](https://app.dokploy.com).
+Before you start, please first discuss the feature/bug you want to add with the owners and comunity via github issues.
 
-```bash
-curl -sSL https://dokploy.com/install.sh | sh
+We have a few guidelines to follow when contributing to this project:
+
+- [Commit Convention](#commit-convention)
+- [Setup](#setup)
+- [Development](#development)
+- [Build](#build)
+- [Pull Request](#pull-request)
+
+## Commit Convention
+
+Before you create a Pull Request, please make sure your commit message follows the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification.
+
+### Commit Message Format
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
 ```
 
-For detailed documentation, visit [docs.dokploy.com](https://docs.dokploy.com).
+#### Type
 
-## ♥️ Sponsors
+Must be one of the following:
 
-🙏 We're deeply grateful to all our sponsors who make Dokploy possible! Your support helps cover the costs of hosting, testing, and developing new features.
+- **feat**: A new feature
+- **fix**: A bug fix
+- **docs**: Documentation only changes
+- **style**: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
+- **refactor**: A code change that neither fixes a bug nor adds a feature
+- **perf**: A code change that improves performance
+- **test**: Adding missing tests or correcting existing tests
+- **build**: Changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm)
+- **ci**: Changes to our CI configuration files and scripts (example scopes: Travis, Circle, BrowserStack, SauceLabs)
+- **chore**: Other changes that don't modify `src` or `test` files
+- **revert**: Reverts a previous commit
 
-[Dokploy Open Collective](https://opencollective.com/dokploy)
+Example:
 
-[Github Sponsors](https://github.com/sponsors/Siumauricio)
+```
+feat: add new feature
+```
 
-<!-- Hero Sponsors 🎖 -->
+## Setup
 
-<!-- Add Hero Sponsors here -->
+Before you start, please make the clone based on the `canary` branch, since the `main` branch is the source of truth and should always reflect the latest stable release, also the PRs will be merged to the `canary` branch.
 
-### Hero Sponsors 🎖
+We use Node v20.16.0 and recommend this specific version. If you have nvm installed, you can run `nvm install 20.16.0 && nvm use` in the root directory.
 
-<div>
-  <a href="https://www.hostinger.com/vps-hosting?ref=dokploy"><img src=".github/sponsors/hostinger.jpg" alt="Hostinger" width="300"/></a>
-  <a href="https://www.lxaer.com/?ref=dokploy"><img src=".github/sponsors/lxaer.png" alt="LX Aer" width="100"/></a>
-        <a href="https://www.lambdatest.com/?utm_source=dokploy&utm_medium=sponsor" target="_blank">
-            <img src="https://www.lambdatest.com/blue-logo.png"  width="450" height="100" />
-        </a>
+```bash
+git clone https://github.com/dokploy/dokploy.git
+cd dokploy
+pnpm install
+cp apps/dokploy/.env.example apps/dokploy/.env
+```
 
-</div>
+## Requirements
 
-<!-- Premium Supporters 🥇 -->
+- [Docker](/GUIDES.md#docker)
 
-<!-- Add Premium Supporters here -->
+### Setup
 
-### Premium Supporters 🥇
+Run the command that will spin up all the required services and files.
 
-<div>
-  <a href="https://supafort.com/?ref=dokploy"><img src="https://supafort.com/build/q-4Ht4rBZR.webp" alt="Supafort.com" width="300"/></a>
-  <a href="https://agentdock.ai/?ref=dokploy"><img src=".github/sponsors/agentdock.png" alt="agentdock.ai" width="100"/></a>
-</div>
+```bash
+pnpm run dokploy:setup
+```
 
-<!-- Elite Contributors 🥈 -->
+Run this script
 
-<!-- Add Elite Contributors here -->
+```bash
+pnpm run server:script
+```
 
-### Elite Contributors 🥈
+Now run the development server.
 
-<div>
-  <a href="https://americancloud.com/?ref=dokploy"><img src=".github/sponsors/american-cloud.png" alt="AmericanCloud" width="300"/></a>
-  <a href="https://tolgee.io/?utm_source=github_dokploy&utm_medium=banner&utm_campaign=dokploy"><img src="https://dokploy.com/tolgee-logo.png" alt="Tolgee" width="100"/></a>
-</div>
+```bash
+pnpm run dokploy:dev
+```
 
-### Supporting Members 🥉
+Go to http://localhost:3000 to see the development server
 
-<div>
+> [!NOTE]
+> This project uses Biome. If your editor is configured to use another formatter such as Prettier, it's recommended to either change it to use Biome or turn it off.
 
-  <a href="https://cloudblast.io/?ref=dokploy"><img src="https://cloudblast.io/img/logo-icon.193cf13e.svg" width="250px" alt="Cloudblast.io"/></a>
+## Build
 
-  <a href="https://synexa.ai/?ref=dokploy"><img src=".github/sponsors/synexa.png" width="65px" alt="Synexa"/></a>
-</div>
+```bash
+pnpm run dokploy:build
+```
 
-### Community Backers 🤝
+## Docker
 
-#### Organizations:
+To build the docker image
 
-[Sponsors on Open Collective](https://opencollective.com/dokploy)
+```bash
+pnpm run docker:build
+```
 
-#### Individuals:
+To push the docker image
 
-[![Individual Contributors on Open Collective](https://opencollective.com/dokploy/individuals.svg?width=890)](https://opencollective.com/dokploy)
+```bash
+pnpm run docker:push
+```
 
-### Contributors 🤝
+## Password Reset
 
-<a href="https://github.com/dokploy/dokploy/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=dokploy/dokploy" alt="Contributors" />
-</a>
+In the case you lost your password, you can reset it using the following command
 
-## 📺 Video Tutorial
+```bash
+pnpm run reset-password
+```
 
-<a href="https://youtu.be/mznYKPvhcfw">
-  <img src="https://dokploy.com/banner.png" alt="Watch the video" width="400"/>
-</a>
+If you want to test the webhooks on development mode using localtunnel, make sure to install [`localtunnel`](https://localtunnel.app/)
 
-## 🤝 Contributing
+```bash
+pnpm dlx localtunnel --port 3000
+```
 
-Check out the [Contributing Guide](CONTRIBUTING.md) for more information.
+If you run into permission issues of docker run the following command
+
+```bash
+sudo chown -R USERNAME dokploy or sudo chown -R $(whoami) ~/.docker
+```
+
+## Application deploy
+
+In case you want to deploy the application on your machine and you selected nixpacks or buildpacks, you need to install first.
+
+```bash
+# Install Nixpacks
+curl -sSL https://nixpacks.com/install.sh -o install.sh \
+    && chmod +x install.sh \
+    && ./install.sh
+```
+
+```bash
+# Install Railpack
+curl -sSL https://railpack.com/install.sh | sh
+```
+
+```bash
+# Install Buildpacks
+curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.35.0/pack-v0.35.0-linux.tgz" | tar -C /usr/local/bin/ --no-same-owner -xzv pack
+```
+
+## Pull Request
+
+- The `canary` branch is the source of truth and should always reflect the latest stable release.
+- Create a new branch for each feature or bug fix.
+- Make sure to add tests for your changes.
+- Make sure to update the documentation for any changes Go to the [docs.dokploy.com](https://docs.dokploy.com) website to see the changes.
+- When creating a pull request, please provide a clear and concise description of the changes made.
+- If you include a video or screenshot, would be awesome so we can see the changes in action.
+- If your pull request fixes an open issue, please reference the issue in the pull request description.
+- Once your pull request is merged, you will be automatically added as a contributor to the project.
+
+**Important Considerations for Pull Requests:**
+
+- **Focus and Scope:** Each Pull Request should ideally address a single, well-defined problem or introduce one new feature. This greatly facilitates review and reduces the chances of introducing unintended side effects.
+- **Avoid Unfocused Changes:** Please avoid submitting Pull Requests that contain only minor changes such as whitespace adjustments, IDE-generated formatting, or removal of unused variables, unless these are part of a larger, clearly defined refactor or a dedicated "cleanup" Pull Request that addresses a specific `good first issue` or maintenance task.
+- **Issue Association:** For any significant change, it's highly recommended to open an issue first to discuss the proposed solution with the community and maintainers. This ensures alignment and avoids duplicated effort. If your PR resolves an existing issue, please link it in the description (e.g., `Fixes #123`, `Closes #456`).
+
+Thank you for your contribution!
+
+## Templates
+
+To add a new template, go to `https://github.com/hirechbaghdad/templates` repository and read the README.md file.
+
+### Recommendations
+
+- Use the same name of the folder as the id of the template.
+- The logo should be in the public folder.
+- If you want to show a domain in the UI, please add the `_HOST` suffix at the end of the variable name.
+- Test first on a vps or a server to make sure the template works.
+
+## Docs & Website
+
+To contribute to the Atlanexis docs or website, please go to this [repository](https://github.com/hirechbaghdad/website).
