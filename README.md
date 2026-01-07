@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://atlanexis.com">
-    <img src="./apps/dokploy/LOGO2.png" alt="Atlanexis Systems - Building technology that matters" width="100%"  />
+    <img src="./apps/dokploy/LOGO2.png" alt="Atlanexis Systems - Building technology that matters" width="25%"  />
   </a>
   </br>
   </br>
