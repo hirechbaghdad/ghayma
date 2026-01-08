@@ -218,6 +218,11 @@ const MENU: Menu = {
 		},
 		// Inside your sidebar component or config
 		{
+    		title: "Marketplace",
+    		href: "/dashboard/marketplace",
+    		icon: Store, // Import Store from lucide-react
+		},
+		{
 			isSingle: true,
   			title: "Version Info",
 			url: "/dashboard/version-info",
