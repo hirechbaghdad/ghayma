@@ -62,6 +62,9 @@ RUN curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh --ver
 # Install Nixpacks and tsx
 # | VERBOSE=1 VERSION=1.21.0 bash
 
+RUN curl https://rclone.org/install.sh | bash
+
+
 ARG NIXPACKS_VERSION=1.39.0
 RUN curl -sSL https://nixpacks.com/install.sh -o install.sh \
     && chmod +x install.sh \

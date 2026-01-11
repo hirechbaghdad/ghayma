@@ -14,9 +14,9 @@ is_proxmox_lxc() {
 
 install_atlanexis() {
     VERSION_TAG=$(detect_version)
-    DOCKER_IMAGE="atlanexis/ghayma:1.0.5"
+    DOCKER_IMAGE="atlanexis/ghayma:1.1"
     
-    echo "Starting Atlanexis CloudOS Installation (Version: ${VERSION_TAG})"
+    echo "Starting Atlanexis CloudOS Installation (Version: 1.1)"
 
     # 1. System Requirements Check
     if [ "$(id -u)" != "0" ]; then echo "Error: Must run as root" >&2; exit 1; fi
@@ -56,48 +56,6 @@ install_atlanexis() {
     echo "Configuring /etc/dokploy and Traefik..."
     mkdir -p /etc/dokploy/traefik/dynamic
     chmod 777 /etc/dokploy
-
-    # Create Traefik Static Config
-    cat <<EOF > /etc/dokploy/traefik/traefik.yml
-api:
-  dashboard: true
-  insecure: true
-providers:
-  docker:
-    exposedByDefault: false
-    swarmMode: true
-  file:
-    directory: /etc/dokploy/traefik/dynamic
-    watch: true
-entryPoints:
-  web:
-    address: ":80"
-  websecure:
-    address: ":443"
-certificatesResolvers:
-  letsencrypt:
-    acme:
-      email: hirechbaghdad@atlanexis.com
-      storage: /etc/dokploy/traefik/dynamic/acme.json
-      httpChallenge:
-        entryPoint: web
-EOF
-
-    # Create Traefik Dynamic Config for the main app
-    cat <<EOF > /etc/dokploy/traefik/dynamic/atlanexis.yml
-http:
-  routers:
-    atlanexis-router:
-      rule: "Host(\`$advertise_addr\`)"
-      entryPoints:
-        - web
-      service: atlanexis-service
-  services:
-    atlanexis-service:
-      loadBalancer:
-        servers:
-          - url: "http://atlanexis-cloudos:3000"
-EOF
 
     # 5. Deploy Database Service
     echo "Deploying Postgres (db)..."
@@ -172,11 +130,7 @@ EOF
 
 update_atlanexis() {
     VERSION_TAG=$(detect_version)
-<<<<<<< HEAD
-    DOCKER_IMAGE="atlanexis/ghayma:1.0.5"
-=======
-    DOCKER_IMAGE="atlanexis/atlanexis-cloudos:1.0.5"
->>>>>>> 9949bd1 (new version 1.1)
+    DOCKER_IMAGE="atlanexis/atlanexis-cloudos:1.1"
     echo "Updating to $DOCKER_IMAGE..."
     docker pull "$DOCKER_IMAGE"
     docker service update --image "$DOCKER_IMAGE" atlanexis-cloudos
