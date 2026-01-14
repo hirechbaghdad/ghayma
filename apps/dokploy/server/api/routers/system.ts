@@ -1,7 +1,7 @@
-// server/api/routers/system.ts (or add to existing router)
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure } from "../trpc";
 import si from "systeminformation";
+import fs from "node:fs";
 
 export const systemRouter = createTRPCRouter({
   getStats: protectedProcedure.query(async () => {
@@ -41,5 +41,18 @@ export const systemRouter = createTRPCRouter({
         stopped: dockerInfo.containersStopped,
       }
     };
+  }),
+
+  getLicense: protectedProcedure.query(async () => {
+    const licensePath = "/usr/share/atlanexis/license.txt";
+    try {
+      if (fs.existsSync(licensePath)) {
+        return fs.readFileSync(licensePath, "utf-8");
+      }
+      return "License file not found at /usr/share/atlanexis/license.txt";
+    } catch (error) {
+      console.error("Error reading license file:", error);
+      throw new Error("Failed to read license file");
+    }
   }),
 });

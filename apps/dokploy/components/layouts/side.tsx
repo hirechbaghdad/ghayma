@@ -19,12 +19,15 @@ import {
 	GalleryVerticalEnd,
 	GitBranch,
 	HeartIcon,
+	HistoryIcon,
 	KeyRound,
 	Loader2,
 	type LucideIcon,
 	Package,
 	PieChart,
 	Server,
+	Settings2Icon,
+	SettingsIcon,
 	ShieldCheck,
 	Star,
 	StoreIcon,
@@ -216,19 +219,18 @@ const MENU: Menu = {
 			// Only enabled for admins in non-cloud environments
 			isEnabled: ({ auth, isCloud }) => !!(auth?.role === "owner" && !isCloud),
 		},
-		// Inside your sidebar component or config
-		{
-    		title: "Marketplace",
-    		href: "/dashboard/marketplace",
-    		icon: Store, // Import Store from lucide-react
-		},
 		{
 			isSingle: true,
   			title: "Version Info",
 			url: "/dashboard/version-info",
-			icon: StoreIcon,
+			icon: HeartIcon,
 		},
-
+		{
+			isSingle: true,
+  			title: "AI Agent",
+			url: "/dashboard/ai-agent",
+			icon: BotIcon,
+		},
 		// Legacy unused menu, adjusted to the new structure
 		// {
 		// 	isSingle: true,
@@ -291,7 +293,7 @@ const MENU: Menu = {
 			isSingle: true,
 			title: "Local Node settings",
 			url: "/dashboard/settings/server",
-			icon: Activity,
+			icon: SettingsIcon,
 			// Only enabled for admins in non-cloud environments
 			isEnabled: ({ auth, isCloud }) => !!(auth?.role === "owner" && !isCloud),
 		},

@@ -89,9 +89,7 @@ export const appRouter = createTRPCRouter({
     rollback: rollbackRouter,
     volumeBackups: volumeBackupsRouter,
     environment: environmentRouter,
-    // Added Element
     system: systemRouter,
 });
 
-// export type definition of API
 export type AppRouter = typeof appRouter;

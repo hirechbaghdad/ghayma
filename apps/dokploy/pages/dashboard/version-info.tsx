@@ -1,41 +1,31 @@
-import React, { useState } from "react";
+import React from "react";
 import { api } from "@/utils/api";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Server, HardDrive, Layers, Activity, Terminal as TerminalIcon, Power } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import dynamic from "next/dynamic";
-
-// This is the critical fix: Dynamically import the Terminal component
-// and disable Server-Side Rendering (SSR) for it.
-const HostTerminal = dynamic(
-  () => import("@/components/Terminal").then((mod) => mod.HostTerminal),
-  { 
-    ssr: false, 
-    loading: () => (
-        <div className="h-[450px] flex flex-col items-center justify-center bg-slate-950 rounded-b-xl border border-slate-800 text-slate-500 font-mono">
-            <Loader2 className="h-6 w-6 animate-spin mb-2" />
-            <p>Initializing Terminal Environment...</p>
-        </div>
-    )
-  }
-);
+import { Loader2, Server, HardDrive, Layers, Activity, FileText, ShieldCheck, AlertCircle } from "lucide-react";
 
 const VersionInfoPage = () => {
-  const [isTerminalActive, setIsTerminalActive] = useState(false);
-  
   // Fetch System Stats
   const { data: stats, isLoading: statsLoading } = api.system.getStats.useQuery();
   
-  // Fetch Servers to get the current Server ID
-  const { data: servers, isLoading: serversLoading } = api.server.all.useQuery();
+  // Fetch License Content
+  // Note: You must implement 'getLicense' in your backend trpc system router
+  // to read /usr/share/atlanexis/license.txt
+  const { 
+    data: license, 
+    isLoading: licenseLoading, 
+    isError: licenseError 
+  } = api.system.getLicense.useQuery(undefined, {
+    retry: false,
+  });
 
-  const mainServerId = servers?.[0]?.serverId;
-
-  if (statsLoading || serversLoading) {
+  if (statsLoading || licenseLoading) {
     return (
       <div className="flex h-full items-center justify-center">
-        <Loader2 className="animate-spin text-primary" />
+        <div className="flex flex-col items-center gap-2">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-sm text-muted-foreground font-medium">Loading System Data...</p>
+        </div>
       </div>
     );
   }
@@ -50,7 +40,7 @@ const VersionInfoPage = () => {
       {/* Stats Cards Section */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {/* Docker Engine */}
-        <Card className="bg-slate-900/50 border-slate-800">
+        <Card className="bg-slate-900/50 border-slate-800 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-slate-400">Docker Engine</CardTitle>
             <Layers className="h-4 w-4 text-blue-500" />
@@ -64,7 +54,7 @@ const VersionInfoPage = () => {
         </Card>
 
         {/* Host OS */}
-        <Card className="bg-slate-900/50 border-slate-800">
+        <Card className="bg-slate-900/50 border-slate-800 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-slate-400">Host OS</CardTitle>
             <Server className="h-4 w-4 text-purple-500" />
@@ -78,7 +68,7 @@ const VersionInfoPage = () => {
         </Card>
 
         {/* Memory */}
-        <Card className="bg-slate-900/50 border-slate-800">
+        <Card className="bg-slate-900/50 border-slate-800 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-slate-400">Memory</CardTitle>
             <Activity className="h-4 w-4 text-green-500" />
@@ -97,7 +87,7 @@ const VersionInfoPage = () => {
         </Card>
 
         {/* Storage */}
-        <Card className="bg-slate-900/50 border-slate-800">
+        <Card className="bg-slate-900/50 border-slate-800 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-slate-400">Storage</CardTitle>
             <HardDrive className="h-4 w-4 text-orange-500" />
@@ -111,61 +101,45 @@ const VersionInfoPage = () => {
         </Card>
       </div>
 
-      {/* Terminal Section */}
-      <div className="space-y-0 shadow-2xl">
-        <div className="flex items-center justify-between bg-slate-900 p-4 rounded-t-xl border border-slate-800 border-b-0">
+      {/* License Content Section */}
+      <div className="space-y-0 shadow-2xl rounded-xl overflow-hidden border border-slate-800">
+        <div className="flex items-center justify-between bg-slate-900 p-4 border-b border-slate-800">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-primary/10 rounded-lg">
-                <TerminalIcon className="h-5 w-5 text-primary" />
+                <ShieldCheck className="h-5 w-5 text-primary" />
             </div>
             <div>
-                <h2 className="text-lg font-semibold text-white">Interactive Host Terminal</h2>
-                <div className="flex items-center gap-2">
-                    <span className="flex h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                    <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">
-                        {mainServerId ? `System Linked: ${mainServerId}` : "No Host Detected"}
-                    </p>
-                </div>
+                <h2 className="text-lg font-semibold text-white">License Agreement</h2>
+                <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">
+                </p>
             </div>
           </div>
-
-          {!isTerminalActive ? (
-            <Button 
-              onClick={() => setIsTerminalActive(true)}
-              className="bg-primary hover:bg-primary/90 text-white gap-2 font-bold"
-              disabled={!mainServerId}
-            >
-              <Power className="h-4 w-4" />
-              ESTABLISH CONNECTION
-            </Button>
-          ) : (
-            <Button 
-              variant="destructive"
-              onClick={() => setIsTerminalActive(false)}
-              className="gap-2 font-bold"
-            >
-              <Power className="h-4 w-4" />
-              TERMINATE SESSION
-            </Button>
-          )}
+          <FileText className="h-5 w-5 text-slate-600" />
         </div>
         
-        <div className="relative">
-            {isTerminalActive && mainServerId ? (
-              <HostTerminal serverId={mainServerId} />
-            ) : (
-              <div className="flex flex-col items-center justify-center h-[450px] border border-slate-800 rounded-b-xl bg-slate-950/40 text-center space-y-4">
-                <div className="p-4 rounded-full bg-slate-900 border border-slate-800">
-                    <TerminalIcon className="h-10 w-10 text-slate-700" />
-                </div>
-                <div className="max-w-xs px-6">
-                    <p className="text-slate-300 font-medium">Terminal Offline</p>
-                    <p className="text-slate-500 text-xs mt-2 leading-relaxed">
-                        Securely connect to your host's shell. Use this with caution as you will have direct command-line access to the host machine.
+        <div className="bg-slate-950 p-1">
+            <div className="h-[500px] w-full overflow-y-auto rounded-lg bg-slate-950 p-6 font-mono text-sm text-slate-300 leading-relaxed whitespace-pre-wrap selection:bg-primary/30">
+              {license ? (
+                license
+              ) : licenseError ? (
+                <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
+                  <div className="p-3 bg-red-500/10 rounded-full">
+                    <AlertCircle className="h-8 w-8 text-red-500" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-white font-medium">Backend Procedure Missing</p>
+                    <p className="text-slate-500 text-xs max-w-xs mx-auto">
+                      The frontend is ready, but <code>system.getLicense</code> is not defined in your tRPC router.
                     </p>
+                  </div>
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-center space-y-2">
+                  <FileText className="h-8 w-8 text-slate-800" />
+                  <p className="text-slate-500">License file is empty.</p>
+                </div>
+              )}
+            </div>
         </div>
       </div>
     </div>
