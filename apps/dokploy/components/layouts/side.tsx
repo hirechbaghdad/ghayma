@@ -1090,7 +1090,7 @@ export default function Page({ children }: Props) {
 						{dokployVersion && (
 							<>
 								<div className="px-3 text-xs text-muted-foreground text-center group-data-[collapsible=icon]:hidden">
-									Version {dokployVersion}
+									Version: v1.2-preview
 								</div>
 								<div className="hidden text-xs text-muted-foreground text-center group-data-[collapsible=icon]:block">
 									{dokployVersion}

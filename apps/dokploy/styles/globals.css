@@ -4,131 +4,152 @@
 
 @layer base {
     :root {
-        --background-image: url('https://www.atlanexis.com/data/wallpaper-dark.jpg');
-        --bg-overlay: linear-gradient(rgba(10, 15, 30, 0.5), rgba(10, 15, 30, 0.5));
+        /* Light Mode: #e7e7e8 - Made semi-transparent to show rainbow */
+        --background: 240 5% 91% / 0.7; 
+        --foreground: 220 12% 13%; 
         
-        --terminal-paste: rgba(255, 255, 255, 0.1);
-        --background: 222 47% 11% / 0;
-        --foreground: 210 40% 98%; /* Bright white-blue for dark mode */
+        --card: 240 5% 91% / 0.5;
+        --card-foreground: 220 12% 13%;
         
-        /* Dark mode popup: Near solid to protect text clarity */
-        --card: 222 47% 11% / 0.96;
-        --card-foreground: 210 40% 98%;
+        --popover: 240 5% 91% / 0.9;
+        --popover-foreground: 220 12% 13%;
         
-        --popover: 222 47% 11% / 1;
-        --popover-foreground: 210 40% 98%;
-        --primary: 217 91% 60%;
-        --primary-foreground: 222 47% 11.2%;
-        --secondary: 217.2 32.6% 17.5%;
-        --secondary-foreground: 210 40% 98%;
-        --muted: 217.2 32.6% 17.5% / 0.8;
-        --muted-foreground: 215 20.2% 65.1%;
-        --accent: 217.2 32.6% 17.5%;
-        --accent-foreground: 210 40% 98%;
-        --destructive: 0 62.8% 30.6%;
+        --primary: 220 12% 13%;
+        --primary-foreground: 240 5% 91%;
+        
+        --secondary: 240 5% 85% / 0.5;
+        --secondary-foreground: 220 12% 13%;
+        
+        --muted: 240 5% 85% / 0.5;
+        --muted-foreground: 220 12% 40%;
+        
+        --accent: 240 5% 85% / 0.5;
+        --accent-foreground: 220 12% 13%;
+        
+        --destructive: 0 84% 60%;
         --destructive-foreground: 210 40% 98%;
-        --border: 217.2 32.6% 25%;
-        --input: 217.2 32.6% 17.5%;
-        --ring: 212.7 26.8% 83.9%;
         
-        --modal-overlay: rgba(0, 0, 0, 0.7);
+        --border: 220 12% 13% / 0.1;
+        --input: 220 12% 13% / 0.1;
+        --ring: 220 12% 13%;
+        
+        --radius: 0.75rem;
     }
 
     .dark {
-        --background-image: url('https://www.atlanexis.com/data/wallpaper-light.jpg');
-        --bg-overlay: linear-gradient(rgba(10, 15, 30, 0.5), rgba(10, 15, 30, 0.5));
+        /* Dark Mode: #1d2025 */
+        --background: 220 12% 13% / 0.4; 
+        --foreground: 240 5% 91%; 
         
-        --terminal-paste: rgba(255, 255, 255, 0.1);
-        --background: 222 47% 11% / 0;
-        --foreground: 210 40% 98%; /* Bright white-blue for dark mode */
+        --card: 220 12% 13% / 0.6;
+        --card-foreground: 240 5% 91%;
         
-        /* Dark mode popup: Near solid to protect text clarity */
-        --card: 222 47% 11% / 0.96;
-        --card-foreground: 210 40% 98%;
+        --popover: 220 12% 13% / 0.9;
+        --popover-foreground: 240 5% 91%;
         
-        --popover: 222 47% 11% / 1;
-        --popover-foreground: 210 40% 98%;
-        --primary: 217 91% 60%;
-        --primary-foreground: 222 47% 11.2%;
-        --secondary: 217.2 32.6% 17.5%;
-        --secondary-foreground: 210 40% 98%;
-        --muted: 217.2 32.6% 17.5% / 0.8;
-        --muted-foreground: 215 20.2% 65.1%;
-        --accent: 217.2 32.6% 17.5%;
-        --accent-foreground: 210 40% 98%;
-        --destructive: 0 62.8% 30.6%;
-        --destructive-foreground: 210 40% 98%;
-        --border: 217.2 32.6% 25%;
-        --input: 217.2 32.6% 17.5%;
-        --ring: 212.7 26.8% 83.9%;
+        --primary: 240 5% 91%;
+        --primary-foreground: 220 12% 13%;
         
-        --modal-overlay: rgba(0, 0, 0, 0.7);
+        --secondary: 220 12% 20% / 0.5;
+        --secondary-foreground: 240 5% 91%;
+        
+        --muted: 220 12% 20% / 0.5;
+        --muted-foreground: 240 5% 70%;
+        
+        --accent: 220 12% 20% / 0.5;
+        --accent-foreground: 240 5% 91%;
+        
+        --border: 240 5% 91% / 0.1;
+        --input: 240 5% 91% / 0.1;
+        --ring: 240 5% 91%;
     }
 
     body {
+        @apply min-h-screen text-foreground antialiased;
+        background-color: #e7e7e8; /* Base color for light mode */
         position: relative;
-        background-color: transparent !important;
-        z-index: 1;
-        @apply text-foreground antialiased; /* antialiased helps text sharpness */
     }
 
+    .dark body {
+        background-color: #1d2025; /* Base color for dark mode */
+    }
+
+    /* Barely visible Rainbow effect - Increased saturation for light mode visibility */
     body::before {
-        content: '';
+        content: "";
         position: fixed;
-        top: -40px; left: -40px; right: -40px; bottom: -40px;
-        z-index: -1;
-        background-image: var(--bg-overlay), var(--background-image);
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-        filter: blur(25px);
-        -webkit-filter: blur(25px);
-        transform: scale(1.05);
+        inset: 0;
+        z-index: -2;
+        background: 
+            radial-gradient(at 0% 0%, rgba(255, 0, 0, 0.12) 0px, transparent 55%),
+            radial-gradient(at 50% 0%, rgba(255, 165, 0, 0.12) 0px, transparent 55%),
+            radial-gradient(at 100% 0%, rgba(255, 255, 0, 0.12) 0px, transparent 55%),
+            radial-gradient(at 100% 50%, rgba(0, 128, 0, 0.12) 0px, transparent 55%),
+            radial-gradient(at 100% 100%, rgba(0, 0, 255, 0.12) 0px, transparent 55%),
+            radial-gradient(at 50% 100%, rgba(75, 0, 130, 0.12) 0px, transparent 55%),
+            radial-gradient(at 0% 100%, rgba(238, 130, 238, 0.12) 0px, transparent 55%),
+            radial-gradient(at 0% 50%, rgba(0, 255, 255, 0.12) 0px, transparent 55%);
+        filter: blur(70px);
+        pointer-events: none;
+    }
+
+    /* Force transparency on the main content containers */
+    main, 
+    #root,
+    .min-h-screen,
+    [class*="layout"], 
+    [class*="main-content"] {
+        background-color: transparent !important;
+        background: transparent !important;
     }
 }
 
-/* --- THE POPUP FIX --- */
 @layer components {
-    .glass-effect {
-        /* High opacity background ensures text sits on a "solid" surface */
+    /* Rounded Pill Buttons */
+    button, 
+    .button, 
+    [role="button"],
+    .inline-flex.items-center.justify-center { 
+        @apply rounded-full !important; 
+    }
+
+    /* Sidebar and Card Glassmorphism */
+    aside,
+    nav,
+    .glass-effect, 
+    [class*="card"] {
         background-color: hsl(var(--card)) !important;
-        
-        /* Subtle blur only to give the bokeh feel around the edges */
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        
-        /* Crisp borders and heavy shadow to separate from background */
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
         border: 1px solid hsl(var(--border));
-        box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.5);
-        
-        /* Force text color for absolute clarity */
-        color: hsl(var(--card-foreground));
+        border-radius: var(--radius);
     }
 }
 
-/* --- UTILITIES --- */
 @layer utilities {
-    /* Apply this to your Modal Overlay/Backdrop div */
     .modal-backdrop {
         position: fixed;
         inset: 0;
-        background-color: var(--modal-overlay);
-        backdrop-filter: blur(4px); /* This blurs the ENTIRE background further when open */
+        background-color: rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(8px);
         z-index: 40;
     }
 }
 
-/* --- OVERRIDES --- */
+/* Dokploy specific overrides */
 .xterm-viewport { border-radius: var(--radius) !important; }
-.cm-editor { @apply w-full h-full rounded-md border border-solid border-border outline-none; }
+.cm-editor { 
+    @apply w-full h-full rounded-md border border-solid border-border outline-none;
+    background-color: hsl(var(--background));
+}
+
+.xterm-bg-257.xterm-fg-257 {
+    background-color: transparent !important;
+    color: hsl(var(--foreground)) !important;
+}
 
 @keyframes heartbeat {
     0%, 100% { transform: scale(1); opacity: 0.7; }
     50% { transform: scale(1.03); opacity: 1; }
 }
 .animate-heartbeat { animation: heartbeat 3s infinite ease-in-out; }
-
-.xterm-bg-257.xterm-fg-257 {
-    background-color: var(--terminal-paste) !important;
-    color: currentColor !important;
-}

@@ -927,10 +927,6 @@ const EnvironmentPage = (
 													environmentId={environmentId}
 												/>
 												<AddTemplate environmentId={environmentId} />
-												<AddAiAssistant
-													projectName={projectData?.name}
-													environmentId={environmentId}
-												/>
 											</DropdownMenuContent>
 										</DropdownMenu>
 									)}
