@@ -29,6 +29,8 @@ import {
 	Settings2Icon,
 	SettingsIcon,
 	ShieldCheck,
+	ShoppingBagIcon,
+	ShoppingCart,
 	Star,
 	StoreIcon,
 	Trash2,
@@ -230,6 +232,12 @@ const MENU: Menu = {
   			title: "AI Agent",
 			url: "/dashboard/ai-agent",
 			icon: BotIcon,
+		},
+		{
+			isSingle: true,
+  			title: "Atlanexis Marketplace",
+			url: "/dashboard/marketplace",
+			icon: ShoppingCart,
 		},
 		// Legacy unused menu, adjusted to the new structure
 		// {
