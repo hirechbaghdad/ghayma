@@ -138,7 +138,7 @@ export const HandleProject = ({ projectId }: Props) => {
 				) : (
 					<Button>
 						<PlusIcon className="h-4 w-4" />
-						Create Project
+						Create Resource Group
 					</Button>
 				)}
 			</DialogTrigger>
@@ -162,7 +162,7 @@ export const HandleProject = ({ projectId }: Props) => {
 									<FormItem>
 										<FormLabel>Name</FormLabel>
 										<FormControl>
-											<Input placeholder="Vandelay Industries" {...field} />
+											<Input placeholder="Atlanexis Core" {...field} />
 										</FormControl>
 
 										<FormMessage />

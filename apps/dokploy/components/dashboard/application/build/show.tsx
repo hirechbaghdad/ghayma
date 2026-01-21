@@ -216,20 +216,7 @@ export const ShowBuildChooseForm = ({ applicationId }: Props) => {
 			<CardContent>
 				<Form {...form}>
 					<AlertBlock>
-						Builders can consume significant memory and CPU resources
-						(recommended: 4+ GB RAM and 2+ CPU cores). For production
-						environments, please review our{" "}
-						<a
-							href="https://docs.dokploy.com/docs/core/applications/going-production"
-							target="_blank"
-							rel="noreferrer"
-							className="font-medium underline underline-offset-4"
-						>
-							Production Guide
-						</a>{" "}
-						for best practices and optimization recommendations. Builders are
-						suitable for development and prototyping purposes when you have
-						sufficient resources available.
+						Atlanexis Build service will pause all current operations during build process.
 					</AlertBlock>
 					<form
 						onSubmit={form.handleSubmit(onSubmit)}

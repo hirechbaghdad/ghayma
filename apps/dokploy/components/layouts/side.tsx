@@ -146,7 +146,7 @@ const MENU: Menu = {
 	home: [
 		{
 			isSingle: true,
-			title: "Applications and Services",
+			title: "Cloud applications",
 			url: "/dashboard/projects",
 			icon: Folder,
 		},
@@ -233,12 +233,12 @@ const MENU: Menu = {
 			url: "/dashboard/ai-agent",
 			icon: BotIcon,
 		},
-		{
+		/*{
 			isSingle: true,
   			title: "Atlanexis Marketplace",
 			url: "/dashboard/marketplace",
 			icon: ShoppingCart,
-		},
+		},*/
 		// Legacy unused menu, adjusted to the new structure
 		// {
 		// 	isSingle: true,
@@ -1098,7 +1098,7 @@ export default function Page({ children }: Props) {
 						{dokployVersion && (
 							<>
 								<div className="px-3 text-xs text-muted-foreground text-center group-data-[collapsible=icon]:hidden">
-									Version: v1.2-preview
+									Version: v1.2.1-preview
 								</div>
 								<div className="hidden text-xs text-muted-foreground text-center group-data-[collapsible=icon]:block">
 									{dokployVersion}

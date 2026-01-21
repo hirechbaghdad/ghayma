@@ -154,7 +154,7 @@ const Service = (
 													: "destructive"
 										}
 									>
-										{data?.server?.name || "Dokploy Server"}
+										{data?.server?.name || "Atlanexis Cloud"}
 									</Badge>
 									{data?.server?.serverStatus === "inactive" && (
 										<TooltipProvider delayDuration={0}>

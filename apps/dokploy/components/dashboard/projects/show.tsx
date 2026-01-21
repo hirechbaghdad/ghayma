@@ -149,10 +149,10 @@ export const ShowProjects = () => {
 							<CardHeader className="p-0">
 								<CardTitle className="text-xl flex flex-row gap-2">
 									<FolderInput className="size-6 text-muted-foreground self-center" />
-									Projects
+									Resource Groups
 								</CardTitle>
 								<CardDescription>
-									Create and manage your projects
+									Create and manage your organization resources and groups
 								</CardDescription>
 							</CardHeader>
 							{(auth?.role === "owner" || auth?.canCreateProjects) && (

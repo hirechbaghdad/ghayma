@@ -119,7 +119,7 @@ export const UpdateMysql = ({ mysqlId }: Props) => {
 										<FormItem>
 											<FormLabel>Name</FormLabel>
 											<FormControl>
-												<Input placeholder="Vandelay Industries" {...field} />
+												<Input placeholder="Atlanexis Core" {...field} />
 											</FormControl>
 
 											<FormMessage />

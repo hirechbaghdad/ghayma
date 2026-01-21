@@ -39,7 +39,6 @@ import { stripeRouter } from "./routers/stripe";
 import { swarmRouter } from "./routers/swarm";
 import { userRouter } from "./routers/user";
 import { volumeBackupsRouter } from "./routers/volume-backups";
-import { marketplaceRouter } from "./routers/marketplace";
 // Added Element
 import { systemRouter } from "./routers/system";
 /**
@@ -90,7 +89,6 @@ export const appRouter = createTRPCRouter({
     volumeBackups: volumeBackupsRouter,
     environment: environmentRouter,
     system: systemRouter,
-    marketplace: marketplaceRouter,
 });
 
 export type AppRouter = typeof appRouter;
