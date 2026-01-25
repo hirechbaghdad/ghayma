@@ -111,15 +111,15 @@ type SingleNavItem = {
 type NavItem =
 	| SingleNavItem
 	| {
-			isSingle: false;
-			title: string;
-			icon: LucideIcon;
-			items: SingleNavItem[];
-			isEnabled?: (opts: {
-				auth?: AuthQueryOutput;
-				isCloud: boolean;
-			}) => boolean;
-	  };
+		isSingle: false;
+		title: string;
+		icon: LucideIcon;
+		items: SingleNavItem[];
+		isEnabled?: (opts: {
+			auth?: AuthQueryOutput;
+			isCloud: boolean;
+		}) => boolean;
+	};
 
 // ExternalLink type
 // Represents an external link item (used for the help section)
@@ -146,7 +146,7 @@ const MENU: Menu = {
 	home: [
 		{
 			isSingle: true,
-			title: "Cloud applications",
+			title: "Resources",
 			url: "/dashboard/projects",
 			icon: Folder,
 		},
@@ -223,19 +223,19 @@ const MENU: Menu = {
 		},
 		{
 			isSingle: true,
-  			title: "Version Info",
+			title: "Version Info",
 			url: "/dashboard/version-info",
 			icon: HeartIcon,
 		},
 		{
 			isSingle: true,
-  			title: "AI Agent",
+			title: "AI Agent",
 			url: "/dashboard/ai-agent",
 			icon: BotIcon,
 		},
 		/*{
 			isSingle: true,
-  			title: "Atlanexis Marketplace",
+				title: "Atlanexis Marketplace",
 			url: "/dashboard/marketplace",
 			icon: ShoppingCart,
 		},*/
@@ -410,9 +410,9 @@ function createMenuForAuthUser(opts: {
 			!item.isEnabled
 				? true
 				: item.isEnabled({
-						auth: opts.auth,
-						isCloud: opts.isCloud,
-					}),
+					auth: opts.auth,
+					isCloud: opts.isCloud,
+				}),
 		),
 		// Filter the settings items based on the user's role and permissions
 		// Calls the `isEnabled` function if it exists to determine if the item should be displayed
@@ -420,9 +420,9 @@ function createMenuForAuthUser(opts: {
 			!item.isEnabled
 				? true
 				: item.isEnabled({
-						auth: opts.auth,
-						isCloud: opts.isCloud,
-					}),
+					auth: opts.auth,
+					isCloud: opts.isCloud,
+				}),
 		),
 		// Filter the help items based on the user's role and permissions
 		// Calls the `isEnabled` function if it exists to determine if the item should be displayed
@@ -430,9 +430,9 @@ function createMenuForAuthUser(opts: {
 			!item.isEnabled
 				? true
 				: item.isEnabled({
-						auth: opts.auth,
-						isCloud: opts.isCloud,
-					}),
+					auth: opts.auth,
+					isCloud: opts.isCloud,
+				}),
 		),
 	};
 }
@@ -473,11 +473,11 @@ function findActiveNavItem(
 	const found = navItems.find((item) =>
 		item.isSingle !== false
 			? // The current item is single, so check if the item url is active
-				isActiveRoute({ itemUrl: item.url, pathname })
+			isActiveRoute({ itemUrl: item.url, pathname })
 			: // The current item is not single, so check if any of the sub items are active
-				item.items.some((item) =>
-					isActiveRoute({ itemUrl: item.url, pathname }),
-				),
+			item.items.some((item) =>
+				isActiveRoute({ itemUrl: item.url, pathname }),
+			),
 	);
 
 	if (found?.isSingle !== false) {
@@ -554,7 +554,7 @@ function SidebarLogo() {
 									className={cn(
 										"data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
 										state === "collapsed" &&
-											"flex justify-center items-center p-2 h-10 w-10 mx-auto",
+										"flex justify-center items-center p-2 h-10 w-10 mx-auto",
 									)}
 								>
 									<div
@@ -659,7 +659,7 @@ function SidebarLogo() {
 															.catch((error) => {
 																toast.error(
 																	error?.message ||
-																		"Error setting default organization",
+																	"Error setting default organization",
 																);
 															});
 													}}
@@ -703,7 +703,7 @@ function SidebarLogo() {
 																	.catch((error) => {
 																		toast.error(
 																			error?.message ||
-																				"Error deleting organization",
+																			"Error deleting organization",
 																		);
 																	});
 															}}
@@ -892,8 +892,8 @@ export default function Page({ children }: Props) {
 								const isActive = isSingle
 									? isActiveRoute({ itemUrl: item.url, pathname })
 									: item.items.some((item) =>
-											isActiveRoute({ itemUrl: item.url, pathname }),
-										);
+										isActiveRoute({ itemUrl: item.url, pathname }),
+									);
 
 								return (
 									<Collapsible
@@ -981,8 +981,8 @@ export default function Page({ children }: Props) {
 								const isActive = isSingle
 									? isActiveRoute({ itemUrl: item.url, pathname })
 									: item.items.some((item) =>
-											isActiveRoute({ itemUrl: item.url, pathname }),
-										);
+										isActiveRoute({ itemUrl: item.url, pathname }),
+									);
 
 								return (
 									<Collapsible
