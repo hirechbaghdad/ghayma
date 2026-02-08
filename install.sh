@@ -17,8 +17,8 @@ install_dokploy() {
     DOCKER_IMAGE="atlanexis/ghayma:1.2"
     
     # Database Configuration
-    DB_USER="dokploy"
-    DB_NAME="dokploy"
+    DB_USER="atlanexis"
+    DB_NAME="atlanexis"
     DB_PASS="amukds4wi9001583845717ad2"
     DB_HOST="dokploy-postgres" # Fixed to match service name
     
