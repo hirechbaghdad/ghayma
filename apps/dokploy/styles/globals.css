@@ -4,92 +4,103 @@
 
 @layer base {
     :root {
-        /* Light Mode: #e7e7e8 - Made semi-transparent to show rainbow */
-        --background: 240 5% 91% / 0.7; 
-        --foreground: 220 12% 13%; 
-        
-        --card: 240 5% 91% / 0.5;
-        --card-foreground: 220 12% 13%;
-        
-        --popover: 240 5% 91% / 0.9;
-        --popover-foreground: 220 12% 13%;
-        
-        --primary: 220 12% 13%;
-        --primary-foreground: 240 5% 91%;
-        
-        --secondary: 240 5% 85% / 0.5;
-        --secondary-foreground: 220 12% 13%;
-        
-        --muted: 240 5% 85% / 0.5;
-        --muted-foreground: 220 12% 40%;
-        
-        --accent: 240 5% 85% / 0.5;
-        --accent-foreground: 220 12% 13%;
+        --background: 210 100% 99%;
+        --foreground: 218 27% 18%;
+
+        --card: 0 0% 100%;
+        --card-foreground: 218 27% 18%;
+
+        --popover: 0 0% 100%;
+        --popover-foreground: 218 27% 18%;
+
+        --primary: 211 100% 50%;
+        --primary-foreground: 0 0% 100%;
+
+        --secondary: 210 60% 97%;
+        --secondary-foreground: 218 27% 18%;
+
+        --muted: 210 50% 96%;
+        --muted-foreground: 215 16% 46%;
+
+        --accent: 208 100% 96%;
+        --accent-foreground: 213 78% 40%;
         
         --destructive: 0 84% 60%;
         --destructive-foreground: 210 40% 98%;
-        
-        --border: 220 12% 13% / 0.1;
-        --input: 220 12% 13% / 0.1;
-        --ring: 220 12% 13%;
-        
-        --radius: 0.75rem;
+
+        --border: 214 32% 91%;
+        --input: 214 32% 91%;
+        --ring: 211 100% 50%;
+
+        --sidebar: 0 0% 100%;
+        --sidebar-foreground: 218 27% 18%;
+        --sidebar-primary: 211 100% 50%;
+        --sidebar-primary-foreground: 0 0% 100%;
+        --sidebar-accent: 208 100% 96%;
+        --sidebar-accent-foreground: 213 78% 40%;
+        --sidebar-border: 214 32% 91%;
+        --sidebar-ring: 211 100% 50%;
+
+        --radius: 1rem;
     }
 
     .dark {
-        /* Dark Mode: #1d2025 */
-        --background: 220 12% 13% / 0.4; 
+        --background: 220 24% 10%;
         --foreground: 240 5% 91%; 
         
-        --card: 220 12% 13% / 0.6;
+        --card: 222 23% 14%;
         --card-foreground: 240 5% 91%;
         
-        --popover: 220 12% 13% / 0.9;
+        --popover: 222 23% 14%;
         --popover-foreground: 240 5% 91%;
         
-        --primary: 240 5% 91%;
-        --primary-foreground: 220 12% 13%;
+        --primary: 210 100% 62%;
+        --primary-foreground: 220 24% 12%;
         
-        --secondary: 220 12% 20% / 0.5;
+        --secondary: 220 21% 18%;
         --secondary-foreground: 240 5% 91%;
         
-        --muted: 220 12% 20% / 0.5;
+        --muted: 220 21% 18%;
         --muted-foreground: 240 5% 70%;
         
-        --accent: 220 12% 20% / 0.5;
+        --accent: 214 32% 18%;
         --accent-foreground: 240 5% 91%;
         
-        --border: 240 5% 91% / 0.1;
-        --input: 240 5% 91% / 0.1;
-        --ring: 240 5% 91%;
+        --border: 217 19% 24%;
+        --input: 217 19% 24%;
+        --ring: 210 100% 62%;
+
+        --sidebar: 222 23% 14%;
+        --sidebar-foreground: 240 5% 91%;
+        --sidebar-primary: 210 100% 62%;
+        --sidebar-primary-foreground: 220 24% 12%;
+        --sidebar-accent: 214 32% 18%;
+        --sidebar-accent-foreground: 240 5% 91%;
+        --sidebar-border: 217 19% 24%;
+        --sidebar-ring: 210 100% 62%;
     }
 
     body {
         @apply min-h-screen text-foreground antialiased;
-        background-color: #e7e7e8; /* Base color for light mode */
+        font-family: var(--font-sans), sans-serif;
+        background-color: #f6f9ff;
         position: relative;
     }
 
     .dark body {
-        background-color: #1d2025; /* Base color for dark mode */
+        background-color: #0c1220;
     }
 
-    /* Barely visible Rainbow effect - Increased saturation for light mode visibility */
     body::before {
         content: "";
         position: fixed;
         inset: 0;
         z-index: -2;
         background: 
-            radial-gradient(at 0% 0%, rgba(255, 0, 0, 0.12) 0px, transparent 55%),
-            radial-gradient(at 50% 0%, rgba(255, 165, 0, 0.12) 0px, transparent 55%),
-            radial-gradient(at 100% 0%, rgba(255, 255, 0, 0.12) 0px, transparent 55%),
-            radial-gradient(at 100% 50%, rgba(0, 128, 0, 0.12) 0px, transparent 55%),
-            radial-gradient(at 100% 100%, rgba(0, 0, 255, 0.12) 0px, transparent 55%),
-            radial-gradient(at 50% 100%, rgba(75, 0, 130, 0.12) 0px, transparent 55%),
-            radial-gradient(at 0% 100%, rgba(238, 130, 238, 0.12) 0px, transparent 55%),
-            radial-gradient(at 0% 50%, rgba(0, 255, 255, 0.12) 0px, transparent 55%);
-        filter: blur(70px);
+            radial-gradient(circle at 10% 10%, rgba(59, 130, 246, 0.12) 0, transparent 28%),
+            radial-gradient(circle at 86% 14%, rgba(147, 197, 253, 0.16) 0, transparent 30%),
+            radial-gradient(circle at 50% 100%, rgba(191, 219, 254, 0.2) 0, transparent 35%);
+        filter: blur(46px);
         pointer-events: none;
     }
 
@@ -119,10 +130,11 @@
     .glass-effect, 
     [class*="card"] {
         background-color: hsl(var(--card)) !important;
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
         border: 1px solid hsl(var(--border));
         border-radius: var(--radius);
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
     }
 }
 
@@ -196,4 +208,43 @@
     background-position: 0 0, 9px 9px;
     background-size: 18px 18px;
     mix-blend-mode: soft-light;
+}
+
+.dashboard-shell {
+    position: relative;
+}
+
+.dashboard-shell::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(244, 248, 255, 0.96) 100%),
+        radial-gradient(circle at top left, rgba(96, 165, 250, 0.16) 0, transparent 24%),
+        radial-gradient(circle at bottom right, rgba(125, 211, 252, 0.12) 0, transparent 22%);
+}
+
+.dashboard-topbar {
+    background: rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(203, 213, 225, 0.72);
+    box-shadow: 0 12px 34px rgba(15, 23, 42, 0.06);
+}
+
+.dashboard-content {
+    position: relative;
+}
+
+.dashboard-content::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: 1.75rem;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.46) 0%, rgba(255, 255, 255, 0.18) 100%);
+    opacity: 0.8;
 }

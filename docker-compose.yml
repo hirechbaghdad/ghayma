@@ -43,7 +43,7 @@ services:
         condition: on-failure
 
   atlanexis-cloudos:
-    image: atlanexis/atlanexis-cloudos:latest
+    image: atlanexis-cloudos:latest
     build:
       context: .
       dockerfile: Dockerfile

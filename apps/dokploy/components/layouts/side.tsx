@@ -537,7 +537,7 @@ function AppLauncher({
 				variant="outline"
 				size={state === "collapsed" ? "icon" : "sm"}
 				className={cn(
-					"justify-start border-sidebar-border/70 bg-sidebar/70 backdrop-blur-md",
+					"justify-start border-sidebar-border/90 bg-white/90 text-slate-700 shadow-[0_12px_28px_rgba(15,23,42,0.06)] backdrop-blur-md",
 					state === "collapsed" ? "mx-auto size-10" : "w-full gap-2",
 				)}
 				onClick={() => setOpen(true)}
@@ -984,6 +984,7 @@ export default function Page({ children }: Props) {
 
 	return (
 		<SidebarProvider
+			className="dashboard-shell"
 			defaultOpen={defaultOpen}
 			open={defaultOpen}
 			onOpenChange={(open) => {
@@ -1032,19 +1033,21 @@ export default function Page({ children }: Props) {
 										<SidebarMenuItem>
 											{isSingle ? (
 												<SidebarMenuButton
+													isActive={isActive}
 													asChild
 													tooltip={item.title}
-													className={cn(isActive && "bg-border")}
 												>
 													<Link
 														href={item.url}
 														className="flex w-full items-center gap-2"
 													>
-														{item.icon && (
-															<item.icon
-																className={cn(isActive && "text-primary")}
-															/>
-														)}
+															{item.icon && (
+																<item.icon
+																	className={cn(
+																		isActive && "text-sky-600",
+																	)}
+																/>
+															)}
 														<span>{item.title}</span>
 													</Link>
 												</SidebarMenuButton>
@@ -1064,32 +1067,40 @@ export default function Page({ children }: Props) {
 														</SidebarMenuButton>
 													</CollapsibleTrigger>
 													<CollapsibleContent>
-														<SidebarMenuSub>
-															{item.items?.map((subItem) => (
-																<SidebarMenuSubItem key={subItem.title}>
-																	<SidebarMenuSubButton
-																		asChild
-																		className={cn(isActive && "bg-border")}
-																	>
-																		<Link
-																			href={subItem.url}
-																			className="flex w-full items-center"
-																		>
-																			{subItem.icon && (
-																				<span className="mr-2">
-																					<subItem.icon
-																						className={cn(
-																							"h-4 w-4 text-muted-foreground",
-																							isActive && "text-primary",
-																						)}
-																					/>
-																				</span>
-																			)}
-																			<span>{subItem.title}</span>
-																		</Link>
-																	</SidebarMenuSubButton>
-																</SidebarMenuSubItem>
-															))}
+															<SidebarMenuSub>
+																{item.items?.map((subItem) => {
+																	const isSubItemActive = isActiveRoute({
+																		itemUrl: subItem.url,
+																		pathname,
+																	});
+
+																	return (
+																		<SidebarMenuSubItem key={subItem.title}>
+																			<SidebarMenuSubButton
+																				asChild
+																				isActive={isSubItemActive}
+																			>
+																				<Link
+																					href={subItem.url}
+																					className="flex w-full items-center"
+																				>
+																					{subItem.icon && (
+																						<span className="mr-2">
+																							<subItem.icon
+																								className={cn(
+																									"h-4 w-4 text-sky-500/80",
+																									isSubItemActive &&
+																										"text-sky-600",
+																								)}
+																							/>
+																						</span>
+																					)}
+																					<span>{subItem.title}</span>
+																				</Link>
+																			</SidebarMenuSubButton>
+																		</SidebarMenuSubItem>
+																	);
+																})}
 														</SidebarMenuSub>
 													</CollapsibleContent>
 												</>
@@ -1121,19 +1132,21 @@ export default function Page({ children }: Props) {
 										<SidebarMenuItem>
 											{isSingle ? (
 												<SidebarMenuButton
+													isActive={isActive}
 													asChild
 													tooltip={item.title}
-													className={cn(isActive && "bg-border")}
 												>
 													<Link
 														href={item.url}
 														className="flex w-full items-center gap-2"
 													>
-														{item.icon && (
-															<item.icon
-																className={cn(isActive && "text-primary")}
-															/>
-														)}
+															{item.icon && (
+																<item.icon
+																	className={cn(
+																		isActive && "text-sky-600",
+																	)}
+																/>
+															)}
 														<span>{item.title}</span>
 													</Link>
 												</SidebarMenuButton>
@@ -1153,32 +1166,40 @@ export default function Page({ children }: Props) {
 														</SidebarMenuButton>
 													</CollapsibleTrigger>
 													<CollapsibleContent>
-														<SidebarMenuSub>
-															{item.items?.map((subItem) => (
-																<SidebarMenuSubItem key={subItem.title}>
-																	<SidebarMenuSubButton
-																		asChild
-																		className={cn(isActive && "bg-border")}
-																	>
-																		<Link
-																			href={subItem.url}
-																			className="flex w-full items-center"
-																		>
-																			{subItem.icon && (
-																				<span className="mr-2">
-																					<subItem.icon
-																						className={cn(
-																							"h-4 w-4 text-muted-foreground",
-																							isActive && "text-primary",
-																						)}
-																					/>
-																				</span>
-																			)}
-																			<span>{subItem.title}</span>
-																		</Link>
-																	</SidebarMenuSubButton>
-																</SidebarMenuSubItem>
-															))}
+															<SidebarMenuSub>
+																{item.items?.map((subItem) => {
+																	const isSubItemActive = isActiveRoute({
+																		itemUrl: subItem.url,
+																		pathname,
+																	});
+
+																	return (
+																		<SidebarMenuSubItem key={subItem.title}>
+																			<SidebarMenuSubButton
+																				asChild
+																				isActive={isSubItemActive}
+																			>
+																				<Link
+																					href={subItem.url}
+																					className="flex w-full items-center"
+																				>
+																					{subItem.icon && (
+																						<span className="mr-2">
+																							<subItem.icon
+																								className={cn(
+																									"h-4 w-4 text-sky-500/80",
+																									isSubItemActive &&
+																										"text-sky-600",
+																								)}
+																							/>
+																						</span>
+																					)}
+																					<span>{subItem.title}</span>
+																				</Link>
+																			</SidebarMenuSubButton>
+																		</SidebarMenuSubItem>
+																	);
+																})}
 														</SidebarMenuSub>
 													</CollapsibleContent>
 												</>
@@ -1238,10 +1259,10 @@ export default function Page({ children }: Props) {
 			</Sidebar>
 			<SidebarInset>
 				{!includesProjects && (
-					<header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-						<div className="flex items-center justify-between w-full px-4">
+					<header className="flex h-16 shrink-0 items-center gap-2 px-3 pt-3 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+						<div className="dashboard-topbar flex items-center justify-between w-full rounded-[1.35rem] px-4 py-3">
 							<div className="flex items-center gap-2">
-								<SidebarTrigger className="-ml-1" />
+								<SidebarTrigger className="-ml-1 rounded-full bg-sky-50 text-sky-600 hover:bg-sky-100 hover:text-sky-700" />
 								<Separator orientation="vertical" className="mr-2 h-4" />
 								<Breadcrumb>
 									<BreadcrumbList>
@@ -1263,7 +1284,7 @@ export default function Page({ children }: Props) {
 					</header>
 				)}
 
-				<div className="flex flex-col w-full p-4 pt-0">{children}</div>
+				<div className="dashboard-content flex flex-col w-full p-4 pt-3">{children}</div>
 			</SidebarInset>
 		</SidebarProvider>
 	);

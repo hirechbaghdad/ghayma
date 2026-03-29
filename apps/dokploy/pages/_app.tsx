@@ -2,7 +2,7 @@ import "@/styles/globals.css";
 
 import type { NextPage } from "next";
 import type { AppProps } from "next/app";
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import Head from "next/head";
 import Script from "next/script";
 import { appWithTranslation } from "next-i18next";
@@ -13,7 +13,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { Languages } from "@/lib/languages";
 import { api } from "@/utils/api";
 
-const inter = Inter({ subsets: ["latin"] });
+const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
 	getLayout?: (page: ReactElement) => ReactNode;
@@ -35,7 +35,8 @@ const MyApp = ({
 			<style jsx global>
 				{`
 					:root {
-						--font-inter: ${inter.style.fontFamily};
+						--font-inter: ${jakarta.style.fontFamily};
+						--font-sans: ${jakarta.style.fontFamily};
 					}
 				`}
 			</style>
