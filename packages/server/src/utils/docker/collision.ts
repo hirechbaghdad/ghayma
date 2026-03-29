@@ -1,7 +1,14 @@
 import { findComposeById } from "@dokploy/server/services/compose";
 import { stringify } from "yaml";
+import { addSuffixToAllConfigs } from "./compose/configs";
+import { addSuffixToAllNetworks } from "./compose/network";
+import { addSuffixToAllSecrets } from "./compose/secrets";
+import { addSuffixToAllServiceNames } from "./compose/service";
 import { execAsync, execAsyncRemote } from "../process/execAsync";
-import { addAppNameToAllServiceNames } from "./collision/root-network";
+import {
+	addAppNameToRootNetwork,
+	addAppNameToServiceNetworks,
+} from "./collision/root-network";
 import { generateRandomHash } from "./compose";
 import { addSuffixToAllVolumes } from "./compose/volume";
 import {
@@ -18,10 +25,24 @@ export const addAppNameToPreventCollision = (
 ): ComposeSpecification => {
 	let updatedComposeData = { ...composeData };
 
-	updatedComposeData = addAppNameToAllServiceNames(updatedComposeData, appName);
+	updatedComposeData = addSuffixToAllServiceNames(updatedComposeData, appName);
+	updatedComposeData = addSuffixToAllNetworks(updatedComposeData, appName);
+	updatedComposeData = addSuffixToAllConfigs(updatedComposeData, appName);
+	updatedComposeData = addSuffixToAllSecrets(updatedComposeData, appName);
+
 	if (isolatedDeploymentsVolume) {
 		updatedComposeData = addSuffixToAllVolumes(updatedComposeData, appName);
 	}
+
+	updatedComposeData = addAppNameToRootNetwork(updatedComposeData, appName);
+
+	if (updatedComposeData.services) {
+		updatedComposeData.services = addAppNameToServiceNetworks(
+			updatedComposeData.services,
+			appName,
+		);
+	}
+
 	return updatedComposeData;
 };
 

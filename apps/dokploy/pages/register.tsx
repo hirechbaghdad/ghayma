@@ -119,6 +119,7 @@ const Register = ({ isCloud }: Props) => {
 						<Link
 							href="https://atlanexis.com"
 							target="_blank"
+							rel="noreferrer"
 							className="flex flex-row items-center gap-2"
 						>
 							<Logo className="size-12" />
@@ -241,6 +242,7 @@ const Register = ({ isCloud }: Props) => {
 										className="underline"
 										href="https://atlanexis.com"
 										target="_blank"
+										rel="noreferrer"
 									>
 										Contact us
 									</Link>

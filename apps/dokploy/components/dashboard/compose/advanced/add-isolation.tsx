@@ -117,11 +117,10 @@ export const IsolatedDeploymentTab = ({ composeId }: Props) => {
 					<div className="text-sm text-muted-foreground flex flex-col gap-2">
 						<span>
 							This feature creates an isolated environment for your deployment
-							by adding unique prefixes to all resources. It establishes a
-							dedicated network based on your compose file's name, ensuring your
-							services run in isolation. This prevents conflicts when running
-							multiple instances of the same template or services with identical
-							names.
+							by namespacing service, network, config, and secret resources per
+							application. It also establishes a dedicated network based on your
+							compose app name so Traefik can still reach the isolated stack
+							without colliding with other deployments.
 						</span>
 						<div className="space-y-4">
 							<div>
@@ -129,7 +128,10 @@ export const IsolatedDeploymentTab = ({ composeId }: Props) => {
 									Resources that will be isolated:
 								</h4>
 								<ul className="list-disc list-inside">
+									<li>Service names</li>
 									<li>Docker networks</li>
+									<li>Configs and secrets</li>
+									<li>Volumes if volume isolation is enabled</li>
 								</ul>
 							</div>
 						</div>

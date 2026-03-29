@@ -9,9 +9,7 @@ export default defineConfig({
 		pool: "forks",
 	},
 	define: {
-		"process.env": {
-			NODE: "test",
-		},
+		"process.env.NODE_ENV": JSON.stringify("test"),
 	},
 	plugins: [tsconfigPaths()],
 	resolve: {

@@ -54,7 +54,7 @@ COPY --from=build /prod/dokploy/node_modules ./node_modules
 
 
 # Install RCLONE
-RUN curl https://rclone.org/install.sh | bash
+RUN curl -fsSL https://rclone.org/install.sh | bash
 
 # tsx
 RUN pnpm install -g tsx

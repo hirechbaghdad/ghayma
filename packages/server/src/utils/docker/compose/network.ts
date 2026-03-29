@@ -5,16 +5,50 @@ import type {
 	DefinitionsService,
 } from "../types";
 
+const SHARED_NETWORK_NAMES = new Set(["dokploy-network", "atlanexis-network"]);
+
+const shouldKeepSharedNetworkName = (networkName: string) =>
+	SHARED_NETWORK_NAMES.has(networkName);
+
 export const addSuffixToNetworksRoot = (
 	networks: { [key: string]: DefinitionsNetwork },
 	suffix: string,
 ): { [key: string]: DefinitionsNetwork } => {
-	return _.mapKeys(networks, (_value, key) => {
-		if (key === "dokploy-network") {
-			return "dokploy-network";
-		}
-		return `${key}-${suffix}`;
-	});
+	return Object.fromEntries(
+		Object.entries(networks).map(([key, value]) => {
+			const nextKey = shouldKeepSharedNetworkName(key)
+				? key
+				: `${key}-${suffix}`;
+			const nextValue = _.cloneDeep(value);
+
+			if (
+				nextValue &&
+				typeof nextValue === "object" &&
+				"name" in nextValue &&
+				typeof nextValue.name === "string" &&
+				!shouldKeepSharedNetworkName(nextValue.name)
+			) {
+				nextValue.name = `${nextValue.name}-${suffix}`;
+			}
+
+			if (
+				nextValue &&
+				typeof nextValue === "object" &&
+				nextValue.external &&
+				typeof nextValue.external === "object" &&
+				"name" in nextValue.external &&
+				typeof nextValue.external.name === "string" &&
+				!shouldKeepSharedNetworkName(nextValue.external.name)
+			) {
+				nextValue.external = {
+					...nextValue.external,
+					name: `${nextValue.external.name}-${suffix}`,
+				};
+			}
+
+			return [nextKey, nextValue];
+		}),
+	);
 };
 
 export const addSuffixToServiceNetworks = (
@@ -22,40 +56,28 @@ export const addSuffixToServiceNetworks = (
 	suffix: string,
 ): { [key: string]: DefinitionsService } => {
 	return _.mapValues(services, (service) => {
-		if (service.networks) {
-			// 1 Case the most common
-			if (Array.isArray(service.networks)) {
-				service.networks = service.networks.map((network: string) => {
-					if (network === "dokploy-network") {
-						return "dokploy-network";
-					}
-					return `${network}-${suffix}`;
-				});
+		const updatedService = _.cloneDeep(service);
+
+		if (updatedService.networks) {
+			if (Array.isArray(updatedService.networks)) {
+				updatedService.networks = updatedService.networks.map(
+					(network: string) => {
+						if (shouldKeepSharedNetworkName(network)) {
+							return network;
+						}
+						return `${network}-${suffix}`;
+					},
+				);
 			} else {
-				// 2 Case
-				service.networks = _.mapKeys(service.networks, (_value, key) => {
-					if (key === "dokploy-network") {
-						return "dokploy-network";
-					}
-					return `${key}-${suffix}`;
-				});
-
-				// 3 Case
-				service.networks = _.mapValues(service.networks, (value) => {
-					if (value && typeof value === "object") {
-						return _.mapKeys(value, (_val, innerKey) => {
-							if (innerKey === "aliases") {
-								return "aliases";
-							}
-							return `${innerKey}-${suffix}`;
-						});
-					}
-
-					return value;
-				});
+				updatedService.networks = Object.fromEntries(
+					Object.entries(updatedService.networks).map(([key, value]) => [
+						shouldKeepSharedNetworkName(key) ? key : `${key}-${suffix}`,
+						_.cloneDeep(value),
+					]),
+				);
 			}
 		}
-		return service;
+		return updatedService;
 	});
 };
 

@@ -1,19 +1,22 @@
-version: "3.8"
-
 services:
   db:
     image: postgres:16
     environment:
-      POSTGRES_USER: atlanexis
-      POSTGRES_PASSWORD: amukds4wi9001583845717ad2
-      POSTGRES_DB: atlanexis
+      POSTGRES_USER: ${POSTGRES_USER:-atlanexis}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+      POSTGRES_DB: ${POSTGRES_DB:-atlanexis}
     volumes:
       - atlanexis-postgres-database:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U atlanexis -d atlanexis -h localhost -p 5432"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-atlanexis} -d ${POSTGRES_DB:-atlanexis} -h localhost -p 5432",
+        ]
       interval: 5s
       timeout: 5s
       retries: 10
+    restart: unless-stopped
     deploy:
       placement:
         constraints:
@@ -26,6 +29,12 @@ services:
     image: redis:7
     volumes:
       - redis-data-volume:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
     deploy:
       placement:
         constraints:
@@ -35,24 +44,23 @@ services:
 
   atlanexis-cloudos:
     image: atlanexis/atlanexis-cloudos:latest
-    # depends_on/condition is honored by docker-compose for non-swarm use;
-    # when using `docker stack deploy` ordering is handled by other means (healthchecks / service readiness).
+    build:
+      context: .
+      dockerfile: Dockerfile
     depends_on:
       db:
         condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
     environment:
-      # DB connection using same user/db/password as the postgres service above
-      DATABASE_URL: postgres://atlanexis:amukds4wi9001583845717ad2@db:5432/atlanexis
+      DATABASE_URL: postgres://${POSTGRES_USER:-atlanexis}:${POSTGRES_PASSWORD:-change-me}@db:5432/${POSTGRES_DB:-atlanexis}
       PGHOST: db
       PGPORT: "5432"
-      PGUSER: atlanexis
-      PGPASSWORD: amukds4wi9001583845717ad2
-      PGDATABASE: atlanexis
-      REDIS_HOST: redis 
-      REDIS_PORT: "6379" # Redis default port
-      # Set ADVERTISE_ADDR externally (export ADVERTISE_ADDR=...), defaults to empty here
+      PGUSER: ${POSTGRES_USER:-atlanexis}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-change-me}
+      PGDATABASE: ${POSTGRES_DB:-atlanexis}
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
       ADVERTISE_ADDR: ${ADVERTISE_ADDR:-}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -63,6 +71,12 @@ services:
         published: 3000
         protocol: tcp
         mode: host
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:3000/health >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
     deploy:
       replicas: 1
       update_config:
@@ -96,6 +110,7 @@ services:
         published: 443
         protocol: udp
         mode: host
+    restart: unless-stopped
     deploy:
       placement:
         constraints:

@@ -273,3 +273,38 @@ test("It shoudn't add suffix to dokploy-network in services multiples cases", ()
 	expect(dbNetworks["dokploy-network"]).toBeDefined();
 	expect(apiNetworks["dokploy-network"]).toBeDefined();
 });
+
+const composeFile9 = `
+version: "3.8"
+
+services:
+  api:
+    image: myapi:latest
+    networks:
+      frontend:
+        aliases:
+          - api
+        ipv4_address: 172.20.0.10
+        priority: 10
+`;
+
+test("It preserves service network options while renaming only the network key", () => {
+	const composeData = parse(composeFile9) as ComposeSpecification;
+
+	const suffix = generateRandomHash();
+
+	if (!composeData?.services) {
+		return;
+	}
+
+	const networks = addSuffixToServiceNetworks(composeData.services, suffix);
+	const apiNetworks = networks.api?.networks as Record<
+		string,
+		{ aliases?: string[]; ipv4_address?: string; priority?: number }
+	>;
+
+	expect(apiNetworks[`frontend-${suffix}`]).toBeDefined();
+	expect(apiNetworks[`frontend-${suffix}`]?.aliases).toContain("api");
+	expect(apiNetworks[`frontend-${suffix}`]?.ipv4_address).toBe("172.20.0.10");
+	expect(apiNetworks[`frontend-${suffix}`]?.priority).toBe(10);
+});

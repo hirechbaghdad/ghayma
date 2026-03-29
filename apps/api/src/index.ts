@@ -13,6 +13,11 @@ import {
 import { deploy } from "./utils.js";
 
 const app = new Hono();
+const apiKey = process.env.API_KEY?.trim();
+
+if (!apiKey) {
+	logger.warn("API_KEY is not configured; protected routes will accept requests without an API key");
+}
 
 // Initialize Inngest client
 export const inngest = new Inngest({
@@ -86,9 +91,13 @@ app.use(async (c, next) => {
 		return next();
 	}
 
+	if (!apiKey) {
+		return next();
+	}
+
 	const authHeader = c.req.header("X-API-Key");
 
-	if (process.env.API_KEY !== authHeader) {
+	if (apiKey !== authHeader) {
 		return c.json({ message: "Invalid API Key" }, 403);
 	}
 

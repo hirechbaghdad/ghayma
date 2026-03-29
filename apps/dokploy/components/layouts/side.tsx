@@ -21,6 +21,7 @@ import {
 	HeartIcon,
 	HistoryIcon,
 	KeyRound,
+	LayoutGrid,
 	Loader2,
 	type LucideIcon,
 	Package,
@@ -52,6 +53,21 @@ import {
 	CollapsibleContent,
 	CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandList,
+} from "@/components/ui/command";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -491,12 +507,116 @@ function findActiveNavItem(
 	);
 }
 
+function getLauncherEntries(items: NavItem[]): SingleNavItem[] {
+	return items.flatMap((item) =>
+		item.isSingle !== false ? [item] : item.items,
+	);
+}
+
 interface Props {
 	children: React.ReactNode;
 }
 
 function LogoWrapper() {
 	return <SidebarLogo />;
+}
+
+function AppLauncher({
+	pathname,
+	sections,
+}: {
+	pathname: string;
+	sections: Array<{ title: string; items: SingleNavItem[] }>;
+}) {
+	const { state } = useSidebar();
+	const [open, setOpen] = useState(false);
+
+	return (
+		<>
+			<Button
+				variant="outline"
+				size={state === "collapsed" ? "icon" : "sm"}
+				className={cn(
+					"justify-start border-sidebar-border/70 bg-sidebar/70 backdrop-blur-md",
+					state === "collapsed" ? "mx-auto size-10" : "w-full gap-2",
+				)}
+				onClick={() => setOpen(true)}
+				title="Open app menu"
+			>
+				<LayoutGrid className="size-4" />
+				{state !== "collapsed" && <span>Apps</span>}
+			</Button>
+
+			<Dialog open={open} onOpenChange={setOpen}>
+				<DialogContent className="max-w-4xl overflow-hidden p-0">
+					<DialogHeader className="border-b border-border/60 px-6 pb-5 pt-6">
+						<DialogTitle>Application Menu</DialogTitle>
+						<DialogDescription>
+							Jump between projects, infrastructure, monitoring, and settings.
+						</DialogDescription>
+					</DialogHeader>
+					<Command className="rounded-none bg-transparent">
+						<div className="px-6 pt-4">
+							<CommandInput placeholder="Search pages and tools..." />
+						</div>
+						<CommandList className="max-h-[70vh] px-4 pb-6 pt-4">
+							<CommandEmpty>No matching page found.</CommandEmpty>
+							{sections.map((section) => (
+								<CommandGroup
+									key={section.title}
+									heading={section.title}
+									className="mb-4"
+								>
+									<div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+										{section.items.map((item) => {
+											const isActive = isActiveRoute({
+												itemUrl: item.url,
+												pathname,
+											});
+											const Icon = item.icon ?? LayoutGrid;
+
+											return (
+												<CommandItem
+													key={`${section.title}-${item.url}`}
+													value={`${section.title} ${item.title} ${item.url}`}
+													className="rounded-2xl p-0 aria-selected:bg-transparent"
+													onSelect={() => setOpen(false)}
+												>
+													<Link
+														href={item.url}
+														className={cn(
+															"flex w-full items-start gap-4 rounded-2xl border p-4 transition-colors",
+															isActive
+																? "border-primary/40 bg-primary/10"
+																: "border-border/70 bg-background/70 hover:border-primary/30 hover:bg-accent/40",
+														)}
+													>
+														<div className="rounded-2xl bg-primary/10 p-3 text-primary">
+															<Icon className="size-6" />
+														</div>
+														<div className="min-w-0">
+															<p className="truncate text-sm font-semibold">
+																{item.title}
+															</p>
+															<p className="mt-1 text-xs text-muted-foreground">
+																{item.url
+																	.replace("/dashboard/", "")
+																	.replaceAll("/", " / ")}
+															</p>
+														</div>
+													</Link>
+												</CommandItem>
+											);
+										})}
+									</div>
+								</CommandGroup>
+							))}
+						</CommandList>
+					</Command>
+				</DialogContent>
+			</Dialog>
+		</>
+	);
 }
 
 function SidebarLogo() {
@@ -848,6 +968,10 @@ export default function Page({ children }: Props) {
 		settings: filteredSettings,
 		help,
 	} = createMenuForAuthUser({ auth, isCloud: !!isCloud });
+	const launcherSections = [
+		{ title: "Home", items: getLauncherEntries(filteredHome) },
+		{ title: "Settings", items: getLauncherEntries(filteredSettings) },
+	];
 
 	const activeItem = findActiveNavItem(
 		[...filteredHome, ...filteredSettings],
@@ -876,6 +1000,9 @@ export default function Page({ children }: Props) {
 		>
 			<Sidebar collapsible="icon" variant="floating">
 				<SidebarHeader>
+					<div className="px-2 pt-2">
+						<AppLauncher pathname={pathname} sections={launcherSections} />
+					</div>
 					{/* <SidebarMenuButton
 						className="group-data-[collapsible=icon]:!p-0"
 						size="lg"

@@ -24,7 +24,7 @@ RUN CGO_ENABLED=1 GOOS=linux go build -o main main.go
 FROM alpine:3.19
 
 # Instalar SQLite y otras dependencias necesarias
-RUN apk add --no-cache sqlite-libs docker-cli
+RUN apk add --no-cache ca-certificates sqlite-libs docker-cli
 
 WORKDIR /app
 

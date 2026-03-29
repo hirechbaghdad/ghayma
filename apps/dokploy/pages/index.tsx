@@ -204,10 +204,10 @@ export default function Home({ IS_CLOUD }: Props) {
 		<>
 			<div className="flex flex-col space-y-2 text-center">
 				<h1 className="text-2xl font-semibold tracking-tight">
-					<div className="flex flex-row items-center justify-center gap-2">
+					<span className="flex flex-row items-center justify-center gap-2">
 						<Logo className="size-12" />
 						Login to Atlanexis CloudOS Node
-					</div>
+					</span>
 				</h1>
 				<p className="text-sm text-muted-foreground">
 					You need to enter your credentials to login
@@ -452,6 +452,7 @@ export default function Home({ IS_CLOUD }: Props) {
 								className="hover:underline text-muted-foreground"
 								href="https://docs.atlanexis.com/cloud-unit/reset-password"
 								target="_blank"
+								rel="noreferrer"
 							>
 								Lost your password?
 							</Link>

@@ -146,6 +146,7 @@ const Invitation = ({
 						<Link
 							href="https://dokploy.com"
 							target="_blank"
+							rel="noreferrer"
 							className="flex flex-row items-center gap-2"
 						>
 							<Logo className="size-12" />
