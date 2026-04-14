@@ -54,7 +54,6 @@ COPY --from=build /prod/dokploy/package.json ./package.json
 COPY --from=build /prod/dokploy/drizzle ./drizzle
 COPY --from=build /prod/dokploy/components.json ./components.json
 COPY --from=build /prod/dokploy/node_modules ./node_modules
-COPY os-release /etc/os-release
 
 
 # Install docker
@@ -78,6 +77,9 @@ RUN curl -sSL https://railpack.com/install.sh | bash
 
 # Install buildpacks
 COPY --from=buildpacksio/pack:0.35.0 /usr/local/bin/pack /usr/local/bin/pack
+
+# Replace the base image os-release only in the final runtime image
+COPY os-release /etc/os-release
 
 EXPOSE 3000
 CMD [ "pnpm", "start" ]
