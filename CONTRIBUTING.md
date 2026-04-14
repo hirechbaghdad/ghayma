@@ -62,9 +62,9 @@ Project setup:
 ```bash
 pnpm install
 cp apps/dokploy/.env.example apps/dokploy/.env
-pnpm run dokploy:setup
+pnpm run cloudos:setup
 pnpm run server:script
-pnpm run dokploy:dev
+pnpm run cloudos:dev
 ```
 
 Open:
@@ -75,9 +75,9 @@ http://localhost:3000
 
 Notes:
 
-- `pnpm run dokploy:setup` prepares local services and runs migrations
+- `pnpm run cloudos:setup` prepares local services and runs migrations
 - `pnpm run server:script` switches `@dokploy/server` to source exports for local development
-- `pnpm run dokploy:dev` starts the CloudOS dashboard and backend server
+- `pnpm run cloudos:dev` starts the CloudOS dashboard and backend server
 
 ## Repository Shape
 
@@ -113,15 +113,15 @@ Run the relevant checks before opening a PR.
 Full validation:
 
 ```bash
-pnpm run validate
+pnpm run cloudos:validate
 ```
 
 Common targeted commands:
 
 ```bash
-pnpm run test
+pnpm run cloudos:test
 pnpm run typecheck
-pnpm run dokploy:build
+pnpm run cloudos:build
 ```
 
 Formatting and linting:
