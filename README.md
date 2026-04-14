@@ -35,21 +35,12 @@ This product is designed to disrupt the way self-hosting datacenters and DevOps 
 
 ## Installation
 
-### Install On A VPS
+### Install On A VPS or Locally
 
 ```bash
-git clone <your-repository>
-cd <repo-directory>
+git clone https://github.com/hirechbaghdad/ghayma
+cd ghayma
 sudo bash install.sh
-```
-
-### Install Locally
-
-```bash
-git clone <your-repository>
-cd <repo-directory>
-sudo bash install.sh
-```
 
 ### Install Using Your Own Built Image
 
@@ -57,7 +48,10 @@ sudo bash install.sh
 docker build -t atlanexis/cloudos:latest .
 sudo DOCKER_IMAGE=atlanexis/cloudos:latest bash install.sh
 ```
-
+### Install using Docker compose
+```bash
+docker compose up -d
+```
 ## Vision
 
 CloudOS is not just another panel.
