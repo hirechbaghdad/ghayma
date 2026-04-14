@@ -41,7 +41,7 @@ This product is designed to disrupt the way self-hosting datacenters and DevOps 
 git clone https://github.com/hirechbaghdad/ghayma
 cd ghayma
 sudo bash install.sh
-
+```
 ### Install Using Your Own Built Image
 
 ```bash
