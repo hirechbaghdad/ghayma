@@ -220,20 +220,19 @@ export const addDomainToCompose = async (
 				labels.unshift("traefik.enable=true");
 			}
 			labels.unshift(...httpLabels);
-			if (!compose.isolatedDeployment) {
-				if (compose.composeType === "docker-compose") {
-					const networkLabel =
-						`traefik.docker.network=${PRIMARY_SHARED_NETWORK_NAME}`;
-					if (!labels.includes(networkLabel)) {
-						labels.unshift(networkLabel);
-					}
-				} else {
-					// Stack Case
-					const networkLabel =
-						`traefik.swarm.network=${PRIMARY_SHARED_NETWORK_NAME}`;
-					if (!labels.includes(networkLabel)) {
-						labels.unshift(networkLabel);
-					}
+			const targetNetwork = compose.isolatedDeployment
+				? compose.appName
+				: PRIMARY_SHARED_NETWORK_NAME;
+			if (compose.composeType === "docker-compose") {
+				const networkLabel = `traefik.docker.network=${targetNetwork}`;
+				if (!labels.includes(networkLabel)) {
+					labels.unshift(networkLabel);
+				}
+			} else {
+				// Stack Case
+				const networkLabel = `traefik.swarm.network=${targetNetwork}`;
+				if (!labels.includes(networkLabel)) {
+					labels.unshift(networkLabel);
 				}
 			}
 		}
