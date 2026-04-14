@@ -164,6 +164,11 @@ export const addDomainToCompose = async (
 		result = randomized;
 	}
 
+	const services = result.services;
+	if (!services) {
+		throw new Error("No services found in the compose");
+	}
+
 	for (const domain of domains) {
 		const { serviceName, https } = domain;
 		if (!serviceName) {
@@ -189,21 +194,21 @@ export const addDomainToCompose = async (
 
 		let labels: DefinitionsService["labels"] = [];
 		if (compose.composeType === "docker-compose") {
-			if (!result.services[resolvedServiceName].labels) {
-				result.services[resolvedServiceName].labels = [];
+			if (!services[resolvedServiceName].labels) {
+				services[resolvedServiceName].labels = [];
 			}
 
-			labels = result.services[resolvedServiceName].labels;
+			labels = services[resolvedServiceName].labels;
 		} else {
 			// Stack Case
-			if (!result.services[resolvedServiceName].deploy) {
-				result.services[resolvedServiceName].deploy = {};
+			if (!services[resolvedServiceName].deploy) {
+				services[resolvedServiceName].deploy = {};
 			}
-			if (!result.services[resolvedServiceName].deploy.labels) {
-				result.services[resolvedServiceName].deploy.labels = [];
+			if (!services[resolvedServiceName].deploy.labels) {
+				services[resolvedServiceName].deploy.labels = [];
 			}
 
-			labels = result.services[resolvedServiceName].deploy.labels;
+			labels = services[resolvedServiceName].deploy.labels;
 		}
 
 		if (Array.isArray(labels)) {
@@ -231,8 +236,8 @@ export const addDomainToCompose = async (
 
 		if (!compose.isolatedDeployment) {
 			// Add the shared network to the service
-			result.services[resolvedServiceName].networks = addDokployNetworkToService(
-				result.services[resolvedServiceName].networks,
+			services[resolvedServiceName].networks = addDokployNetworkToService(
+				services[resolvedServiceName].networks,
 			);
 		}
 	}
