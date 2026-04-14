@@ -1,186 +1,207 @@
 # Contributing
 
-Hey, thanks for your interest in contributing to Dokploy! We appreciate your help and taking your time to contribute.
+This repository powers **Atlanexis CloudOS**. Contributions should preserve the current CloudOS runtime model, naming, and deployment flow while staying compatible with the existing monorepo structure.
 
-Before you start, please first discuss the feature/bug you want to add with the owners and comunity via github issues.
+Before starting significant work, open or discuss the issue first so the implementation direction is clear and effort does not get duplicated.
 
-We have a few guidelines to follow when contributing to this project:
+## Ground Rules
 
-- [Commit Convention](#commit-convention)
-- [Setup](#setup)
-- [Development](#development)
-- [Build](#build)
-- [Pull Request](#pull-request)
+- Keep changes focused. One PR should solve one clear problem.
+- Prefer fixes and features over unrelated cleanup.
+- Update tests and documentation when behavior changes.
+- Preserve compatibility where the codebase still uses legacy `dokploy` package names or script names internally.
+- Do not silently rename runtime-critical identifiers without checking cross-package usage first.
 
 ## Commit Convention
 
-Before you create a Pull Request, please make sure your commit message follows the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification.
+Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
-### Commit Message Format
+Format:
 
-```
+```text
 <type>[optional scope]: <description>
-
-[optional body]
-
-[optional footer(s)]
 ```
 
-#### Type
+Valid types:
 
-Must be one of the following:
-
-- **feat**: A new feature
-- **fix**: A bug fix
-- **docs**: Documentation only changes
-- **style**: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
-- **refactor**: A code change that neither fixes a bug nor adds a feature
-- **perf**: A code change that improves performance
-- **test**: Adding missing tests or correcting existing tests
-- **build**: Changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm)
-- **ci**: Changes to our CI configuration files and scripts (example scopes: Travis, Circle, BrowserStack, SauceLabs)
-- **chore**: Other changes that don't modify `src` or `test` files
-- **revert**: Reverts a previous commit
+- `feat`
+- `fix`
+- `docs`
+- `style`
+- `refactor`
+- `perf`
+- `test`
+- `build`
+- `ci`
+- `chore`
+- `revert`
 
 Example:
 
+```text
+fix: correct traefik network label for isolated compose deployments
 ```
-feat: add new feature
-```
 
-## Setup
+## Local Setup
 
-Before you start, please make the clone based on the `canary` branch, since the `main` branch is the source of truth and should always reflect the latest stable release, also the PRs will be merged to the `canary` branch.
+Requirements:
 
-We use Node v20.16.0 and recommend this specific version. If you have nvm installed, you can run `nvm install 20.16.0 && nvm use` in the root directory.
+- Node `20.16.0`
+- `pnpm` `9.12.0+`
+- Docker
+
+Recommended with `nvm`:
 
 ```bash
-git clone https://github.com/dokploy/dokploy.git
-cd dokploy
+nvm install 20.16.0
+nvm use 20.16.0
+```
+
+Project setup:
+
+```bash
 pnpm install
 cp apps/dokploy/.env.example apps/dokploy/.env
-```
-
-## Requirements
-
-- [Docker](/GUIDES.md#docker)
-
-### Setup
-
-Run the command that will spin up all the required services and files.
-
-```bash
 pnpm run dokploy:setup
-```
-
-Run this script
-
-```bash
 pnpm run server:script
-```
-
-Now run the development server.
-
-```bash
 pnpm run dokploy:dev
 ```
 
-Go to http://localhost:3000 to see the development server
+Open:
 
-> [!NOTE]
-> This project uses Biome. If your editor is configured to use another formatter such as Prettier, it's recommended to either change it to use Biome or turn it off.
+```text
+http://localhost:3000
+```
 
-## Build
+Notes:
+
+- `pnpm run dokploy:setup` prepares local services and runs migrations
+- `pnpm run server:script` switches `@dokploy/server` to source exports for local development
+- `pnpm run dokploy:dev` starts the CloudOS dashboard and backend server
+
+## Repository Shape
+
+The most important areas are:
+
+- `apps/dokploy`: main CloudOS dashboard, API surface, and runtime server
+- `packages/server`: shared backend logic, Docker orchestration, setup, and runtime helpers
+- `apps/api`: supporting API-related services
+- `apps/schedules`: scheduling and backup-related tasks
+- `install.sh`: production-style bootstrap for `atlanexis/cloudos:latest`
+
+## Runtime Expectations
+
+Current production naming is based on:
+
+- `atlanexis-cloudos`
+- `atlanexis-traefik`
+- `atlanexis-postgres`
+- `atlanexis-redis`
+- `atlanexis-network`
+
+If you touch deployment logic, installer behavior, or Traefik integration, validate that your change is consistent with:
+
+- `install.sh`
+- `packages/server/src/constants/runtime.ts`
+- `packages/server/src/setup/*`
+- `packages/server/src/utils/docker/*`
+
+## Validation
+
+Run the relevant checks before opening a PR.
+
+Full validation:
 
 ```bash
+pnpm run validate
+```
+
+Common targeted commands:
+
+```bash
+pnpm run test
+pnpm run typecheck
 pnpm run dokploy:build
 ```
 
-## Docker
-
-To build the docker image
+Formatting and linting:
 
 ```bash
-pnpm run docker:build
+pnpm run check
 ```
 
-To push the docker image
+This repository uses **Biome**. Do not format with Prettier unless the file or workflow explicitly requires something else.
+
+## Docker And Image Work
+
+To build the CloudOS image locally:
 
 ```bash
-pnpm run docker:push
+docker build -t atlanexis/cloudos:latest .
 ```
 
-## Password Reset
+If you change installer, Docker, or runtime deployment logic, verify at least one realistic path:
 
-In the case you lost your password, you can reset it using the following command
+- local source development
+- local install via `install.sh`
+- VPS install via `install.sh`
 
-```bash
-pnpm run reset-password
-```
+## Documentation
 
-If you want to test the webhooks on development mode using localtunnel, make sure to install [`localtunnel`](https://localtunnel.app/)
+Update documentation when you change:
 
-```bash
-pnpm dlx localtunnel --port 3000
-```
+- install steps
+- runtime service names
+- environment variables
+- deployment networking
+- build or release flow
+- UI wording that affects operators
 
-If you run into permission issues of docker run the following command
+For product-facing docs, keep the wording CloudOS-first rather than Dokploy-first.
 
-```bash
-sudo chown -R USERNAME dokploy or sudo chown -R $(whoami) ~/.docker
-```
+## Pull Requests
 
-## Application deploy
+- Create a branch for each feature or fix.
+- Explain what changed, why it changed, and how it was verified.
+- Include screenshots or terminal output when the change affects UI or installation flow.
+- Link the issue if the PR resolves one.
+- Call out any migration, installer, or runtime compatibility impact clearly.
 
-In case you want to deploy the application on your machine and you selected nixpacks or buildpacks, you need to install first.
+PRs are easier to review when they include:
 
-```bash
-# Install Nixpacks
-curl -sSL https://nixpacks.com/install.sh -o install.sh \
-    && chmod +x install.sh \
-    && ./install.sh
-```
+- the user-visible change
+- the affected runtime components
+- the verification steps you actually ran
+- any known follow-up work
 
-```bash
-# Install Railpack
-curl -sSL https://railpack.com/install.sh | sh
-```
+## Avoid These Patterns
 
-```bash
-# Install Buildpacks
-curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.35.0/pack-v0.35.0-linux.tgz" | tar -C /usr/local/bin/ --no-same-owner -xzv pack
-```
-
-## Pull Request
-
-- The `canary` branch is the source of truth and should always reflect the latest stable release.
-- Create a new branch for each feature or bug fix.
-- Make sure to add tests for your changes.
-- Make sure to update the documentation for any changes Go to the [docs.dokploy.com](https://docs.dokploy.com) website to see the changes.
-- When creating a pull request, please provide a clear and concise description of the changes made.
-- If you include a video or screenshot, would be awesome so we can see the changes in action.
-- If your pull request fixes an open issue, please reference the issue in the pull request description.
-- Once your pull request is merged, you will be automatically added as a contributor to the project.
-
-**Important Considerations for Pull Requests:**
-
-- **Focus and Scope:** Each Pull Request should ideally address a single, well-defined problem or introduce one new feature. This greatly facilitates review and reduces the chances of introducing unintended side effects.
-- **Avoid Unfocused Changes:** Please avoid submitting Pull Requests that contain only minor changes such as whitespace adjustments, IDE-generated formatting, or removal of unused variables, unless these are part of a larger, clearly defined refactor or a dedicated "cleanup" Pull Request that addresses a specific `good first issue` or maintenance task.
-- **Issue Association:** For any significant change, it's highly recommended to open an issue first to discuss the proposed solution with the community and maintainers. This ensures alignment and avoids duplicated effort. If your PR resolves an existing issue, please link it in the description (e.g., `Fixes #123`, `Closes #456`).
-
-Thank you for your contribution!
+- Large mixed PRs that combine branding, runtime changes, refactors, and unrelated cleanup
+- Cosmetic-only formatting passes across unrelated files
+- Renaming internal compatibility identifiers without checking runtime impact
+- Editing generated or vendored output unless there is a specific reason
 
 ## Templates
 
-To add a new template, go to `https://github.com/Dokploy/templates` repository and read the README.md file.
+When adding or updating templates:
 
-### Recommendations
+- use a stable folder name that matches the template id
+- keep logos and assets in the expected public/template paths
+- use `_HOST` suffixes for variables that should surface as domains in the UI
+- test templates on an actual server or VPS before considering them ready
 
-- Use the same name of the folder as the id of the template.
-- The logo should be in the public folder.
-- If you want to show a domain in the UI, please add the `_HOST` suffix at the end of the variable name.
-- Test first on a vps or a server to make sure the template works.
+## Operator Tooling
 
-## Docs & Website
+If you test builds that use external builders on the host, make sure the target machine has the required tool installed, such as:
 
-To contribute to the Dokploy docs or website, please go to this [repository](https://github.com/Dokploy/website).
+- Nixpacks
+- Railpack
+- Buildpacks `pack`
+
+## Final Check Before Opening A PR
+
+- code builds
+- relevant tests pass
+- docs are updated
+- naming matches CloudOS runtime conventions
+- installer and deployment changes were validated against the real flow you changed

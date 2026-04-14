@@ -1,222 +1,227 @@
 <div align="center">
   <a href="https://atlanexis.com">
-    <img src="./apps/dokploy/LOGO2.png" alt="Atlanexis Systems - Building technology that matters" width="25%"  />
+    <img src="./apps/dokploy/LOGO2.png" alt="Atlanexis CloudOS" width="22%" />
   </a>
-  </br>
-  </br>
-  <p>Join us on Discord for help, feedback, and discussions!</p>
-  <a href="https://discord.gg/xjTmxqKk">
-    <img src="https://discordapp.com/api/guilds/1234073262418563112/widget.png?style=banner2" alt="Discord Shield"/>
-  </a>
+  <h1>Atlanexis CloudOS</h1>
+  <p>Deploy apps, databases, and Docker workloads on your own infrastructure with a clean control plane, built-in routing, and fast day-to-day operations.</p>
 </div>
-<br />
 
+## What CloudOS Is
 
+Atlanexis CloudOS is a self-hosted platform for running and managing modern workloads on a VPS, bare metal server, or Docker Swarm cluster. It gives you a web control plane, integrated Traefik routing, database services, Docker Compose deployment support, monitoring, backups, and remote server management without forcing you into a hosted platform.
 
-Ghayma Cloud is a free, self-hostable Platform as a Service (PaaS) that simplifies the deployment and management of applications and databases.
+## Core Services
 
+- **Application Deployments**: Run Node.js, Python, PHP, Go, Ruby, static sites, and custom Docker images.
+- **Docker Compose**: Deploy raw compose files and multi-service stacks from a single UI.
+- **Managed Databases**: Provision PostgreSQL, MySQL, MariaDB, MongoDB, and Redis services.
+- **Traefik Routing**: Automatic HTTP/HTTPS routing with certificate support and path handling.
+- **Backups**: Run scheduled backups for supported services and restore them when needed.
+- **Monitoring**: Track CPU, memory, storage, and network usage for your services and servers.
+- **Remote Servers**: Connect external machines over SSH and manage workloads from one dashboard.
+- **Templates**: Launch common open source services with prebuilt templates and generated variables.
+- **Notifications**: Send deployment and system events to Slack, Discord, Telegram, email, and more.
 
-## ✨ Features
+## Architecture
 
-Dokploy includes multiple features to make your life easier.
+CloudOS installs and manages these runtime components by default:
 
-- **Applications**: Deploy any type of application (Node.js, PHP, Python, Go, Ruby, etc.).
-- **Databases**: Create and manage databases with support for MySQL, PostgreSQL, MongoDB, MariaDB, and Redis.
-- **Backups**: Automate backups for databases to an external storage destination.
-- **Docker Compose**: Native support for Docker Compose to manage complex applications.
-- **Multi Node**: Scale applications to multiple nodes using Docker Swarm to manage the cluster.
-- **Templates**: Deploy open-source templates (Plausible, Pocketbase, Calcom, etc.) with a single click.
-- **Traefik Integration**: Automatically integrates with Traefik for routing and load balancing.
-- **Real-time Monitoring**: Monitor CPU, memory, storage, and network usage for every resource.
-- **Docker Management**: Easily deploy and manage Docker containers.
-- **CLI/API**: Manage your applications and databases using the command line or through the API.
-- **Notifications**: Get notified when your deployments succeed or fail (via Slack, Discord, Telegram, Email, etc.).
-- **Multi Server**: Deploy and manage your applications remotely to external servers.
-- **Self-Hosted**: Self-host Dokploy on your VPS.
+- `atlanexis-cloudos`: the main control plane
+- `atlanexis-traefik`: edge routing and TLS
+- `atlanexis-postgres`: internal PostgreSQL for CloudOS state
+- `atlanexis-redis`: queues and background job support
+- `atlanexis-network`: the shared platform network
 
-# Contributing
+For isolated deployments, CloudOS can also create per-app Docker networks so services stay separated while still routing through Traefik.
 
-Hey, thanks for your interest in contributing to Dokploy! We appreciate your help and taking your time to contribute.
+## Quick Start
 
-Before you start, please first discuss the feature/bug you want to add with the owners and comunity via github issues.
+### Deploy On A VPS
 
-We have a few guidelines to follow when contributing to this project:
+Use this path if you want a production-style install that pulls `atlanexis/cloudos:latest` from Docker Hub.
 
-- [Commit Convention](#commit-convention)
-- [Setup](#setup)
-- [Development](#development)
-- [Build](#build)
-- [Pull Request](#pull-request)
+Requirements:
 
-## Commit Convention
+- Linux VPS with root access
+- Docker-compatible x86_64 host
+- Ports `80`, `443`, and `3000` available
+- A private IP usable for Docker Swarm advertise address
 
-Before you create a Pull Request, please make sure your commit message follows the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification.
-
-### Commit Message Format
-
-```
-<type>[optional scope]: <description>
-
-[optional body]
-
-[optional footer(s)]
-```
-
-#### Type
-
-Must be one of the following:
-
-- **feat**: A new feature
-- **fix**: A bug fix
-- **docs**: Documentation only changes
-- **style**: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
-- **refactor**: A code change that neither fixes a bug nor adds a feature
-- **perf**: A code change that improves performance
-- **test**: Adding missing tests or correcting existing tests
-- **build**: Changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm)
-- **ci**: Changes to our CI configuration files and scripts (example scopes: Travis, Circle, BrowserStack, SauceLabs)
-- **chore**: Other changes that don't modify `src` or `test` files
-- **revert**: Reverts a previous commit
-
-Example:
-
-```
-feat: add new feature
-```
-
-## Setup
-
-Before you start, please make the clone based on the `canary` branch, since the `main` branch is the source of truth and should always reflect the latest stable release, also the PRs will be merged to the `canary` branch.
-
-We use Node v20.16.0 and recommend this specific version. If you have nvm installed, you can run `nvm install 20.16.0 && nvm use` in the root directory.
+Steps:
 
 ```bash
-git clone https://github.com/dokploy/dokploy.git
-cd dokploy
+git clone <your-cloudos-repository>
+cd <repo-directory>
+sudo bash install.sh
+```
+
+After install:
+
+- CloudOS UI: `http://YOUR_SERVER_IP:3000`
+- Traefik HTTP: `http://YOUR_SERVER_IP`
+- Traefik HTTPS: `https://YOUR_SERVER_IP` once DNS and certificates are configured
+
+The installer will:
+
+- install Docker if needed
+- initialize Docker Swarm
+- create `atlanexis-network` and compatibility networking
+- write Traefik config under `/etc/dokploy`
+- start `atlanexis-traefik`, `atlanexis-postgres`, `atlanexis-redis`, and `atlanexis-cloudos`
+
+### Install Locally From Docker Hub
+
+If you want to test CloudOS on your own workstation without running the dev stack:
+
+```bash
+git clone <your-cloudos-repository>
+cd <repo-directory>
+sudo bash install.sh
+```
+
+This uses the installer default:
+
+```bash
+DOCKER_IMAGE=atlanexis/cloudos:latest
+```
+
+### Install Locally From Your Own Built Image
+
+Use this when you changed the code and want to run the exact image you built locally:
+
+```bash
+docker build -t atlanexis/cloudos:latest .
+sudo DOCKER_IMAGE=atlanexis/cloudos:latest bash install.sh
+```
+
+If the image already exists locally, the installer will use it instead of pulling from Docker Hub.
+
+## Local Development
+
+Use this path if you want hot reload and source-level development.
+
+Requirements:
+
+- Node `20.16.0`
+- `pnpm` `9.12.0+`
+- Docker
+
+Setup:
+
+```bash
 pnpm install
 cp apps/dokploy/.env.example apps/dokploy/.env
-```
-
-## Requirements
-
-- [Docker](/GUIDES.md#docker)
-
-### Setup
-
-Run the command that will spin up all the required services and files.
-
-```bash
 pnpm run dokploy:setup
-```
-
-Run this script
-
-```bash
 pnpm run server:script
-```
-
-Now run the development server.
-
-```bash
 pnpm run dokploy:dev
 ```
 
-Go to http://localhost:3000 to see the development server
+Open:
 
-> [!NOTE]
-> This project uses Biome. If your editor is configured to use another formatter such as Prettier, it's recommended to either change it to use Biome or turn it off.
+```text
+http://localhost:3000
+```
 
-## Build
+Notes:
+
+- `pnpm run dokploy:setup` prepares local services and runs migrations
+- `pnpm run server:script` switches `@dokploy/server` exports to source mode for local development
+- `pnpm run dokploy:dev` starts the custom Node server for the dashboard and API
+
+## Build And Ship
+
+### Build The App
 
 ```bash
 pnpm run dokploy:build
 ```
 
-## Docker
-
-To build the docker image
+### Run Validation
 
 ```bash
-pnpm run docker:build
+pnpm run validate
 ```
 
-To push the docker image
+### Build A Docker Image
 
 ```bash
-pnpm run docker:push
+docker build -t atlanexis/cloudos:latest .
 ```
 
-## Password Reset
+### Push A Docker Image
 
-In the case you lost your password, you can reset it using the following command
+```bash
+docker push atlanexis/cloudos:latest
+```
+
+## Useful Commands
+
+```bash
+pnpm run dokploy:setup
+pnpm run dokploy:dev
+pnpm run dokploy:build
+pnpm run validate
+pnpm run test
+pnpm run reset-password
+```
+
+## Operational Notes
+
+- CloudOS stores runtime config and generated Traefik files under `/etc/dokploy`
+- The internal platform database and queue services are created automatically by the installer
+- The `traefik.yml` provider config uses `atlanexis-network` as the shared network
+- Isolated compose deployments are labeled with their own app network so Traefik can still route correctly
+
+## Troubleshooting
+
+### Docker Permissions
+
+If your local Docker client cannot access the daemon or Docker config files:
+
+```bash
+sudo chown -R "$(whoami)" ~/.docker
+```
+
+### Password Reset
+
+If you lose access to the local account:
 
 ```bash
 pnpm run reset-password
 ```
 
-If you want to test the webhooks on development mode using localtunnel, make sure to install [`localtunnel`](https://localtunnel.app/)
+### Local Tunnel For Webhook Testing
 
 ```bash
 pnpm dlx localtunnel --port 3000
 ```
 
-If you run into permission issues of docker run the following command
+### Optional Builders On Target Hosts
+
+If you deploy workloads that rely on specific builders, install them on the target machine first.
+
+Nixpacks:
 
 ```bash
-sudo chown -R USERNAME dokploy or sudo chown -R $(whoami) ~/.docker
+curl -sSL https://nixpacks.com/install.sh -o install.sh && chmod +x install.sh && ./install.sh
 ```
 
-## Application deploy
-
-In case you want to deploy the application on your machine and you selected nixpacks or buildpacks, you need to install first.
+Railpack:
 
 ```bash
-# Install Nixpacks
-curl -sSL https://nixpacks.com/install.sh -o install.sh \
-    && chmod +x install.sh \
-    && ./install.sh
-```
-
-```bash
-# Install Railpack
 curl -sSL https://railpack.com/install.sh | sh
 ```
 
+Buildpacks `pack`:
+
 ```bash
-# Install Buildpacks
 curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.35.0/pack-v0.35.0-linux.tgz" | tar -C /usr/local/bin/ --no-same-owner -xzv pack
 ```
 
-## Pull Request
+## Contributing
 
-- The `canary` branch is the source of truth and should always reflect the latest stable release.
-- Create a new branch for each feature or bug fix.
-- Make sure to add tests for your changes.
-- Make sure to update the documentation for any changes Go to the [docs.dokploy.com](https://docs.dokploy.com) website to see the changes.
-- When creating a pull request, please provide a clear and concise description of the changes made.
-- If you include a video or screenshot, would be awesome so we can see the changes in action.
-- If your pull request fixes an open issue, please reference the issue in the pull request description.
-- Once your pull request is merged, you will be automatically added as a contributor to the project.
+Source contribution rules and workflow live in [`CONTRIBUTING.md`](./CONTRIBUTING.md).
 
-**Important Considerations for Pull Requests:**
+## Branding Note
 
-- **Focus and Scope:** Each Pull Request should ideally address a single, well-defined problem or introduce one new feature. This greatly facilitates review and reduces the chances of introducing unintended side effects.
-- **Avoid Unfocused Changes:** Please avoid submitting Pull Requests that contain only minor changes such as whitespace adjustments, IDE-generated formatting, or removal of unused variables, unless these are part of a larger, clearly defined refactor or a dedicated "cleanup" Pull Request that addresses a specific `good first issue` or maintenance task.
-- **Issue Association:** For any significant change, it's highly recommended to open an issue first to discuss the proposed solution with the community and maintainers. This ensures alignment and avoids duplicated effort. If your PR resolves an existing issue, please link it in the description (e.g., `Fixes #123`, `Closes #456`).
-
-Thank you for your contribution!
-
-## Templates
-
-To add a new template, go to `https://github.com/hirechbaghdad/templates` repository and read the README.md file.
-
-### Recommendations
-
-- Use the same name of the folder as the id of the template.
-- The logo should be in the public folder.
-- If you want to show a domain in the UI, please add the `_HOST` suffix at the end of the variable name.
-- Test first on a vps or a server to make sure the template works.
-
-## Docs & Website
-
-To contribute to the Atlanexis docs or website, please go to this [repository](https://github.com/hirechbaghdad/website).
+Some internal package names and scripts still use legacy `dokploy` naming for compatibility. The product and runtime branding for deployment is now CloudOS / Atlanexis CloudOS.
