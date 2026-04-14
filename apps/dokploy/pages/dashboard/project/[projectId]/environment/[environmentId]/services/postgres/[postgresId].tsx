@@ -81,7 +81,7 @@ const Postgresql = (
 			/>
 			<Head>
 				<title>
-					Database: {data?.name} - {data?.environment?.project?.name} | Dokploy
+					Database: {data?.name} - {data?.environment?.project?.name} | Atlanexis CloudOS
 				</title>
 			</Head>
 			<div className="w-full">

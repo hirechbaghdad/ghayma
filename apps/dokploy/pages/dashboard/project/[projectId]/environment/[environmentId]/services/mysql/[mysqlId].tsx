@@ -83,7 +83,7 @@ const MySql = (
 				<Head>
 					<title>
 						Database: {data?.name} - {data?.environment?.project?.name} |
-						Dokploy
+						Atlanexis CloudOS
 					</title>
 				</Head>
 				<div className="w-full">

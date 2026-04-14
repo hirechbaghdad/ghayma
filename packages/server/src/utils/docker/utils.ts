@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { Readable } from "node:stream";
 import { docker, paths } from "@dokploy/server/constants";
+import { PRIMARY_SHARED_NETWORK_NAME } from "@dokploy/server/constants/runtime";
 import type { Compose } from "@dokploy/server/services/compose";
 import type { ContainerInfo, ResourceRequirements } from "dockerode";
 import { parse } from "dotenv";
@@ -474,7 +475,7 @@ export const generateConfigContainer = (
 					Networks: networkSwarm,
 				}
 			: {
-					Networks: [{ Target: "dokploy-network" }],
+					Networks: [{ Target: PRIMARY_SHARED_NETWORK_NAME }],
 				}),
 		...(endpointSpecSwarm && {
 			EndpointSpec: {

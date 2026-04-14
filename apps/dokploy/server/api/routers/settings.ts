@@ -27,8 +27,11 @@ import {
 	readMainConfig,
 	readMonitoringConfig,
 	readPorts,
+	REDIS_RESOURCE_NAME,
 	recreateDirectory,
 	reloadDockerResource,
+	TRAEFIK_RESOURCE_NAME,
+	WEB_SERVER_RESOURCE_NAME,
 	sendDockerCleanupNotifications,
 	setupGPUSupport,
 	spawnAsync,
@@ -78,7 +81,7 @@ export const settingsRouter = createTRPCRouter({
 		if (IS_CLOUD) {
 			return true;
 		}
-		await reloadDockerResource("dokploy");
+		await reloadDockerResource(WEB_SERVER_RESOURCE_NAME);
 		return true;
 	}),
 	cleanRedis: adminProcedure.mutation(async () => {
@@ -87,7 +90,7 @@ export const settingsRouter = createTRPCRouter({
 		}
 
 		const { stdout: containerId } = await execAsync(
-			`docker ps --filter "name=dokploy-redis" --filter "status=running" -q | head -n 1`,
+			`docker ps --filter "name=${REDIS_RESOURCE_NAME}" --filter "status=running" -q | head -n 1`,
 		);
 
 		if (!containerId) {
@@ -103,7 +106,7 @@ export const settingsRouter = createTRPCRouter({
 		if (IS_CLOUD) {
 			return true;
 		}
-		await reloadDockerResource("dokploy-redis");
+		await reloadDockerResource(REDIS_RESOURCE_NAME);
 
 		return true;
 	}),
@@ -111,7 +114,7 @@ export const settingsRouter = createTRPCRouter({
 		.input(apiServerSchema)
 		.mutation(async ({ input }) => {
 			try {
-				await reloadDockerResource("dokploy-traefik", input?.serverId);
+				await reloadDockerResource(TRAEFIK_RESOURCE_NAME, input?.serverId);
 			} catch (err) {
 				console.error(err);
 			}
@@ -121,9 +124,9 @@ export const settingsRouter = createTRPCRouter({
 	toggleDashboard: adminProcedure
 		.input(apiEnableDashboard)
 		.mutation(async ({ input }) => {
-			const ports = await readPorts("dokploy-traefik", input.serverId);
+			const ports = await readPorts(TRAEFIK_RESOURCE_NAME, input.serverId);
 			const env = await readEnvironmentVariables(
-				"dokploy-traefik",
+				TRAEFIK_RESOURCE_NAME,
 				input.serverId,
 			);
 			const preparedEnv = prepareEnvironmentVariables(env);
@@ -347,7 +350,8 @@ export const settingsRouter = createTRPCRouter({
 		if (IS_CLOUD) {
 			return true;
 		}
-		const traefikConfig = readConfig("dokploy");
+		const traefikConfig =
+			readConfig(WEB_SERVER_RESOURCE_NAME) || readConfig("dokploy");
 		return traefikConfig;
 	}),
 	updateWebServerTraefikConfig: adminProcedure
@@ -356,7 +360,7 @@ export const settingsRouter = createTRPCRouter({
 			if (IS_CLOUD) {
 				return true;
 			}
-			writeConfig("dokploy", input.traefikConfig);
+			writeConfig(WEB_SERVER_RESOURCE_NAME, input.traefikConfig);
 			return true;
 		}),
 
@@ -399,7 +403,7 @@ export const settingsRouter = createTRPCRouter({
 			"--force",
 			"--image",
 			getDokployImage(),
-			"dokploy",
+			WEB_SERVER_RESOURCE_NAME,
 		]);
 
 		return true;
@@ -560,7 +564,7 @@ export const settingsRouter = createTRPCRouter({
 		.input(apiServerSchema)
 		.query(async ({ input }) => {
 			const envVars = await readEnvironmentVariables(
-				"dokploy-traefik",
+				TRAEFIK_RESOURCE_NAME,
 				input?.serverId,
 			);
 			return envVars;
@@ -570,7 +574,7 @@ export const settingsRouter = createTRPCRouter({
 		.input(z.object({ env: z.string(), serverId: z.string().optional() }))
 		.mutation(async ({ input }) => {
 			const envs = prepareEnvironmentVariables(input.env);
-			const ports = await readPorts("dokploy-traefik", input?.serverId);
+			const ports = await readPorts(TRAEFIK_RESOURCE_NAME, input?.serverId);
 
 			await writeTraefikSetup({
 				env: envs,
@@ -583,7 +587,7 @@ export const settingsRouter = createTRPCRouter({
 	haveTraefikDashboardPortEnabled: adminProcedure
 		.input(apiServerSchema)
 		.query(async ({ input }) => {
-			const ports = await readPorts("dokploy-traefik", input?.serverId);
+			const ports = await readPorts(TRAEFIK_RESOURCE_NAME, input?.serverId);
 			return ports.some((port) => port.targetPort === 8080);
 		}),
 
@@ -807,7 +811,7 @@ export const settingsRouter = createTRPCRouter({
 					});
 				}
 				const env = await readEnvironmentVariables(
-					"dokploy-traefik",
+					TRAEFIK_RESOURCE_NAME,
 					input?.serverId,
 				);
 				const preparedEnv = prepareEnvironmentVariables(env);
@@ -832,7 +836,7 @@ export const settingsRouter = createTRPCRouter({
 	getTraefikPorts: adminProcedure
 		.input(apiServerSchema)
 		.query(async ({ input }) => {
-			const ports = await readPorts("dokploy-traefik", input?.serverId);
+			const ports = await readPorts(TRAEFIK_RESOURCE_NAME, input?.serverId);
 			return ports;
 		}),
 	updateLogCleanup: protectedProcedure

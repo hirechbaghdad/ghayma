@@ -3,6 +3,11 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { IS_CLOUD, paths } from "@dokploy/server/constants";
+import {
+	POSTGRES_RESOURCE_NAME,
+	WEB_SERVER_DATABASE_NAME,
+	WEB_SERVER_DATABASE_USER,
+} from "@dokploy/server/constants/runtime";
 import type { BackupSchedule } from "@dokploy/server/services/backup";
 import {
 	createDeploymentBackup,
@@ -38,7 +43,7 @@ export const runWebServerBackup = async (backup: BackupSchedule) => {
 
 			// First get the container ID
 			const { stdout: containerId } = await execAsync(
-				`docker ps --filter "name=dokploy-postgres" --filter "status=running" -q | head -n 1`,
+				`docker ps --filter "name=${POSTGRES_RESOURCE_NAME}" --filter "status=running" -q | head -n 1`,
 			);
 
 			if (!containerId) {
@@ -52,7 +57,7 @@ export const runWebServerBackup = async (backup: BackupSchedule) => {
 			const postgresContainerId = containerId.trim();
 
 			// First dump the database inside the container
-			const dumpCommand = `docker exec ${postgresContainerId} pg_dump -v -Fc -U dokploy -d dokploy -f /tmp/database.sql`;
+			const dumpCommand = `docker exec ${postgresContainerId} pg_dump -v -Fc -U ${WEB_SERVER_DATABASE_USER} -d ${WEB_SERVER_DATABASE_NAME} -f /tmp/database.sql`;
 			writeStream.write(`Running dump command: ${dumpCommand}\n`);
 			await execAsync(dumpCommand);
 

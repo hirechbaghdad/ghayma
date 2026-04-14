@@ -1,6 +1,7 @@
 import fs, { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { paths } from "@dokploy/server/constants";
+import { PRIMARY_SHARED_NETWORK_NAME } from "@dokploy/server/constants/runtime";
 import type { Compose } from "@dokploy/server/services/compose";
 import type { Domain } from "@dokploy/server/services/domain";
 import { parse, stringify } from "yaml";
@@ -202,27 +203,31 @@ export const addDomainToCompose = async (
 			labels.unshift(...httpLabels);
 			if (!compose.isolatedDeployment) {
 				if (compose.composeType === "docker-compose") {
-					if (!labels.includes("traefik.docker.network=dokploy-network")) {
-						labels.unshift("traefik.docker.network=dokploy-network");
+					const networkLabel =
+						`traefik.docker.network=${PRIMARY_SHARED_NETWORK_NAME}`;
+					if (!labels.includes(networkLabel)) {
+						labels.unshift(networkLabel);
 					}
 				} else {
 					// Stack Case
-					if (!labels.includes("traefik.swarm.network=dokploy-network")) {
-						labels.unshift("traefik.swarm.network=dokploy-network");
+					const networkLabel =
+						`traefik.swarm.network=${PRIMARY_SHARED_NETWORK_NAME}`;
+					if (!labels.includes(networkLabel)) {
+						labels.unshift(networkLabel);
 					}
 				}
 			}
 		}
 
 		if (!compose.isolatedDeployment) {
-			// Add the dokploy-network to the service
+			// Add the shared network to the service
 			result.services[serviceName].networks = addDokployNetworkToService(
 				result.services[serviceName].networks,
 			);
 		}
 	}
 
-	// Add dokploy-network to the root of the compose file
+	// Add the shared network to the root of the compose file
 	if (!compose.isolatedDeployment) {
 		result.networks = addDokployNetworkToRoot(result.networks);
 	}
@@ -329,7 +334,7 @@ export const addDokployNetworkToService = (
 	networkService: DefinitionsService["networks"],
 ) => {
 	let networks = networkService;
-	const network = "dokploy-network";
+	const network = PRIMARY_SHARED_NETWORK_NAME;
 	if (!networks) {
 		networks = [];
 	}
@@ -351,7 +356,7 @@ export const addDokployNetworkToRoot = (
 	networkRoot: PropertiesNetworks | undefined,
 ) => {
 	let networks = networkRoot;
-	const network = "dokploy-network";
+	const network = PRIMARY_SHARED_NETWORK_NAME;
 
 	if (!networks) {
 		networks = {};

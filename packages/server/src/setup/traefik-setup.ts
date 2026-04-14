@@ -1,6 +1,7 @@
 import {
 	chmodSync,
 	existsSync,
+	readFileSync,
 	mkdirSync,
 	rmSync,
 	statSync,
@@ -10,6 +11,12 @@ import path from "node:path";
 import type { ContainerCreateOptions, CreateServiceOptions } from "dockerode";
 import { stringify } from "yaml";
 import { paths } from "../constants";
+import {
+	LEGACY_WEB_SERVER_RESOURCE_NAME,
+	PRIMARY_SHARED_NETWORK_NAME,
+	TRAEFIK_RESOURCE_NAME,
+	WEB_SERVER_RESOURCE_NAME,
+} from "../constants/runtime";
 import { getRemoteDocker } from "../utils/servers/remote-docker";
 import type { FileConfig } from "../utils/traefik/file-types";
 import type { MainTraefikConfig } from "../utils/traefik/types";
@@ -39,7 +46,7 @@ export const initializeStandaloneTraefik = async ({
 }: TraefikOptions = {}) => {
 	const { MAIN_TRAEFIK_PATH, DYNAMIC_TRAEFIK_PATH } = paths(!!serverId);
 	const imageName = `traefik:v${TRAEFIK_VERSION}`;
-	const containerName = "dokploy-traefik";
+	const containerName = TRAEFIK_RESOURCE_NAME;
 
 	const exposedPorts: Record<string, {}> = {
 		[`${TRAEFIK_PORT}/tcp`]: {},
@@ -75,7 +82,7 @@ export const initializeStandaloneTraefik = async ({
 		Image: imageName,
 		NetworkingConfig: {
 			EndpointsConfig: {
-				"atlanexis-network": {},
+				[PRIMARY_SHARED_NETWORK_NAME]: {},
 			},
 		},
 		ExposedPorts: exposedPorts,
@@ -124,7 +131,7 @@ export const initializeTraefikService = async ({
 }: TraefikOptions) => {
 	const { MAIN_TRAEFIK_PATH, DYNAMIC_TRAEFIK_PATH } = paths(!!serverId);
 	const imageName = `traefik:v${TRAEFIK_VERSION}`;
-	const appName = "dokploy-traefik";
+	const appName = TRAEFIK_RESOURCE_NAME;
 
 	const settings: CreateServiceOptions = {
 		Name: appName,
@@ -150,7 +157,7 @@ export const initializeTraefikService = async ({
 					},
 				],
 			},
-			Networks: [{ Target: "atlanexis-network" }],
+			Networks: [{ Target: PRIMARY_SHARED_NETWORK_NAME }],
 			Placement: {
 				Constraints: ["node.role==manager"],
 			},
@@ -212,14 +219,27 @@ export const initializeTraefikService = async ({
 
 export const createDefaultServerTraefikConfig = () => {
 	const { DYNAMIC_TRAEFIK_PATH } = paths();
-	const configFilePath = path.join(DYNAMIC_TRAEFIK_PATH, "dokploy.yml");
+	const configFilePath = path.join(
+		DYNAMIC_TRAEFIK_PATH,
+		`${WEB_SERVER_RESOURCE_NAME}.yml`,
+	);
+	const legacyConfigPath = path.join(
+		DYNAMIC_TRAEFIK_PATH,
+		`${LEGACY_WEB_SERVER_RESOURCE_NAME}.yml`,
+	);
 
 	if (existsSync(configFilePath)) {
 		console.log("Default traefik config already exists");
 		return;
 	}
 
-	const appName = "dokploy";
+	if (existsSync(legacyConfigPath)) {
+		writeFileSync(configFilePath, readFileSync(legacyConfigPath, "utf8"), "utf8");
+		console.log("Migrated legacy traefik config");
+		return;
+	}
+
+	const appName = WEB_SERVER_RESOURCE_NAME;
 	const serviceURLDefault = `http://${appName}:${process.env.PORT || 3000}`;
 	const config: FileConfig = {
 		http: {
@@ -271,7 +291,7 @@ export const getDefaultTraefikConfig = () => {
 						docker: {
 							exposedByDefault: false,
 							watch: true,
-							network: "atlanexis-network",
+					network: PRIMARY_SHARED_NETWORK_NAME,
 						},
 					}),
 			file: {
@@ -330,7 +350,7 @@ export const getDefaultServerTraefikConfig = () => {
 			docker: {
 				exposedByDefault: false,
 				watch: true,
-				network: "atlanexis-network",
+				network: PRIMARY_SHARED_NETWORK_NAME,
 			},
 			file: {
 				directory: "/etc/dokploy/traefik/dynamic",

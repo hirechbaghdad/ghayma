@@ -1,4 +1,5 @@
 import { IS_CLOUD } from "@dokploy/server/constants";
+import { WEB_SERVER_RESOURCE_NAME } from "@dokploy/server/constants/runtime";
 import { validateRequest } from "@dokploy/server/lib/auth";
 import { Loader2 } from "lucide-react";
 import type { GetServerSidePropsContext } from "next";
@@ -73,7 +74,7 @@ const Dashboard = () => {
 					) : (
 						<Card className="h-full bg-sidebar  p-2.5 rounded-xl">
 							<div className="rounded-xl bg-background shadow-md p-6">
-								<ContainerFreeMonitoring appName="dokploy" />
+								<ContainerFreeMonitoring appName={WEB_SERVER_RESOURCE_NAME} />
 							</div>
 						</Card>
 					)}

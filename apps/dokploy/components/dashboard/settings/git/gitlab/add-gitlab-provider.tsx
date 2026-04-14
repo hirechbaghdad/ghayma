@@ -148,7 +148,7 @@ export const AddGitlabProvider = () => {
 									<li>
 										Create a new application with the following details:
 										<ul className="list-disc list-inside ml-4">
-											<li>Name: Dokploy</li>
+											<li>Name: Atlanexis CloudOS</li>
 											<li>
 												Redirect URI:{" "}
 												<span className="text-primary">{webhookUrl}</span>{" "}

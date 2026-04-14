@@ -129,7 +129,7 @@ export const ShowBilling = () => {
 								<Button className="rounded-full bg-[#5965F2] hover:bg-[#4A55E0] w-fit">
 									<Link
 										href="https://discord.gg/2tBnJ3jDJc"
-										aria-label="Dokploy on GitHub"
+										aria-label="Atlanexis CloudOS community"
 										target="_blank"
 										className="flex flex-row items-center gap-2 text-white"
 									>
@@ -216,11 +216,11 @@ export const ShowBilling = () => {
 														)}
 													>
 														{[
-															"All the features of Dokploy",
+															"All the features of Atlanexis CloudOS",
 															"Unlimited deployments",
 															"Self-hosted on your own infrastructure",
 															"Full access to all deployment features",
-															"Dokploy integration",
+															"CloudOS integration",
 															"Backups",
 															"All Incoming features",
 														].map((feature) => (

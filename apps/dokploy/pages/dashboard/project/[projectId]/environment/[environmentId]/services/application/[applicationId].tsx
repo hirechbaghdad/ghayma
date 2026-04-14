@@ -110,7 +110,7 @@ const Service = (
 			/>
 			<Head>
 				<title>
-					Application: {data?.name} - {data?.environment.project.name} | Dokploy
+					Application: {data?.name} - {data?.environment.project.name} | Atlanexis CloudOS
 				</title>
 			</Head>
 			<div className="w-full">

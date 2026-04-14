@@ -2,6 +2,11 @@ import { readdirSync } from "node:fs";
 import { join } from "node:path";
 import { docker } from "@dokploy/server/constants";
 import {
+	TRAEFIK_RESOURCE_NAME,
+	WEB_SERVER_IMAGE_REPOSITORY,
+	WEB_SERVER_RESOURCE_NAME,
+} from "@dokploy/server/constants/runtime";
+import {
 	execAsync,
 	execAsyncRemote,
 } from "@dokploy/server/utils/process/execAsync";
@@ -27,7 +32,7 @@ export const getDokployImageTag = () => {
 };
 
 export const getDokployImage = () => {
-	return `dokploy/dokploy:${getDokployImageTag()}`;
+	return `${WEB_SERVER_IMAGE_REPOSITORY}:${getDokployImageTag()}`;
 };
 
 export const pullLatestRelease = async () => {
@@ -42,7 +47,7 @@ export const pullLatestRelease = async () => {
 /** Returns Dokploy docker service image digest */
 export const getServiceImageDigest = async () => {
 	const { stdout } = await execAsync(
-		"docker service inspect dokploy --format '{{.Spec.TaskTemplate.ContainerSpec.Image}}'",
+		`docker service inspect ${WEB_SERVER_RESOURCE_NAME} --format '{{.Spec.TaskTemplate.ContainerSpec.Image}}'`,
 	);
 
 	const currentDigest = stdout.trim().split("@")[1];
@@ -64,7 +69,7 @@ export const getUpdateData = async (): Promise<IUpdateData> => {
 		return DEFAULT_UPDATE_DATA;
 	}
 
-	const baseUrl = "https://hub.docker.com/v2/repositories/dokploy/dokploy/tags";
+	const baseUrl = `https://hub.docker.com/v2/repositories/${WEB_SERVER_IMAGE_REPOSITORY}/tags`;
 	let url: string | null = `${baseUrl}?page_size=100`;
 	let allResults: { digest: string; name: string }[] = [];
 	while (url) {
@@ -394,7 +399,7 @@ export const readPorts = async (
 
 export const writeTraefikSetup = async (input: TraefikOptions) => {
 	const resourceType = await getDockerResourceType(
-		"dokploy-traefik",
+		TRAEFIK_RESOURCE_NAME,
 		input.serverId,
 	);
 

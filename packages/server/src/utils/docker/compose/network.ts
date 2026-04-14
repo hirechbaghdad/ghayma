@@ -1,14 +1,15 @@
 import _ from "lodash";
+import { SHARED_NETWORK_NAMES } from "../../../constants/runtime";
 import type {
 	ComposeSpecification,
 	DefinitionsNetwork,
 	DefinitionsService,
 } from "../types";
 
-const SHARED_NETWORK_NAMES = new Set(["dokploy-network", "atlanexis-network"]);
+const sharedNetworkNames = new Set(SHARED_NETWORK_NAMES);
 
 const shouldKeepSharedNetworkName = (networkName: string) =>
-	SHARED_NETWORK_NAMES.has(networkName);
+	sharedNetworkNames.has(networkName);
 
 export const addSuffixToNetworksRoot = (
 	networks: { [key: string]: DefinitionsNetwork },

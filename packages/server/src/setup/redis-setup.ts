@@ -1,10 +1,21 @@
 import type { CreateServiceOptions } from "dockerode";
 import { docker } from "../constants";
+import {
+	PRIMARY_SHARED_NETWORK_NAME,
+	REDIS_RESOURCE_NAME,
+} from "../constants/runtime";
 import { pullImage } from "../utils/docker/utils";
 
-export const initializeRedis = async () => {
+type InitializeRedisOptions = {
+	publishPorts?: boolean;
+};
+
+export const initializeRedis = async (
+	options: InitializeRedisOptions = {},
+) => {
+	const { publishPorts = false } = options;
 	const imageName = "redis:7";
-	const containerName = "atlanexis-redis";
+	const containerName = REDIS_RESOURCE_NAME;
 
 	const settings: CreateServiceOptions = {
 		Name: containerName,
@@ -14,12 +25,12 @@ export const initializeRedis = async () => {
 				Mounts: [
 					{
 						Type: "volume",
-						Source: "atlanexis-redis",
+						Source: REDIS_RESOURCE_NAME,
 						Target: "/data",
 					},
 				],
 			},
-			Networks: [{ Target: "atlanexis-network" }],
+			Networks: [{ Target: PRIMARY_SHARED_NETWORK_NAME }],
 			Placement: {
 				Constraints: ["node.role==manager"],
 			},
@@ -29,7 +40,7 @@ export const initializeRedis = async () => {
 				Replicas: 1,
 			},
 		},
-		...(process.env.NODE_ENV === "development" && {
+		...(publishPorts && {
 			EndpointSpec: {
 				Ports: [
 					{

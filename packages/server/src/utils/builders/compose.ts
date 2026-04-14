@@ -1,5 +1,6 @@
 import { dirname, join } from "node:path";
 import { paths } from "@dokploy/server/constants";
+import { TRAEFIK_RESOURCE_NAME } from "@dokploy/server/constants/runtime";
 import type { InferResultType } from "@dokploy/server/types/with";
 import boxen from "boxen";
 import { quote } from "shell-quote";
@@ -55,7 +56,7 @@ Compose Type: ${composeType} ✅`;
 
 		${compose.isolatedDeployment ? `docker network inspect ${compose.appName} >/dev/null 2>&1 || docker network create --attachable ${compose.appName}` : ""}
 		env -i PATH="$PATH" ${exportEnvCommand} docker ${command.split(" ").join(" ")} 2>&1 || { echo "Error: ❌ Docker command failed"; exit 1; }
-		${compose.isolatedDeployment ? `docker network connect ${compose.appName} $(docker ps --filter "name=dokploy-traefik" -q) >/dev/null 2>&1` : ""}
+		${compose.isolatedDeployment ? `docker network connect ${compose.appName} $(docker ps --filter "name=${TRAEFIK_RESOURCE_NAME}" -q) >/dev/null 2>&1` : ""}
 	
 		echo "Docker Compose Deployed: ✅";
 	} || {

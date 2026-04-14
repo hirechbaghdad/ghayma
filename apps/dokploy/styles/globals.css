@@ -81,14 +81,14 @@
     }
 
     body {
-        @apply min-h-screen text-foreground antialiased;
+        @apply min-h-screen bg-background text-foreground antialiased;
         font-family: var(--font-sans), sans-serif;
-        background-color: #f6f9ff;
+        background-color: hsl(var(--background));
         position: relative;
     }
 
     .dark body {
-        background-color: #0c1220;
+        background-color: hsl(var(--background));
     }
 
     body::before {
@@ -102,6 +102,13 @@
             radial-gradient(circle at 50% 100%, rgba(191, 219, 254, 0.2) 0, transparent 35%);
         filter: blur(46px);
         pointer-events: none;
+    }
+
+    .dark body::before {
+        background:
+            radial-gradient(circle at 14% 12%, rgba(56, 189, 248, 0.12) 0, transparent 30%),
+            radial-gradient(circle at 82% 18%, rgba(96, 165, 250, 0.12) 0, transparent 28%),
+            radial-gradient(circle at 50% 100%, rgba(14, 165, 233, 0.12) 0, transparent 36%);
     }
 
     /* Force transparency on the main content containers */
@@ -119,8 +126,7 @@
     /* Rounded Pill Buttons */
     button, 
     .button, 
-    [role="button"],
-    .inline-flex.items-center.justify-center { 
+    [role="button"] {
         @apply rounded-full !important; 
     }
 
@@ -226,12 +232,25 @@
         radial-gradient(circle at bottom right, rgba(125, 211, 252, 0.12) 0, transparent 22%);
 }
 
+.dark .dashboard-shell::before {
+    background:
+        linear-gradient(180deg, rgba(4, 8, 17, 0.97) 0%, rgba(10, 15, 27, 0.98) 100%),
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.12) 0, transparent 24%),
+        radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.1) 0, transparent 22%);
+}
+
 .dashboard-topbar {
     background: rgba(255, 255, 255, 0.78);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
     border: 1px solid rgba(203, 213, 225, 0.72);
     box-shadow: 0 12px 34px rgba(15, 23, 42, 0.06);
+}
+
+.dark .dashboard-topbar {
+    background: rgba(10, 15, 27, 0.86);
+    border-color: rgba(71, 85, 105, 0.42);
+    box-shadow: 0 20px 54px rgba(2, 6, 23, 0.42);
 }
 
 .dashboard-content {
@@ -247,4 +266,16 @@
     background:
         linear-gradient(180deg, rgba(255, 255, 255, 0.46) 0%, rgba(255, 255, 255, 0.18) 100%);
     opacity: 0.8;
+}
+
+.dark .dashboard-content::before {
+    background:
+        linear-gradient(180deg, rgba(15, 23, 42, 0.38) 0%, rgba(2, 6, 23, 0.78) 100%);
+    opacity: 1;
+}
+
+.dark .dashboard-content > div {
+    background-color: hsl(var(--card) / 0.82) !important;
+    border-color: hsl(var(--border) / 0.9) !important;
+    box-shadow: 0 24px 70px rgba(2, 6, 23, 0.38);
 }

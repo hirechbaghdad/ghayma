@@ -1,5 +1,6 @@
 import { useTranslation } from "next-i18next";
 import { toast } from "sonner";
+import { WEB_SERVER_RESOURCE_NAME } from "@dokploy/server/constants/runtime";
 import { UpdateServerIp } from "@/components/dashboard/settings/web-server/update-server-ip";
 import { Button } from "@/components/ui/button";
 import {
@@ -54,7 +55,7 @@ export const ShowDokployActions = () => {
 					<TerminalModal serverId="local">
 						<span>{t("settings.common.enterTerminal")}</span>
 					</TerminalModal>
-					<ShowModalLogs appName="dokploy">
+					<ShowModalLogs appName={WEB_SERVER_RESOURCE_NAME}>
 						<DropdownMenuItem
 							className="cursor-pointer"
 							onSelect={(e) => e.preventDefault()}

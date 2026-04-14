@@ -1,28 +1,42 @@
 import type { CreateServiceOptions } from "dockerode";
 import { docker } from "../constants";
+import {
+	POSTGRES_RESOURCE_NAME,
+	PRIMARY_SHARED_NETWORK_NAME,
+	WEB_SERVER_DATABASE_NAME,
+	WEB_SERVER_DATABASE_USER,
+} from "../constants/runtime";
 import { pullImage } from "../utils/docker/utils";
-export const initializePostgres = async () => {
+
+type InitializePostgresOptions = {
+	publishPorts?: boolean;
+};
+
+export const initializePostgres = async (
+	options: InitializePostgresOptions = {},
+) => {
+	const { publishPorts = false } = options;
 	const imageName = "postgres:16";
-	const containerName = "atlanexis-postgres";
+	const containerName = POSTGRES_RESOURCE_NAME;
 	const settings: CreateServiceOptions = {
 		Name: containerName,
 		TaskTemplate: {
 			ContainerSpec: {
 				Image: imageName,
 				Env: [
-					"POSTGRES_USER=atlanexis",
-					"POSTGRES_DB=atlanexis",
+					`POSTGRES_USER=${WEB_SERVER_DATABASE_USER}`,
+					`POSTGRES_DB=${WEB_SERVER_DATABASE_NAME}`,
 					"POSTGRES_PASSWORD=amukds4wi9001583845717ad2",
 				],
 				Mounts: [
 					{
 						Type: "volume",
-						Source: "atlanexis-postgres",
+						Source: POSTGRES_RESOURCE_NAME,
 						Target: "/var/lib/postgresql/data",
 					},
 				],
 			},
-			Networks: [{ Target: "atlanexis-network" }],
+			Networks: [{ Target: PRIMARY_SHARED_NETWORK_NAME }],
 			Placement: {
 				Constraints: ["node.role==manager"],
 			},
@@ -32,7 +46,7 @@ export const initializePostgres = async () => {
 				Replicas: 1,
 			},
 		},
-		...(process.env.NODE_ENV === "development" && {
+		...(publishPorts && {
 			EndpointSpec: {
 				Ports: [
 					{

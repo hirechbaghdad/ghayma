@@ -82,7 +82,7 @@ export const StepOne = ({ setTemplateInfo, templateInfo }: any) => {
 							>
 								<SelectTrigger className="w-full">
 									<SelectValue
-										placeholder={!isCloud ? "Dokploy" : "Select a Server"}
+										placeholder={!isCloud ? "Atlanexis CloudOS" : "Select a Server"}
 									/>
 								</SelectTrigger>
 								<SelectContent>
@@ -90,7 +90,7 @@ export const StepOne = ({ setTemplateInfo, templateInfo }: any) => {
 										{!isCloud && (
 											<SelectItem value="dokploy">
 												<span className="flex items-center gap-2 justify-between w-full">
-													<span>Dokploy</span>
+													<span>Atlanexis CloudOS</span>
 													<span className="text-muted-foreground text-xs self-center">
 														Default
 													</span>

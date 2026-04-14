@@ -11,6 +11,7 @@ import {
 	loadOrCreateConfig,
 	updateServerTraefik,
 } from "@dokploy/server";
+import { WEB_SERVER_RESOURCE_NAME } from "@dokploy/server/constants/runtime";
 import { beforeEach, expect, test, vi } from "vitest";
 
 const baseAdmin: User = {
@@ -75,9 +76,11 @@ beforeEach(() => {
 });
 
 test("Should read the configuration file", () => {
-	const config: FileConfig = loadOrCreateConfig("dokploy");
-	expect(config.http?.routers?.["dokploy-router-app"]?.service).toBe(
-		"dokploy-service-app",
+	const config: FileConfig = loadOrCreateConfig(WEB_SERVER_RESOURCE_NAME);
+	expect(
+		config.http?.routers?.[`${WEB_SERVER_RESOURCE_NAME}-router-app`]?.service,
+	).toBe(
+		`${WEB_SERVER_RESOURCE_NAME}-service-app`,
 	);
 });
 
@@ -91,27 +94,30 @@ test("Should apply redirect-to-https", () => {
 		"example.com",
 	);
 
-	const config: FileConfig = loadOrCreateConfig("dokploy");
+	const config: FileConfig = loadOrCreateConfig(WEB_SERVER_RESOURCE_NAME);
 
-	expect(config.http?.routers?.["dokploy-router-app"]?.middlewares).toContain(
-		"redirect-to-https",
-	);
+	expect(
+		config.http?.routers?.[`${WEB_SERVER_RESOURCE_NAME}-router-app`]
+			?.middlewares,
+	).toContain("redirect-to-https");
 });
 
 test("Should change only host when no certificate", () => {
 	updateServerTraefik(baseAdmin, "example.com");
 
-	const config: FileConfig = loadOrCreateConfig("dokploy");
+	const config: FileConfig = loadOrCreateConfig(WEB_SERVER_RESOURCE_NAME);
 
-	expect(config.http?.routers?.["dokploy-router-app-secure"]).toBeUndefined();
+	expect(
+		config.http?.routers?.[`${WEB_SERVER_RESOURCE_NAME}-router-app-secure`],
+	).toBeUndefined();
 });
 
 test("Should not touch config without host", () => {
-	const originalConfig: FileConfig = loadOrCreateConfig("dokploy");
+	const originalConfig: FileConfig = loadOrCreateConfig(WEB_SERVER_RESOURCE_NAME);
 
 	updateServerTraefik(baseAdmin, null);
 
-	const config: FileConfig = loadOrCreateConfig("dokploy");
+	const config: FileConfig = loadOrCreateConfig(WEB_SERVER_RESOURCE_NAME);
 
 	expect(originalConfig).toEqual(config);
 });
@@ -124,10 +130,13 @@ test("Should remove websecure if https rollback to http", () => {
 
 	updateServerTraefik({ ...baseAdmin, certificateType: "none" }, "example.com");
 
-	const config: FileConfig = loadOrCreateConfig("dokploy");
+	const config: FileConfig = loadOrCreateConfig(WEB_SERVER_RESOURCE_NAME);
 
-	expect(config.http?.routers?.["dokploy-router-app-secure"]).toBeUndefined();
 	expect(
-		config.http?.routers?.["dokploy-router-app"]?.middlewares,
+		config.http?.routers?.[`${WEB_SERVER_RESOURCE_NAME}-router-app-secure`],
+	).toBeUndefined();
+	expect(
+		config.http?.routers?.[`${WEB_SERVER_RESOURCE_NAME}-router-app`]
+			?.middlewares,
 	).not.toContain("redirect-to-https");
 });

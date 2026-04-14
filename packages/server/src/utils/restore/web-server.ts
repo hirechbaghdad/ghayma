@@ -2,6 +2,11 @@ import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { IS_CLOUD, paths } from "@dokploy/server/constants";
+import {
+	POSTGRES_RESOURCE_NAME,
+	WEB_SERVER_DATABASE_NAME,
+	WEB_SERVER_DATABASE_USER,
+} from "@dokploy/server/constants/runtime";
 import type { Destination } from "@dokploy/server/services/destination";
 import { getS3Credentials } from "../backups/utils";
 import { execAsync } from "../process/execAsync";
@@ -84,7 +89,7 @@ export const restoreWebServerBackup = async (
 			}
 
 			const { stdout: postgresContainer } = await execAsync(
-				`docker ps --filter "name=dokploy-postgres" --filter "status=running" -q | head -n 1`,
+				`docker ps --filter "name=${POSTGRES_RESOURCE_NAME}" --filter "status=running" -q | head -n 1`,
 			);
 
 			if (!postgresContainer) {
@@ -96,17 +101,17 @@ export const restoreWebServerBackup = async (
 			// Drop and recreate database
 			emit("Disconnecting all users from database...");
 			await execAsync(
-				`docker exec ${postgresContainerId} psql -U dokploy postgres -c "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = 'dokploy' AND pid <> pg_backend_pid();"`,
+				`docker exec ${postgresContainerId} psql -U ${WEB_SERVER_DATABASE_USER} postgres -c "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = '${WEB_SERVER_DATABASE_NAME}' AND pid <> pg_backend_pid();"`,
 			);
 
 			emit("Dropping existing database...");
 			await execAsync(
-				`docker exec ${postgresContainerId} psql -U dokploy postgres -c "DROP DATABASE IF EXISTS dokploy;"`,
+				`docker exec ${postgresContainerId} psql -U ${WEB_SERVER_DATABASE_USER} postgres -c "DROP DATABASE IF EXISTS ${WEB_SERVER_DATABASE_NAME};"`,
 			);
 
 			emit("Creating fresh database...");
 			await execAsync(
-				`docker exec ${postgresContainerId} psql -U dokploy postgres -c "CREATE DATABASE dokploy;"`,
+				`docker exec ${postgresContainerId} psql -U ${WEB_SERVER_DATABASE_USER} postgres -c "CREATE DATABASE ${WEB_SERVER_DATABASE_NAME};"`,
 			);
 
 			// Copy the backup file into the container
@@ -124,7 +129,7 @@ export const restoreWebServerBackup = async (
 			// Restore from the copied file
 			emit("Running database restore...");
 			await execAsync(
-				`docker exec ${postgresContainerId} pg_restore -v -U dokploy -d dokploy /tmp/database.sql`,
+				`docker exec ${postgresContainerId} pg_restore -v -U ${WEB_SERVER_DATABASE_USER} -d ${WEB_SERVER_DATABASE_NAME} /tmp/database.sql`,
 			);
 
 			// Cleanup the temporary file in the container

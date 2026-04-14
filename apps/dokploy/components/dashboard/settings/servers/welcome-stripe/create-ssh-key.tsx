@@ -36,7 +36,7 @@ export const CreateSSHKey = () => {
 				});
 				await mutateAsync({
 					name: "dokploy-cloud-ssh-key",
-					description: "Used on Dokploy Cloud",
+					description: "Used on Atlanexis CloudOS",
 					privateKey: keys.privateKey,
 					publicKey: keys.publicKey,
 					organizationId: "",

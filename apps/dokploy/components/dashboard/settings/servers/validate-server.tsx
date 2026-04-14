@@ -122,7 +122,7 @@ export const ValidateServer = ({ serverId }: Props) => {
 											}
 										/>
 										<StatusRow
-											label="Dokploy Network Created"
+											label="Atlanexis Network Created"
 											isEnabled={data?.isDokployNetworkInstalled}
 											description={
 												data?.isDokployNetworkInstalled

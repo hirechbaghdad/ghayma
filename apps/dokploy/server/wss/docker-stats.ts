@@ -4,6 +4,7 @@ import {
 	execAsync,
 	getHostSystemStats,
 	getLastAdvancedStatsFile,
+	isWebServerResourceName,
 	recordAdvancedStats,
 	validateRequest,
 } from "@dokploy/server";
@@ -50,8 +51,8 @@ export const setupDockerStatsMonitoringSocketServer = (
 		}
 		const intervalId = setInterval(async () => {
 			try {
-				// Special case: when monitoring "dokploy", get host system stats instead of container stats
-				if (appName === "dokploy") {
+				// Special case: monitor host stats instead of container stats for the web server.
+				if (isWebServerResourceName(appName)) {
 					const stat = await getHostSystemStats();
 
 					await recordAdvancedStats(stat, appName);

@@ -101,7 +101,7 @@ const Service = (
 			/>
 			<Head>
 				<title>
-					Compose: {data?.name} - {data?.environment?.project?.name} | Dokploy
+					Compose: {data?.name} - {data?.environment?.project?.name} | Atlanexis CloudOS
 				</title>
 			</Head>
 			<div className="w-full">

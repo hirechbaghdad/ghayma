@@ -1,10 +1,11 @@
 import { defineConfig } from "drizzle-kit";
+import { getDatabaseUrl } from "./connection-string";
 
 export default defineConfig({
 	schema: "./server/db/schema/index.ts",
 	dialect: "postgresql",
 	dbCredentials: {
-		url: process.env.DATABASE_URL!,
+		url: getDatabaseUrl(),
 	},
 	out: "drizzle",
 	migrations: {

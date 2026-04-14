@@ -1,10 +1,15 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { paths } from "@dokploy/server/constants";
+import {
+	LEGACY_WEB_SERVER_RESOURCE_NAME,
+	WEB_SERVER_RESOURCE_NAME,
+} from "@dokploy/server/constants/runtime";
 import type { User } from "@dokploy/server/services/user";
 import { parse, stringify } from "yaml";
 import {
 	loadOrCreateConfig,
+	readConfig,
 	removeTraefikConfig,
 	writeTraefikConfig,
 } from "./application";
@@ -16,7 +21,13 @@ export const updateServerTraefik = (
 	newHost: string | null,
 ) => {
 	const { https, certificateType } = user || {};
-	const appName = "dokploy";
+	const appName = WEB_SERVER_RESOURCE_NAME;
+	const legacyConfig = readConfig(LEGACY_WEB_SERVER_RESOURCE_NAME);
+	const currentConfig = readConfig(appName);
+
+	if (!currentConfig && legacyConfig) {
+		writeTraefikConfig(parse(legacyConfig) as FileConfig, appName);
+	}
 	const config: FileConfig = loadOrCreateConfig(appName);
 
 	config.http = config.http || { routers: {}, services: {} };
@@ -36,7 +47,7 @@ export const updateServerTraefik = (
 			loadBalancer: {
 				servers: [
 					{
-						url: `http://dokploy:${process.env.PORT || 3000}`,
+						url: `http://${WEB_SERVER_RESOURCE_NAME}:${process.env.PORT || 3000}`,
 					},
 				],
 				passHostHeader: true,

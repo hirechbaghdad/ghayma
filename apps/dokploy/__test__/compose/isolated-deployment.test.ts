@@ -16,7 +16,7 @@ services:
       - web-secret
     networks:
       - frontend
-      - dokploy-network
+      - atlanexis-network
 
 configs:
   web-config:
@@ -29,7 +29,7 @@ secrets:
 networks:
   frontend:
     driver: bridge
-  dokploy-network:
+  atlanexis-network:
     external: true
 `;
 
@@ -43,7 +43,7 @@ test("Isolated deployment namespaces compose resources and keeps shared platform
 
 	expect(updatedComposeData.services).toHaveProperty("web-tenant-a");
 	expect(updatedComposeData.networks).toHaveProperty("frontend-tenant-a");
-	expect(updatedComposeData.networks).toHaveProperty("dokploy-network");
+	expect(updatedComposeData.networks).toHaveProperty("atlanexis-network");
 	expect(updatedComposeData.networks).toHaveProperty("tenant-a");
 	expect(updatedComposeData.configs).toHaveProperty("web-config-tenant-a");
 	expect(updatedComposeData.secrets).toHaveProperty("web-secret-tenant-a");
@@ -51,7 +51,7 @@ test("Isolated deployment namespaces compose resources and keeps shared platform
 	const webService = updatedComposeData.services?.["web-tenant-a"];
 
 	expect(webService?.networks).toContain("frontend-tenant-a");
-	expect(webService?.networks).toContain("dokploy-network");
+	expect(webService?.networks).toContain("atlanexis-network");
 	expect(webService?.networks).toContain("tenant-a");
 	expect(webService?.configs).toContainEqual({
 		source: "web-config-tenant-a",

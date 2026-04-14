@@ -1,6 +1,10 @@
 import path from "node:path";
 import { paths } from "@dokploy/server/constants";
 import {
+	PRIMARY_SHARED_NETWORK_NAME,
+	TRAEFIK_RESOURCE_NAME,
+} from "@dokploy/server/constants/runtime";
+import {
 	createServerDeployment,
 	updateDeploymentStatus,
 } from "@dokploy/server/services/deployment";
@@ -564,20 +568,20 @@ export const installRClone = () => `
 export const createTraefikInstance = () => {
 	const command = `
 	    # Check if dokpyloy-traefik exists
-		if docker service inspect dokploy-traefik > /dev/null 2>&1; then
+		if docker service inspect ${TRAEFIK_RESOURCE_NAME} > /dev/null 2>&1; then
 			echo "Migrating Traefik to Standalone..."
-			docker service rm dokploy-traefik
+			docker service rm ${TRAEFIK_RESOURCE_NAME}
 			sleep 8
 			echo "Traefik migrated to Standalone ✅"
 		fi
 
-		if docker inspect dokploy-traefik > /dev/null 2>&1; then
+		if docker inspect ${TRAEFIK_RESOURCE_NAME} > /dev/null 2>&1; then
 			echo "Traefik already exists ✅"
 		else
-			# Create the dokploy-traefik container
+			# Create the standalone Traefik container
 			TRAEFIK_VERSION=${TRAEFIK_VERSION}
 			docker run -d \
-				--name dokploy-traefik \
+				--name ${TRAEFIK_RESOURCE_NAME} \
 				--restart always \
 				-v /etc/dokploy/traefik/traefik.yml:/etc/traefik/traefik.yml \
 				-v /etc/dokploy/traefik/dynamic:/etc/dokploy/traefik/dynamic \
@@ -587,7 +591,7 @@ export const createTraefikInstance = () => {
 				-p ${TRAEFIK_HTTP3_PORT}:${TRAEFIK_HTTP3_PORT}/udp \
 				traefik:v$TRAEFIK_VERSION
 
-			docker network connect atlanexis-network dokploy-traefik;
+			docker network connect ${PRIMARY_SHARED_NETWORK_NAME} ${TRAEFIK_RESOURCE_NAME};
 			echo "Traefik version $TRAEFIK_VERSION installed ✅"
 		fi
 	`;

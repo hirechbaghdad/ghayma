@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { PRIMARY_SHARED_NETWORK_NAME } from "@dokploy/server/constants/runtime";
 import { AlertBlock } from "@/components/shared/alert-block";
 import { CodeEditor } from "@/components/shared/code-editor";
 import { Button } from "@/components/ui/button";
@@ -751,8 +752,8 @@ export const AddSwarmSettings = ({ id, type }: Props) => {
 											language="json"
 											placeholder={`[
  {
-	"Target" : "dokploy-network",
-	"Aliases" : ["dokploy-network"],
+	"Target" : "${PRIMARY_SHARED_NETWORK_NAME}",
+	"Aliases" : ["${PRIMARY_SHARED_NETWORK_NAME}"],
 	"DriverOpts" : {
 		"com.docker.network.driver.mtu" : "1500",
 		"com.docker.network.driver.host_binding" : "true",

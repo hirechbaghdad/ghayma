@@ -1,6 +1,7 @@
 import { ChevronsUpDown } from "lucide-react";
 import { useRouter } from "next/router";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -23,7 +24,6 @@ import { getFallbackAvatarInitials } from "@/lib/utils";
 import { api } from "@/utils/api";
 import useLocale from "@/utils/hooks/use-locale";
 import { ModeToggle } from "../ui/modeToggle";
-import { SidebarMenuButton } from "../ui/sidebar";
 
 const _AUTO_CHECK_UPDATES_INTERVAL_MINUTES = 7;
 
@@ -38,9 +38,9 @@ export const UserNav = () => {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<SidebarMenuButton
-					size="lg"
-					className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+				<Button
+					variant="outline"
+					className="h-11 w-full justify-start rounded-full border-border/70 bg-card/85 px-3 shadow-sm data-[state=open]:bg-accent"
 				>
 					<Avatar className="h-8 w-8 rounded-lg">
 						<AvatarImage
@@ -57,10 +57,10 @@ export const UserNav = () => {
 						<span className="truncate text-xs">{data?.user?.email}</span>
 					</div>
 					<ChevronsUpDown className="ml-auto size-4" />
-				</SidebarMenuButton>
+				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent
-				className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+				className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-2xl"
 				side="bottom"
 				align="end"
 				sideOffset={4}

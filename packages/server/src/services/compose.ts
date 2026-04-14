@@ -1,5 +1,6 @@
 import { join } from "node:path";
 import { paths } from "@dokploy/server/constants";
+import { TRAEFIK_RESOURCE_NAME } from "@dokploy/server/constants/runtime";
 import { db } from "@dokploy/server/db";
 import {
 	type apiCreateCompose,
@@ -394,7 +395,7 @@ export const removeCompose = async (
 
 		if (compose.composeType === "stack") {
 			const command = `
-			docker network disconnect ${compose.appName} dokploy-traefik;
+			docker network disconnect ${compose.appName} ${TRAEFIK_RESOURCE_NAME};
 			cd ${projectPath} && docker stack rm ${compose.appName} && rm -rf ${projectPath}`;
 
 			if (compose.serverId) {
@@ -407,7 +408,7 @@ export const removeCompose = async (
 			});
 		} else {
 			const command = `
-			 docker network disconnect ${compose.appName} dokploy-traefik;
+			 docker network disconnect ${compose.appName} ${TRAEFIK_RESOURCE_NAME};
 			cd ${projectPath} && env -i PATH="$PATH" docker compose -p ${compose.appName} down ${
 				deleteVolumes ? "--volumes" : ""
 			} && rm -rf ${projectPath}`;

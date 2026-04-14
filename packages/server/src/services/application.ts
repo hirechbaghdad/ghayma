@@ -1,4 +1,5 @@
 import { docker } from "@dokploy/server/constants";
+import { isWebServerResourceName } from "@dokploy/server/constants/runtime";
 import { db } from "@dokploy/server/db";
 import {
 	type apiCreateApplication,
@@ -468,7 +469,7 @@ export const deployPreviewApplication = async ({
 };
 
 export const getApplicationStats = async (appName: string) => {
-	if (appName === "dokploy") {
+	if (isWebServerResourceName(appName)) {
 		return await getAdvancedStats(appName);
 	}
 	const filter = {

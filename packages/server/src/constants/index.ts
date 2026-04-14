@@ -1,6 +1,8 @@
 import path from "node:path";
 import Docker from "dockerode";
 
+export * from "./runtime";
+
 export const IS_CLOUD = process.env.IS_CLOUD === "true";
 export const docker = new Docker();
 

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { isWebServerResourceName } from "@dokploy/server/constants/runtime";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { api } from "@/utils/api";
@@ -255,7 +256,7 @@ export const ContainerFreeMonitoring = ({
 						</div>
 					</CardContent>
 				</Card>
-				{appName === "dokploy" && (
+				{isWebServerResourceName(appName) && (
 					<Card className="bg-background">
 						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 							<CardTitle className="text-sm font-medium">Disk Space</CardTitle>

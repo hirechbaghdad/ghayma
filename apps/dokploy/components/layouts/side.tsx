@@ -1,16 +1,14 @@
 "use client";
+
 import type { inferRouterOutputs } from "@trpc/server";
 import {
-	Activity,
 	BarChartHorizontalBigIcon,
 	Bell,
 	BlocksIcon,
 	BookIcon,
 	BotIcon,
 	Boxes,
-	ChevronRight,
 	ChevronsUpDown,
-	CircleHelp,
 	Clock,
 	CreditCard,
 	Database,
@@ -19,7 +17,6 @@ import {
 	GalleryVerticalEnd,
 	GitBranch,
 	HeartIcon,
-	HistoryIcon,
 	KeyRound,
 	LayoutGrid,
 	Loader2,
@@ -27,20 +24,16 @@ import {
 	Package,
 	PieChart,
 	Server,
-	Settings2Icon,
 	SettingsIcon,
 	ShieldCheck,
-	ShoppingBagIcon,
-	ShoppingCart,
 	Star,
-	StoreIcon,
 	Trash2,
 	User,
 	Users,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
 	Breadcrumb,
@@ -48,11 +41,6 @@ import {
 	BreadcrumbLink,
 	BreadcrumbList,
 } from "@/components/ui/breadcrumb";
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import {
 	Command,
 	CommandEmpty,
@@ -77,26 +65,6 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
-import {
-	SIDEBAR_COOKIE_NAME,
-	Sidebar,
-	SidebarContent,
-	SidebarFooter,
-	SidebarGroup,
-	SidebarGroupLabel,
-	SidebarHeader,
-	SidebarInset,
-	SidebarMenu,
-	SidebarMenuButton,
-	SidebarMenuItem,
-	SidebarMenuSub,
-	SidebarMenuSubButton,
-	SidebarMenuSubItem,
-	SidebarProvider,
-	SidebarRail,
-	SidebarTrigger,
-	useSidebar,
-} from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import type { AppRouter } from "@/server/api/root";
@@ -109,7 +77,6 @@ import { TimeBadge } from "../ui/time-badge";
 import { UpdateServerButton } from "./update-server";
 import { UserNav } from "./user-nav";
 
-// The types of the queries we are going to use
 type AuthQueryOutput = inferRouterOutputs<AppRouter>["user"]["get"];
 
 type SingleNavItem = {
@@ -120,10 +87,6 @@ type SingleNavItem = {
 	isEnabled?: (opts: { auth?: AuthQueryOutput; isCloud: boolean }) => boolean;
 };
 
-// NavItem type
-// Consists of a single item or a group of items
-// If `isSingle` is true or undefined, the item is a single item
-// If `isSingle` is false, the item is a group of items
 type NavItem =
 	| SingleNavItem
 	| {
@@ -137,8 +100,6 @@ type NavItem =
 		}) => boolean;
 	};
 
-// ExternalLink type
-// Represents an external link item (used for the help section)
 type ExternalLink = {
 	name: string;
 	url: string;
@@ -146,18 +107,12 @@ type ExternalLink = {
 	isEnabled?: (opts: { auth?: AuthQueryOutput; isCloud: boolean }) => boolean;
 };
 
-// Menu type
-// Consists of home, settings, and help items
 type Menu = {
 	home: NavItem[];
 	settings: NavItem[];
 	help: ExternalLink[];
 };
 
-// Menu items
-// Consists of unfiltered home, settings, and help items
-// The items are filtered based on the user's role and permissions
-// The `isEnabled` function is called to determine if the item should be displayed
 const MENU: Menu = {
 	home: [
 		{
@@ -171,7 +126,6 @@ const MENU: Menu = {
 			title: "Monitoring",
 			url: "/dashboard/monitoring",
 			icon: BarChartHorizontalBigIcon,
-			// Only enabled in non-cloud environments
 			isEnabled: ({ isCloud }) => !isCloud,
 		},
 		{
@@ -179,7 +133,6 @@ const MENU: Menu = {
 			title: "Automated Cron Profiles",
 			url: "/dashboard/schedules",
 			icon: Clock,
-			// Only enabled in non-cloud environments
 			isEnabled: ({ isCloud, auth }) => !isCloud && auth?.role === "owner",
 		},
 		{
@@ -187,7 +140,6 @@ const MENU: Menu = {
 			title: "Dynamic Routing Configuration",
 			url: "/dashboard/traefik",
 			icon: GalleryVerticalEnd,
-			// Only enabled for admins and users with access to Traefik files in non-cloud environments
 			isEnabled: ({ auth, isCloud }) =>
 				!!(
 					(auth?.role === "owner" || auth?.canAccessToTraefikFiles) &&
@@ -199,7 +151,6 @@ const MENU: Menu = {
 			title: "Dynamic Routing Requests",
 			url: "/dashboard/requests",
 			icon: Forward,
-			// Only enabled for admins and users with access to Docker in non-cloud environments
 			isEnabled: ({ auth, isCloud }) =>
 				!!((auth?.role === "owner" || auth?.canAccessToDocker) && !isCloud),
 		},
@@ -208,7 +159,6 @@ const MENU: Menu = {
 			title: "Dynamic Routing Certificates",
 			url: "/dashboard/settings/certificates",
 			icon: ShieldCheck,
-			// Only enabled for admins
 			isEnabled: ({ auth }) => !!(auth?.role === "owner"),
 		},
 		{
@@ -216,7 +166,6 @@ const MENU: Menu = {
 			title: "Containers Engine",
 			url: "/dashboard/docker",
 			icon: BlocksIcon,
-			// Only enabled for admins and users with access to Docker in non-cloud environments
 			isEnabled: ({ auth, isCloud }) =>
 				!!((auth?.role === "owner" || auth?.canAccessToDocker) && !isCloud),
 		},
@@ -225,7 +174,6 @@ const MENU: Menu = {
 			title: "Distributed Compute Management",
 			url: "/dashboard/swarm",
 			icon: PieChart,
-			// Only enabled for admins and users with access to Docker in non-cloud environments
 			isEnabled: ({ auth, isCloud }) =>
 				!!((auth?.role === "owner" || auth?.canAccessToDocker) && !isCloud),
 		},
@@ -234,7 +182,6 @@ const MENU: Menu = {
 			title: "Distributed Compute Cluster Management",
 			url: "/dashboard/settings/cluster",
 			icon: Boxes,
-			// Only enabled for admins in non-cloud environments
 			isEnabled: ({ auth, isCloud }) => !!(auth?.role === "owner" && !isCloud),
 		},
 		{
@@ -249,76 +196,13 @@ const MENU: Menu = {
 			url: "/dashboard/ai-agent",
 			icon: BotIcon,
 		},
-		/*{
-			isSingle: true,
-				title: "Atlanexis Marketplace",
-			url: "/dashboard/marketplace",
-			icon: ShoppingCart,
-		},*/
-		// Legacy unused menu, adjusted to the new structure
-		// {
-		// 	isSingle: true,
-		// 	title: "Projects",
-		// 	url: "/dashboard/projects",
-		// 	icon: Folder,
-		// },
-		// {
-		// 	isSingle: true,
-		// 	title: "Monitoring",
-		// 	icon: BarChartHorizontalBigIcon,
-		// 	url: "/dashboard/settings/monitoring",
-		// },
-		// {
-		//   isSingle: false,
-		//   title: "Settings",
-		//   icon: Settings2,
-		//   items: [
-		//     {
-		//       title: "Profile",
-		//       url: "/dashboard/settings/profile",
-		//     },
-		//     {
-		//       title: "Users",
-		//       url: "/dashboard/settings/users",
-		//     },
-		//     {
-		//       title: "SSH Key",
-		//       url: "/dashboard/settings/ssh-keys",
-		//     },
-		//     {
-		//       title: "Git",
-		//       url: "/dashboard/settings/git-providers",
-		//     },
-		//   ],
-		// },
-		// {
-		//   isSingle: false,
-		//   title: "Integrations",
-		//   icon: BlocksIcon,
-		//   items: [
-		//     {
-		//       title: "S3 Destinations",
-		//       url: "/dashboard/settings/destinations",
-		//     },
-		//     {
-		//       title: "Registry",
-		//       url: "/dashboard/settings/registry",
-		//     },
-		//     {
-		//       title: "Notifications",
-		//       url: "/dashboard/settings/notifications",
-		//     },
-		//   ],
-		// },
 	],
-
 	settings: [
 		{
 			isSingle: true,
 			title: "Local Node settings",
 			url: "/dashboard/settings/server",
 			icon: SettingsIcon,
-			// Only enabled for admins in non-cloud environments
 			isEnabled: ({ auth, isCloud }) => !!(auth?.role === "owner" && !isCloud),
 		},
 		{
@@ -332,7 +216,6 @@ const MENU: Menu = {
 			title: "Servers",
 			url: "/dashboard/settings/servers",
 			icon: Server,
-			// Only enabled for admins
 			isEnabled: ({ auth }) => !!(auth?.role === "owner"),
 		},
 		{
@@ -340,7 +223,6 @@ const MENU: Menu = {
 			title: "IAM Roles",
 			icon: Users,
 			url: "/dashboard/settings/users",
-			// Only enabled for admins
 			isEnabled: ({ auth }) => !!(auth?.role === "owner"),
 		},
 		{
@@ -348,7 +230,6 @@ const MENU: Menu = {
 			title: "SSH Management",
 			icon: KeyRound,
 			url: "/dashboard/settings/ssh-keys",
-			// Only enabled for admins and users with access to SSH keys
 			isEnabled: ({ auth }) =>
 				!!(auth?.role === "owner" || auth?.canAccessToSSHKeys),
 		},
@@ -364,7 +245,6 @@ const MENU: Menu = {
 			title: "Git Repositories Integration",
 			url: "/dashboard/settings/git-providers",
 			icon: GitBranch,
-			// Only enabled for admins and users with access to Git providers
 			isEnabled: ({ auth }) =>
 				!!(auth?.role === "owner" || auth?.canAccessToGitProviders),
 		},
@@ -373,7 +253,6 @@ const MENU: Menu = {
 			title: "Container Registry Integration",
 			url: "/dashboard/settings/registry",
 			icon: Package,
-			// Only enabled for admins
 			isEnabled: ({ auth }) => !!(auth?.role === "owner"),
 		},
 		{
@@ -381,7 +260,6 @@ const MENU: Menu = {
 			title: "S3 Integration",
 			url: "/dashboard/settings/destinations",
 			icon: Database,
-			// Only enabled for admins
 			isEnabled: ({ auth }) => !!(auth?.role === "owner"),
 		},
 		{
@@ -389,7 +267,6 @@ const MENU: Menu = {
 			title: "Notifications",
 			url: "/dashboard/settings/notifications",
 			icon: Bell,
-			// Only enabled for admins
 			isEnabled: ({ auth }) => !!(auth?.role === "owner"),
 		},
 		{
@@ -397,11 +274,9 @@ const MENU: Menu = {
 			title: "Billing",
 			url: "/dashboard/settings/billing",
 			icon: CreditCard,
-			// Only enabled for admins in cloud environments
 			isEnabled: ({ auth, isCloud }) => !!(auth?.role === "owner" && isCloud),
 		},
 	],
-
 	help: [
 		{
 			name: "Atlanexis Support",
@@ -411,17 +286,11 @@ const MENU: Menu = {
 	],
 } as const;
 
-/**
- * Creates a menu based on the current user's role and permissions
- * @returns a menu object with the home, settings, and help items
- */
 function createMenuForAuthUser(opts: {
 	auth?: AuthQueryOutput;
 	isCloud: boolean;
 }): Menu {
 	return {
-		// Filter the home items based on the user's role and permissions
-		// Calls the `isEnabled` function if it exists to determine if the item should be displayed
 		home: MENU.home.filter((item) =>
 			!item.isEnabled
 				? true
@@ -430,8 +299,6 @@ function createMenuForAuthUser(opts: {
 					isCloud: opts.isCloud,
 				}),
 		),
-		// Filter the settings items based on the user's role and permissions
-		// Calls the `isEnabled` function if it exists to determine if the item should be displayed
 		settings: MENU.settings.filter((item) =>
 			!item.isEnabled
 				? true
@@ -440,8 +307,6 @@ function createMenuForAuthUser(opts: {
 					isCloud: opts.isCloud,
 				}),
 		),
-		// Filter the help items based on the user's role and permissions
-		// Calls the `isEnabled` function if it exists to determine if the item should be displayed
 		help: MENU.help.filter((item) =>
 			!item.isEnabled
 				? true
@@ -453,21 +318,11 @@ function createMenuForAuthUser(opts: {
 	};
 }
 
-/**
- * Determines if an item url is active based on the current pathname
- * @returns true if the item url is active, false otherwise
- */
-function isActiveRoute(opts: {
-	/** The url of the item. Usually obtained from `item.url` */
-	itemUrl: string;
-	/** The current pathname. Usually obtained from `usePathname()` */
-	pathname: string;
-}): boolean {
+function isActiveRoute(opts: { itemUrl: string; pathname: string }): boolean {
 	const normalizedItemUrl = opts.itemUrl?.replace("/projects", "/project");
 	const normalizedPathname = opts.pathname?.replace("/projects", "/project");
 
 	if (!normalizedPathname) return false;
-
 	if (normalizedPathname === normalizedItemUrl) return true;
 
 	if (normalizedPathname.startsWith(normalizedItemUrl)) {
@@ -478,47 +333,253 @@ function isActiveRoute(opts: {
 	return false;
 }
 
-/**
- * Finds the active nav item based on the current pathname
- * @returns the active nav item with `SingleNavItem` type or undefined if none is active
- */
 function findActiveNavItem(
 	navItems: NavItem[],
 	pathname: string,
 ): SingleNavItem | undefined {
 	const found = navItems.find((item) =>
 		item.isSingle !== false
-			? // The current item is single, so check if the item url is active
-			isActiveRoute({ itemUrl: item.url, pathname })
-			: // The current item is not single, so check if any of the sub items are active
-			item.items.some((item) =>
-				isActiveRoute({ itemUrl: item.url, pathname }),
+			? isActiveRoute({ itemUrl: item.url, pathname })
+			: item.items.some((subItem) =>
+				isActiveRoute({ itemUrl: subItem.url, pathname }),
 			),
 	);
 
 	if (found?.isSingle !== false) {
-		// The found item is single, so return it
 		return found;
 	}
 
-	// The found item is not single, so find the active sub item
-	return found?.items.find((item) =>
-		isActiveRoute({ itemUrl: item.url, pathname }),
+	return found?.items.find((subItem) =>
+		isActiveRoute({ itemUrl: subItem.url, pathname }),
 	);
 }
 
-function getLauncherEntries(items: NavItem[]): SingleNavItem[] {
-	return items.flatMap((item) =>
-		item.isSingle !== false ? [item] : item.items,
+function flattenNavItems(items: NavItem[]): SingleNavItem[] {
+	return items.flatMap((item) => (item.isSingle !== false ? [item] : item.items));
+}
+
+function OrganizationSwitcher() {
+	const { data: isCloud } = api.settings.isCloud.useQuery();
+	const { data: user } = api.user.get.useQuery();
+	const { data: session } = authClient.useSession();
+	const {
+		data: organizations,
+		refetch,
+		isLoading,
+	} = api.organization.all.useQuery();
+	const { mutateAsync: deleteOrganization, isLoading: isRemoving } =
+		api.organization.delete.useMutation();
+	const { mutateAsync: setDefaultOrganization, isLoading: isSettingDefault } =
+		api.organization.setDefault.useMutation();
+	const { data: activeOrganization } = authClient.useActiveOrganization();
+
+	if (isLoading) {
+		return (
+			<div className="inline-flex h-11 items-center gap-2 rounded-full border border-border/70 bg-card/80 px-4 text-sm text-muted-foreground">
+				<Loader2 className="size-4 animate-spin" />
+				<span>Loading workspace</span>
+			</div>
+		);
+	}
+
+	return (
+		<DropdownMenu>
+			<DropdownMenuTrigger asChild>
+				<Button
+					variant="outline"
+					className="h-11 gap-3 rounded-full border-border/70 bg-card/85 px-3 shadow-sm"
+				>
+					<div className="flex size-8 items-center justify-center rounded-full border border-border/70 bg-background">
+						<Logo className="size-5" logoUrl={activeOrganization?.logo || undefined} />
+					</div>
+					<div className="hidden min-w-0 text-left sm:block">
+						<p className="truncate text-sm font-semibold">
+							{activeOrganization?.name ?? "Select Organization"}
+						</p>
+						<p className="truncate text-xs text-muted-foreground">
+							Workspace
+						</p>
+					</div>
+					<ChevronsUpDown className="size-4 text-muted-foreground" />
+				</Button>
+			</DropdownMenuTrigger>
+			<DropdownMenuContent className="w-80 rounded-2xl" align="start" sideOffset={8}>
+				<DropdownMenuLabel className="text-xs text-muted-foreground">
+					Organizations
+				</DropdownMenuLabel>
+				{organizations?.map((org) => {
+					const isDefault = org.members?.[0]?.isDefault ?? false;
+					return (
+						<div className="flex items-center gap-2 px-1 py-1" key={org.id}>
+							<DropdownMenuItem
+								onClick={async () => {
+									await authClient.organization.setActive({
+										organizationId: org.id,
+									});
+									window.location.reload();
+								}}
+								className="flex flex-1 items-center justify-between rounded-xl px-3 py-3"
+							>
+								<div className="min-w-0">
+									<p className="truncate font-medium">{org.name}</p>
+									<p className="truncate text-xs text-muted-foreground">
+										{isDefault ? "Default organization" : "Switch workspace"}
+									</p>
+								</div>
+								<div className="flex size-8 items-center justify-center rounded-full border border-border/70 bg-background">
+									<Logo className="size-5" logoUrl={org.logo ?? undefined} />
+								</div>
+							</DropdownMenuItem>
+
+							<Button
+								variant="ghost"
+								size="icon"
+								className={cn(
+									"size-9 rounded-full",
+									isDefault ? "text-yellow-500" : "text-muted-foreground",
+								)}
+								isLoading={isSettingDefault && !isDefault}
+								disabled={isDefault}
+								onClick={async (event) => {
+									if (isDefault) return;
+									event.stopPropagation();
+									await setDefaultOrganization({
+										organizationId: org.id,
+									})
+										.then(() => {
+											refetch();
+											toast.success("Default organization updated");
+										})
+										.catch((error) => {
+											toast.error(
+												error?.message || "Error setting default organization",
+											);
+										});
+								}}
+								title={isDefault ? "Default organization" : "Set as default"}
+							>
+								<Star
+									className="size-4"
+									fill={isDefault ? "currentColor" : "none"}
+								/>
+							</Button>
+
+							{org.ownerId === session?.user?.id && (
+								<DialogAction
+									title="Delete Organization"
+									description="Are you sure you want to delete this organization?"
+									type="destructive"
+									onClick={async () => {
+										await deleteOrganization({
+											organizationId: org.id,
+										})
+											.then(() => {
+												refetch();
+												toast.success("Organization deleted successfully");
+											})
+											.catch((error) => {
+												toast.error(
+													error?.message || "Error deleting organization",
+												);
+											});
+									}}
+								>
+									<Button
+										variant="ghost"
+										size="icon"
+										className="size-9 rounded-full text-muted-foreground hover:text-red-500"
+										isLoading={isRemoving}
+									>
+										<Trash2 className="size-4" />
+									</Button>
+								</DialogAction>
+							)}
+						</div>
+					);
+				})}
+				{(user?.role === "owner" || isCloud) && (
+					<>
+						<DropdownMenuSeparator />
+						<div className="px-1 py-1">
+							<AddOrganization />
+						</div>
+					</>
+				)}
+			</DropdownMenuContent>
+		</DropdownMenu>
 	);
 }
 
-interface Props {
-	children: React.ReactNode;
-}
+function NotificationsMenu() {
+	const { data: invitations, refetch } = api.user.getInvitations.useQuery();
 
-function LogoWrapper() {
-	return <SidebarLogo />;
+	return (
+		<DropdownMenu>
+			<DropdownMenuTrigger asChild>
+				<Button
+					variant="outline"
+					size="icon"
+					className="relative size-11 rounded-full border-border/70 bg-card/85 shadow-sm"
+				>
+					<Bell className="size-4 text-sky-600" />
+					{invitations && invitations.length > 0 && (
+						<span className="absolute right-0.5 top-0.5 flex size-4 items-center justify-center rounded-full bg-sky-500 text-[10px] font-semibold text-white">
+							{invitations.length}
+						</span>
+					)}
+				</Button>
+			</DropdownMenuTrigger>
+			<DropdownMenuContent className="w-80 rounded-2xl" align="end" sideOffset={8}>
+				<DropdownMenuLabel>Pending Invitations</DropdownMenuLabel>
+				<div className="flex flex-col gap-2 p-1">
+					{invitations && invitations.length > 0 ? (
+						invitations.map((invitation) => (
+							<div
+								key={invitation.id}
+								className="rounded-2xl border border-border/70 bg-card/70 p-3"
+							>
+								<p className="font-medium">{invitation.organization?.name}</p>
+								<p className="mt-1 text-xs text-muted-foreground">
+									Role: {invitation.role}
+								</p>
+								<p className="text-xs text-muted-foreground">
+									Expires: {new Date(invitation.expiresAt).toLocaleString()}
+								</p>
+								<div className="mt-3">
+									<DialogAction
+										title="Accept Invitation"
+										description="Are you sure you want to accept this invitation?"
+										type="default"
+										onClick={async () => {
+											const { error } =
+												await authClient.organization.acceptInvitation({
+													invitationId: invitation.id,
+												});
+
+											if (error) {
+												toast.error(error.message || "Error accepting invitation");
+											} else {
+												toast.success("Invitation accepted successfully");
+												await refetch();
+											}
+										}}
+									>
+										<Button size="sm" variant="secondary">
+											Accept Invitation
+										</Button>
+									</DialogAction>
+								</div>
+							</div>
+						))
+					) : (
+						<div className="rounded-2xl border border-dashed border-border/70 px-4 py-8 text-center text-sm text-muted-foreground">
+							No pending invitations
+						</div>
+					)}
+				</div>
+			</DropdownMenuContent>
+		</DropdownMenu>
+	);
 }
 
 function AppLauncher({
@@ -528,44 +589,38 @@ function AppLauncher({
 	pathname: string;
 	sections: Array<{ title: string; items: SingleNavItem[] }>;
 }) {
-	const { state } = useSidebar();
 	const [open, setOpen] = useState(false);
 
 	return (
 		<>
 			<Button
 				variant="outline"
-				size={state === "collapsed" ? "icon" : "sm"}
-				className={cn(
-					"justify-start border-sidebar-border/90 bg-white/90 text-slate-700 shadow-[0_12px_28px_rgba(15,23,42,0.06)] backdrop-blur-md",
-					state === "collapsed" ? "mx-auto size-10" : "w-full gap-2",
-				)}
+				className="h-11 gap-2 rounded-full border-border/70 bg-card/85 px-4 shadow-sm"
 				onClick={() => setOpen(true)}
-				title="Open app menu"
 			>
-				<LayoutGrid className="size-4" />
-				{state !== "collapsed" && <span>Apps</span>}
+				<LayoutGrid className="size-4 text-sky-600" />
+				<span>Apps</span>
 			</Button>
 
 			<Dialog open={open} onOpenChange={setOpen}>
-				<DialogContent className="max-w-4xl overflow-hidden p-0">
+				<DialogContent className="max-w-5xl overflow-hidden rounded-[2rem] border-border/70 p-0">
 					<DialogHeader className="border-b border-border/60 px-6 pb-5 pt-6">
-						<DialogTitle>Application Menu</DialogTitle>
+						<DialogTitle>Apps Menu</DialogTitle>
 						<DialogDescription>
-							Jump between projects, infrastructure, monitoring, and settings.
+							Open services, infrastructure tools, and settings from one place.
 						</DialogDescription>
 					</DialogHeader>
 					<Command className="rounded-none bg-transparent">
 						<div className="px-6 pt-4">
-							<CommandInput placeholder="Search pages and tools..." />
+							<CommandInput placeholder="Search apps, pages, and settings..." />
 						</div>
-						<CommandList className="max-h-[70vh] px-4 pb-6 pt-4">
-							<CommandEmpty>No matching page found.</CommandEmpty>
+						<CommandList className="max-h-[72vh] px-4 pb-6 pt-4">
+							<CommandEmpty>No matching destination found.</CommandEmpty>
 							{sections.map((section) => (
 								<CommandGroup
 									key={section.title}
 									heading={section.title}
-									className="mb-4"
+									className="mb-6"
 								>
 									<div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
 										{section.items.map((item) => {
@@ -579,19 +634,19 @@ function AppLauncher({
 												<CommandItem
 													key={`${section.title}-${item.url}`}
 													value={`${section.title} ${item.title} ${item.url}`}
-													className="rounded-2xl p-0 aria-selected:bg-transparent"
+													className="rounded-3xl p-0 aria-selected:bg-transparent"
 													onSelect={() => setOpen(false)}
 												>
 													<Link
 														href={item.url}
 														className={cn(
-															"flex w-full items-start gap-4 rounded-2xl border p-4 transition-colors",
+															"flex w-full items-start gap-4 rounded-3xl border p-5 transition-all",
 															isActive
-																? "border-primary/40 bg-primary/10"
-																: "border-border/70 bg-background/70 hover:border-primary/30 hover:bg-accent/40",
+																? "border-sky-300 bg-sky-50/90 shadow-[0_18px_34px_rgba(59,130,246,0.12)] dark:border-sky-500/40 dark:bg-sky-500/10"
+																: "border-border/70 bg-card/80 hover:border-sky-200 hover:bg-accent/70 hover:shadow-[0_18px_34px_rgba(15,23,42,0.06)]",
 														)}
 													>
-														<div className="rounded-2xl bg-primary/10 p-3 text-primary">
+														<div className="flex size-12 items-center justify-center rounded-2xl bg-sky-100 text-sky-600 dark:bg-sky-500/15 dark:text-sky-300">
 															<Icon className="size-6" />
 														</div>
 														<div className="min-w-0">
@@ -619,673 +674,177 @@ function AppLauncher({
 	);
 }
 
-function SidebarLogo() {
-	const { state } = useSidebar();
-	const { data: isCloud } = api.settings.isCloud.useQuery();
-	const { data: user } = api.user.get.useQuery();
-	const { data: session } = authClient.useSession();
-	const {
-		data: organizations,
-		refetch,
-		isLoading,
-	} = api.organization.all.useQuery();
-	const { mutateAsync: deleteOrganization, isLoading: isRemoving } =
-		api.organization.delete.useMutation();
-	const { mutateAsync: setDefaultOrganization, isLoading: isSettingDefault } =
-		api.organization.setDefault.useMutation();
-	const { isMobile } = useSidebar();
-	const { data: activeOrganization } = authClient.useActiveOrganization();
-	const _utils = api.useUtils();
-
-	const { data: invitations, refetch: refetchInvitations } =
-		api.user.getInvitations.useQuery();
-
-	const [_activeTeam, setActiveTeam] = useState<
-		typeof activeOrganization | null
-	>(null);
-
-	useEffect(() => {
-		if (activeOrganization) {
-			setActiveTeam(activeOrganization);
-		}
-	}, [activeOrganization]);
-
+function TopQuickLinks({
+	items,
+	pathname,
+}: {
+	items: SingleNavItem[];
+	pathname: string;
+}) {
 	return (
-		<>
-			{isLoading ? (
-				<div className="flex flex-row gap-2 items-center justify-center text-sm text-muted-foreground min-h-[5vh] pt-4">
-					<Loader2 className="animate-spin size-4" />
-				</div>
-			) : (
-				<SidebarMenu
-					className={cn(
-						"flex gap-2",
-						state === "collapsed"
-							? "flex-col"
-							: "flex-row justify-between items-center",
-					)}
-				>
-					{/* Organization Logo and Selector */}
-					<SidebarMenuItem className={"w-full"}>
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<SidebarMenuButton
-									size={state === "collapsed" ? "sm" : "lg"}
-									className={cn(
-										"data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
-										state === "collapsed" &&
-										"flex justify-center items-center p-2 h-10 w-10 mx-auto",
-									)}
-								>
-									<div
-										className={cn(
-											"flex items-center gap-2",
-											state === "collapsed" && "justify-center",
-										)}
-									>
-										<div
-											className={cn(
-												"flex items-center justify-center rounded-sm border",
-												"size-6",
-											)}
-										>
-											<Logo
-												className={cn(
-													"transition-all",
-													state === "collapsed" ? "size-4" : "size-5",
-												)}
-												logoUrl={activeOrganization?.logo || undefined}
-											/>
-										</div>
-										<div
-											className={cn(
-												"flex flex-col items-start",
-												state === "collapsed" && "hidden",
-											)}
-										>
-											<p className="text-sm font-medium leading-none">
-												{activeOrganization?.name ?? "Select Organization"}
-											</p>
-										</div>
-									</div>
-									<ChevronsUpDown
-										className={cn("ml-auto", state === "collapsed" && "hidden")}
-									/>
-								</SidebarMenuButton>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent
-								className="rounded-lg"
-								align="start"
-								side={isMobile ? "bottom" : "right"}
-								sideOffset={4}
-							>
-								<DropdownMenuLabel className="text-xs text-muted-foreground">
-									Organizations
-								</DropdownMenuLabel>
-								{organizations?.map((org) => {
-									const isDefault = org.members?.[0]?.isDefault ?? false;
-									return (
-										<div
-											className="flex flex-row justify-between"
-											key={org.name}
-										>
-											<DropdownMenuItem
-												onClick={async () => {
-													await authClient.organization.setActive({
-														organizationId: org.id,
-													});
-													window.location.reload();
-												}}
-												className="w-full gap-2 p-2"
-											>
-												<div className="flex flex-col gap-1">
-													<div className="flex items-center gap-2">
-														{org.name}
-													</div>
-												</div>
-												<div className="flex size-6 items-center justify-center rounded-sm border">
-													<Logo
-														className={cn(
-															"transition-all",
-															state === "collapsed" ? "size-6" : "size-10",
-														)}
-														logoUrl={org.logo ?? undefined}
-													/>
-												</div>
-											</DropdownMenuItem>
+		<div className="hidden items-center gap-2 xl:flex">
+			{items.slice(0, 5).map((item) => {
+				const Icon = item.icon ?? LayoutGrid;
+				const isActive = isActiveRoute({ itemUrl: item.url, pathname });
 
-											<div className="flex items-center gap-2">
-												<Button
-													variant="ghost"
-													size="icon"
-													className={cn(
-														"group",
-														isDefault
-															? "hover:bg-yellow-500/10"
-															: "hover:bg-blue-500/10",
-													)}
-													isLoading={isSettingDefault && !isDefault}
-													disabled={isDefault}
-													onClick={async (e) => {
-														if (isDefault) return;
-														e.stopPropagation();
-														await setDefaultOrganization({
-															organizationId: org.id,
-														})
-															.then(() => {
-																refetch();
-																toast.success("Default organization updated");
-															})
-															.catch((error) => {
-																toast.error(
-																	error?.message ||
-																	"Error setting default organization",
-																);
-															});
-													}}
-													title={
-														isDefault
-															? "Default organization"
-															: "Set as default"
-													}
-												>
-													{isDefault ? (
-														<Star
-															fill="#eab308"
-															stroke="#eab308"
-															className="size-4 text-yellow-500"
-														/>
-													) : (
-														<Star
-															fill="none"
-															stroke="currentColor"
-															className="size-4 text-gray-400 group-hover:text-blue-500 transition-colors"
-														/>
-													)}
-												</Button>
-												{org.ownerId === session?.user?.id && (
-													<>
-														<AddOrganization organizationId={org.id} />
-														<DialogAction
-															title="Delete Organization"
-															description="Are you sure you want to delete this organization?"
-															type="destructive"
-															onClick={async () => {
-																await deleteOrganization({
-																	organizationId: org.id,
-																})
-																	.then(() => {
-																		refetch();
-																		toast.success(
-																			"Organization deleted successfully",
-																		);
-																	})
-																	.catch((error) => {
-																		toast.error(
-																			error?.message ||
-																			"Error deleting organization",
-																		);
-																	});
-															}}
-														>
-															<Button
-																variant="ghost"
-																size="icon"
-																className="group hover:bg-red-500/10"
-																isLoading={isRemoving}
-															>
-																<Trash2 className="size-4 text-primary group-hover:text-red-500" />
-															</Button>
-														</DialogAction>
-													</>
-												)}
-											</div>
-										</div>
-									);
-								})}
-								{(user?.role === "owner" || isCloud) && (
-									<>
-										<DropdownMenuSeparator />
-										<AddOrganization />
-									</>
-								)}
-							</DropdownMenuContent>
-						</DropdownMenu>
-					</SidebarMenuItem>
-
-					{/* Notification Bell */}
-					<SidebarMenuItem className={cn(state === "collapsed" && "mt-2")}>
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<Button
-									variant="ghost"
-									size="icon"
-									className={cn(
-										"relative",
-										state === "collapsed" && "h-8 w-8 p-1.5 mx-auto",
-									)}
-								>
-									<Bell className="size-4" />
-									{invitations && invitations.length > 0 && (
-										<span className="absolute -top-0 -right-0 flex size-4 items-center justify-center rounded-full bg-blue-500 text-xs text-white">
-											{invitations.length}
-										</span>
-									)}
-								</Button>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent
-								align="start"
-								side={"right"}
-								className="w-80"
-							>
-								<DropdownMenuLabel>Pending Invitations</DropdownMenuLabel>
-								<div className="flex flex-col gap-2">
-									{invitations && invitations.length > 0 ? (
-										invitations.map((invitation) => (
-											<div key={invitation.id} className="flex flex-col gap-2">
-												<DropdownMenuItem
-													className="flex flex-col items-start gap-1 p-3"
-													onSelect={(e) => e.preventDefault()}
-												>
-													<div className="font-medium">
-														{invitation?.organization?.name}
-													</div>
-													<div className="text-xs text-muted-foreground">
-														Expires:{" "}
-														{new Date(invitation.expiresAt).toLocaleString()}
-													</div>
-													<div className="text-xs text-muted-foreground">
-														Role: {invitation.role}
-													</div>
-												</DropdownMenuItem>
-												<DialogAction
-													title="Accept Invitation"
-													description="Are you sure you want to accept this invitation?"
-													type="default"
-													onClick={async () => {
-														const { error } =
-															await authClient.organization.acceptInvitation({
-																invitationId: invitation.id,
-															});
-
-														if (error) {
-															toast.error(
-																error.message || "Error accepting invitation",
-															);
-														} else {
-															toast.success("Invitation accepted successfully");
-															await refetchInvitations();
-															await refetch();
-														}
-													}}
-												>
-													<Button size="sm" variant="secondary">
-														Accept Invitation
-													</Button>
-												</DialogAction>
-											</div>
-										))
-									) : (
-										<DropdownMenuItem disabled>
-											No pending invitations
-										</DropdownMenuItem>
-									)}
-								</div>
-							</DropdownMenuContent>
-						</DropdownMenu>
-					</SidebarMenuItem>
-				</SidebarMenu>
-			)}
-		</>
+				return (
+						<Link
+							key={item.url}
+							href={item.url}
+							className={cn(
+								"inline-flex min-w-0 max-w-[13rem] items-center gap-2 rounded-full border px-3 py-2 text-sm font-medium transition-colors",
+								isActive
+									? "border-sky-300 bg-sky-50 text-sky-700 dark:border-sky-500/40 dark:bg-sky-500/10 dark:text-sky-300"
+									: "border-border/70 bg-card/65 text-muted-foreground hover:border-sky-200 hover:text-foreground",
+							)}
+						>
+							<Icon className="size-3.5" />
+							<span className="truncate">{item.title}</span>
+						</Link>
+					);
+				})}
+		</div>
 	);
 }
 
+interface Props {
+	children: React.ReactNode;
+}
+
 export default function Page({ children }: Props) {
-	const [defaultOpen, setDefaultOpen] = useState<boolean | undefined>(
-		undefined,
-	);
-	const [isLoaded, setIsLoaded] = useState(false);
-
-	useEffect(() => {
-		const cookieValue = document.cookie
-			.split("; ")
-			.find((row) => row.startsWith(`${SIDEBAR_COOKIE_NAME}=`))
-			?.split("=")[1];
-
-		setDefaultOpen(cookieValue === undefined ? true : cookieValue === "true");
-		setIsLoaded(true);
-	}, []);
-
 	const pathname = usePathname();
 	const { data: auth } = api.user.get.useQuery();
 	const { data: dokployVersion } = api.settings.getDokployVersion.useQuery();
-
-	const includesProjects = pathname?.includes("/dashboard/project");
 	const { data: isCloud } = api.settings.isCloud.useQuery();
 
-	const {
-		home: filteredHome,
-		settings: filteredSettings,
-		help,
-	} = createMenuForAuthUser({ auth, isCloud: !!isCloud });
-	const launcherSections = [
-		{ title: "Home", items: getLauncherEntries(filteredHome) },
-		{ title: "Settings", items: getLauncherEntries(filteredSettings) },
-	];
-
-	const activeItem = findActiveNavItem(
-		[...filteredHome, ...filteredSettings],
-		pathname,
+	const { home, settings, help } = createMenuForAuthUser({
+		auth,
+		isCloud: !!isCloud,
+	});
+	const homeEntries = useMemo(() => flattenNavItems(home), [home]);
+	const settingsEntries = useMemo(() => flattenNavItems(settings), [settings]);
+	const launcherSections = useMemo(
+		() => [
+			{ title: "Workspace", items: homeEntries },
+			{ title: "Settings", items: settingsEntries },
+		],
+		[homeEntries, settingsEntries],
 	);
 
-	if (!isLoaded) {
-		return <div className="w-full h-screen bg-background" />; // Placeholder mientras se carga
-	}
+	const activeItem = findActiveNavItem([...home, ...settings], pathname);
+	const includesProjects = pathname?.includes("/dashboard/project");
 
 	return (
-		<SidebarProvider
-			className="dashboard-shell"
-			defaultOpen={defaultOpen}
-			open={defaultOpen}
-			onOpenChange={(open) => {
-				setDefaultOpen(open);
+		<div className="dashboard-shell min-h-svh">
+			<div className="mx-auto flex min-h-svh max-w-[1720px] flex-col px-3 py-3 sm:px-4 lg:px-6">
+				<header className="dashboard-topbar sticky top-3 z-40 rounded-[1.75rem] px-4 py-3 sm:px-5">
+					<div className="flex flex-col gap-4">
+						<div className="flex flex-wrap items-center justify-between gap-3">
+							<div className="flex min-w-0 items-center gap-3">
+								<Link
+									href="/dashboard/projects"
+									className="flex items-center gap-3 rounded-full border border-border/70 bg-card/80 px-3 py-2 shadow-sm"
+								>
+									<div className="flex size-9 items-center justify-center rounded-full bg-sky-100 text-sky-600 dark:bg-sky-500/15 dark:text-sky-300">
+										<Logo className="size-5" />
+									</div>
+									<div className="hidden min-w-0 sm:block">
+										<p className="truncate text-sm font-semibold">
+											Atlanexis CloudOS
+										</p>
+										<p className="truncate text-xs text-muted-foreground">
+											Dashboard
+										</p>
+									</div>
+								</Link>
 
-				document.cookie = `${SIDEBAR_COOKIE_NAME}=${open}`;
-			}}
-			style={
-				{
-					"--sidebar-width": "19.5rem",
-					"--sidebar-width-mobile": "19.5rem",
-				} as React.CSSProperties
-			}
-		>
-			<Sidebar collapsible="icon" variant="floating">
-				<SidebarHeader>
-					<div className="px-2 pt-2">
-						<AppLauncher pathname={pathname} sections={launcherSections} />
-					</div>
-					{/* <SidebarMenuButton
-						className="group-data-[collapsible=icon]:!p-0"
-						size="lg"
-					> */}
-					<LogoWrapper />
-					{/* </SidebarMenuButton> */}
-				</SidebarHeader>
-				<SidebarContent>
-					<SidebarGroup>
-						<SidebarGroupLabel>Home</SidebarGroupLabel>
-						<SidebarMenu>
-							{filteredHome.map((item) => {
-								const isSingle = item.isSingle !== false;
-								const isActive = isSingle
-									? isActiveRoute({ itemUrl: item.url, pathname })
-									: item.items.some((item) =>
-										isActiveRoute({ itemUrl: item.url, pathname }),
-									);
+								<AppLauncher pathname={pathname} sections={launcherSections} />
+								<TopQuickLinks items={homeEntries} pathname={pathname} />
+							</div>
 
-								return (
-									<Collapsible
-										key={item.title}
-										asChild
-										defaultOpen={isActive}
-										className="group/collapsible"
-									>
-										<SidebarMenuItem>
-											{isSingle ? (
-												<SidebarMenuButton
-													isActive={isActive}
-													asChild
-													tooltip={item.title}
-												>
-													<Link
-														href={item.url}
-														className="flex w-full items-center gap-2"
-													>
-															{item.icon && (
-																<item.icon
-																	className={cn(
-																		isActive && "text-sky-600",
-																	)}
-																/>
-															)}
-														<span>{item.title}</span>
-													</Link>
-												</SidebarMenuButton>
-											) : (
-												<>
-													<CollapsibleTrigger asChild>
-														<SidebarMenuButton
-															tooltip={item.title}
-															isActive={isActive}
-														>
-															{item.icon && <item.icon />}
-
-															<span>{item.title}</span>
-															{item.items?.length && (
-																<ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-															)}
-														</SidebarMenuButton>
-													</CollapsibleTrigger>
-													<CollapsibleContent>
-															<SidebarMenuSub>
-																{item.items?.map((subItem) => {
-																	const isSubItemActive = isActiveRoute({
-																		itemUrl: subItem.url,
-																		pathname,
-																	});
-
-																	return (
-																		<SidebarMenuSubItem key={subItem.title}>
-																			<SidebarMenuSubButton
-																				asChild
-																				isActive={isSubItemActive}
-																			>
-																				<Link
-																					href={subItem.url}
-																					className="flex w-full items-center"
-																				>
-																					{subItem.icon && (
-																						<span className="mr-2">
-																							<subItem.icon
-																								className={cn(
-																									"h-4 w-4 text-sky-500/80",
-																									isSubItemActive &&
-																										"text-sky-600",
-																								)}
-																							/>
-																						</span>
-																					)}
-																					<span>{subItem.title}</span>
-																				</Link>
-																			</SidebarMenuSubButton>
-																		</SidebarMenuSubItem>
-																	);
-																})}
-														</SidebarMenuSub>
-													</CollapsibleContent>
-												</>
-											)}
-										</SidebarMenuItem>
-									</Collapsible>
-								);
-							})}
-						</SidebarMenu>
-					</SidebarGroup>
-					<SidebarGroup>
-						<SidebarGroupLabel>Settings</SidebarGroupLabel>
-						<SidebarMenu className="gap-1">
-							{filteredSettings.map((item) => {
-								const isSingle = item.isSingle !== false;
-								const isActive = isSingle
-									? isActiveRoute({ itemUrl: item.url, pathname })
-									: item.items.some((item) =>
-										isActiveRoute({ itemUrl: item.url, pathname }),
-									);
-
-								return (
-									<Collapsible
-										key={item.title}
-										asChild
-										defaultOpen={isActive}
-										className="group/collapsible"
-									>
-										<SidebarMenuItem>
-											{isSingle ? (
-												<SidebarMenuButton
-													isActive={isActive}
-													asChild
-													tooltip={item.title}
-												>
-													<Link
-														href={item.url}
-														className="flex w-full items-center gap-2"
-													>
-															{item.icon && (
-																<item.icon
-																	className={cn(
-																		isActive && "text-sky-600",
-																	)}
-																/>
-															)}
-														<span>{item.title}</span>
-													</Link>
-												</SidebarMenuButton>
-											) : (
-												<>
-													<CollapsibleTrigger asChild>
-														<SidebarMenuButton
-															tooltip={item.title}
-															isActive={isActive}
-														>
-															{item.icon && <item.icon />}
-
-															<span>{item.title}</span>
-															{item.items?.length && (
-																<ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-															)}
-														</SidebarMenuButton>
-													</CollapsibleTrigger>
-													<CollapsibleContent>
-															<SidebarMenuSub>
-																{item.items?.map((subItem) => {
-																	const isSubItemActive = isActiveRoute({
-																		itemUrl: subItem.url,
-																		pathname,
-																	});
-
-																	return (
-																		<SidebarMenuSubItem key={subItem.title}>
-																			<SidebarMenuSubButton
-																				asChild
-																				isActive={isSubItemActive}
-																			>
-																				<Link
-																					href={subItem.url}
-																					className="flex w-full items-center"
-																				>
-																					{subItem.icon && (
-																						<span className="mr-2">
-																							<subItem.icon
-																								className={cn(
-																									"h-4 w-4 text-sky-500/80",
-																									isSubItemActive &&
-																										"text-sky-600",
-																								)}
-																							/>
-																						</span>
-																					)}
-																					<span>{subItem.title}</span>
-																				</Link>
-																			</SidebarMenuSubButton>
-																		</SidebarMenuSubItem>
-																	);
-																})}
-														</SidebarMenuSub>
-													</CollapsibleContent>
-												</>
-											)}
-										</SidebarMenuItem>
-									</Collapsible>
-								);
-							})}
-						</SidebarMenu>
-					</SidebarGroup>
-					<SidebarGroup className="group-data-[collapsible=icon]:hidden">
-						<SidebarGroupLabel>Extra</SidebarGroupLabel>
-						<SidebarMenu>
-							{help.map((item: ExternalLink) => (
-								<SidebarMenuItem key={item.name}>
-									<SidebarMenuButton asChild>
-										<a
-											href={item.url}
-											target="_blank"
-											rel="noopener noreferrer"
-											className="flex w-full items-center gap-2"
-										>
-											<span className="mr-2">
-												<item.icon className="h-4 w-4" />
-											</span>
-											<span>{item.name}</span>
-										</a>
-									</SidebarMenuButton>
-								</SidebarMenuItem>
-							))}
-						</SidebarMenu>
-					</SidebarGroup>
-				</SidebarContent>
-				<SidebarFooter>
-					<SidebarMenu className="flex flex-col gap-2">
-						{!isCloud && auth?.role === "owner" && (
-							<SidebarMenuItem>
-								<UpdateServerButton />
-							</SidebarMenuItem>
-						)}
-						<SidebarMenuItem>
-							<UserNav />
-						</SidebarMenuItem>
-						{dokployVersion && (
-							<>
-								<div className="px-3 text-xs text-muted-foreground text-center group-data-[collapsible=icon]:hidden">
-									Version: v1.2.1-preview
+							<div className="flex flex-wrap items-center justify-end gap-2">
+								{!isCloud && (
+									<div className="hidden md:block">
+										<TimeBadge />
+									</div>
+								)}
+								<NotificationsMenu />
+								<OrganizationSwitcher />
+								<div className="min-w-[220px] max-w-full">
+									<UserNav />
 								</div>
-								<div className="hidden text-xs text-muted-foreground text-center group-data-[collapsible=icon]:block">
-									{dokployVersion}
+							</div>
+						</div>
+
+						<div className="flex flex-wrap items-center justify-between gap-3">
+							<div className="flex min-w-0 items-center gap-3">
+								<div className="flex min-w-0 flex-col">
+									<p className="text-xs font-medium uppercase tracking-[0.22em] text-sky-600 dark:text-sky-300">
+										Control Center
+									</p>
+									<p className="truncate text-lg font-semibold text-foreground">
+										{activeItem?.title ?? "Dashboard"}
+									</p>
 								</div>
-							</>
-						)}
-					</SidebarMenu>
-				</SidebarFooter>
-				<SidebarRail />
-			</Sidebar>
-			<SidebarInset>
-				{!includesProjects && (
-					<header className="flex h-16 shrink-0 items-center gap-2 px-3 pt-3 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-						<div className="dashboard-topbar flex items-center justify-between w-full rounded-[1.35rem] px-4 py-3">
-							<div className="flex items-center gap-2">
-								<SidebarTrigger className="-ml-1 rounded-full bg-sky-50 text-sky-600 hover:bg-sky-100 hover:text-sky-700" />
-								<Separator orientation="vertical" className="mr-2 h-4" />
-								<Breadcrumb>
+								<Separator orientation="vertical" className="hidden h-8 sm:block" />
+								<Breadcrumb className="hidden sm:block">
 									<BreadcrumbList>
 										<BreadcrumbItem className="block">
 											<BreadcrumbLink asChild>
 												<Link
-													href={activeItem?.url || "/"}
-													className="flex items-center gap-1.5"
+													href={activeItem?.url || "/dashboard/projects"}
+													className="text-sm text-muted-foreground hover:text-foreground"
 												>
-													{activeItem?.title}
+													{activeItem?.url || "/dashboard/projects"}
 												</Link>
 											</BreadcrumbLink>
 										</BreadcrumbItem>
 									</BreadcrumbList>
 								</Breadcrumb>
 							</div>
-							{!isCloud && <TimeBadge />}
-						</div>
-					</header>
-				)}
 
-				<div className="dashboard-content flex flex-col w-full p-4 pt-3">{children}</div>
-			</SidebarInset>
-		</SidebarProvider>
+							<div className="flex flex-wrap items-center gap-2">
+								{!isCloud && auth?.role === "owner" && <UpdateServerButton />}
+								{help.map((item) => (
+									<Link
+										key={item.name}
+										href={item.url}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/70 px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+									>
+										<item.icon className="size-4 text-sky-600 dark:text-sky-300" />
+										<span>{item.name}</span>
+									</Link>
+								))}
+								{dokployVersion && (
+									<div className="rounded-full border border-border/70 bg-card/70 px-3 py-2 text-xs font-medium text-muted-foreground">
+										Version {dokployVersion}
+									</div>
+								)}
+							</div>
+						</div>
+					</div>
+				</header>
+
+				<main className="dashboard-content relative flex-1 pt-4">
+					<div
+						className={cn(
+							"min-h-[calc(100svh-8rem)] rounded-[2rem] border border-border/70 bg-card/55 p-4 shadow-[0_24px_70px_rgba(15,23,42,0.06)] backdrop-blur-xl sm:p-5 lg:p-6",
+							includesProjects && "p-0 sm:p-0 lg:p-0",
+						)}
+					>
+						<div
+							className={cn(
+								"relative z-10 h-full",
+								includesProjects ? "" : "rounded-[1.5rem]",
+							)}
+						>
+							{children}
+						</div>
+					</div>
+				</main>
+			</div>
+		</div>
 	);
 }

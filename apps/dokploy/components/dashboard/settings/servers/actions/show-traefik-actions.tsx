@@ -1,5 +1,6 @@
 import { useTranslation } from "next-i18next";
 import { toast } from "sonner";
+import { TRAEFIK_RESOURCE_NAME } from "@dokploy/server/constants/runtime";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -65,7 +66,7 @@ export const ShowTraefikActions = ({ serverId }: Props) => {
 						<span>{t("settings.server.webServer.reload")}</span>
 					</DropdownMenuItem>
 					<ShowModalLogs
-						appName="dokploy-traefik"
+						appName={TRAEFIK_RESOURCE_NAME}
 						serverId={serverId}
 						type="standalone"
 					>

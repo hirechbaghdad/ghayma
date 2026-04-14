@@ -1,6 +1,10 @@
 import { promises } from "node:fs";
 import { OSUtils } from "node-os-utils";
 import { paths } from "../constants";
+import {
+	WEB_SERVER_RESOURCE_NAME,
+	isWebServerResourceName,
+} from "../constants/runtime";
 
 export interface Container {
 	BlockIO: string;
@@ -37,7 +41,7 @@ export const recordAdvancedStats = async (
 		outputMb: stats.NetIO.split(" ")[2],
 	});
 
-	if (appName === "dokploy") {
+	if (isWebServerResourceName(appName)) {
 		const osutils = new OSUtils();
 		const diskResult = await osutils.disk.usageByMountPoint("/");
 
@@ -148,9 +152,9 @@ export const getHostSystemStats = async (): Promise<Container> => {
 		MemUsage: memUsageFormatted,
 		BlockIO: blockIOFormatted,
 		NetIO: netIOFormatted,
-		Container: "dokploy",
+		Container: WEB_SERVER_RESOURCE_NAME,
 		ID: "host-system",
-		Name: "dokploy",
+		Name: WEB_SERVER_RESOURCE_NAME,
 	};
 };
 

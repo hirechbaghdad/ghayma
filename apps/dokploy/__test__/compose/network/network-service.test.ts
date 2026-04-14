@@ -192,10 +192,10 @@ services:
   web:
     image: nginx:latest
     networks:
-      - dokploy-network
+      - atlanexis-network
 `;
 
-test("It shoudn't add suffix to dokploy-network in services", () => {
+test("It shoudn't add suffix to atlanexis-network in services", () => {
 	const composeData = parse(composeFile7) as ComposeSpecification;
 
 	const suffix = generateRandomHash();
@@ -207,7 +207,7 @@ test("It shoudn't add suffix to dokploy-network in services", () => {
 	const service = networks.web;
 
 	expect(service).toBeDefined();
-	expect(service?.networks).toContain("dokploy-network");
+	expect(service?.networks).toContain("atlanexis-network");
 });
 
 const composeFile8 = `
@@ -219,7 +219,7 @@ services:
     networks:
       - frontend
       - backend
-      - dokploy-network
+      - atlanexis-network
 
 
   api:
@@ -228,23 +228,23 @@ services:
       frontend:
         aliases:
           - api
-      dokploy-network:
+      atlanexis-network:
         aliases:
           - api
   redis:
     image: redis:alpine
     networks:
-      dokploy-network:
+      atlanexis-network:
   db:
     image: myapi:latest
     networks:
-      dokploy-network:
+      atlanexis-network:
         aliases:
           - apid
 	
 `;
 
-test("It shoudn't add suffix to dokploy-network in services multiples cases", () => {
+test("It shoudn't add suffix to atlanexis-network in services multiples cases", () => {
 	const composeData = parse(composeFile8) as ComposeSpecification;
 
 	const suffix = generateRandomHash();
@@ -267,11 +267,11 @@ test("It shoudn't add suffix to dokploy-network in services multiples cases", ()
 	};
 
 	expect(service).toBeDefined();
-	expect(service?.networks).toContain("dokploy-network");
+	expect(service?.networks).toContain("atlanexis-network");
 
-	expect(redis?.networks).toHaveProperty("dokploy-network");
-	expect(dbNetworks["dokploy-network"]).toBeDefined();
-	expect(apiNetworks["dokploy-network"]).toBeDefined();
+	expect(redis?.networks).toHaveProperty("atlanexis-network");
+	expect(dbNetworks["atlanexis-network"]).toBeDefined();
+	expect(apiNetworks["atlanexis-network"]).toBeDefined();
 });
 
 const composeFile9 = `

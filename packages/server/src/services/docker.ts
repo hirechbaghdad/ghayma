@@ -2,6 +2,10 @@ import {
 	execAsync,
 	execAsyncRemote,
 } from "@dokploy/server/utils/process/execAsync";
+import {
+	INTERNAL_RUNTIME_RESOURCE_NAMES,
+	LEGACY_WEB_SERVER_RESOURCE_NAME,
+} from "@dokploy/server/constants/runtime";
 
 export const getContainers = async (serverId?: string | null) => {
 	try {
@@ -60,8 +64,8 @@ export const getContainers = async (serverId?: string | null) => {
 			})
 			.filter(
 				(container) =>
-					!container.name.includes("dokploy") ||
-					container.name.includes("dokploy-monitoring"),
+					![...INTERNAL_RUNTIME_RESOURCE_NAMES, LEGACY_WEB_SERVER_RESOURCE_NAME]
+						.some((name) => container.name.includes(name)),
 			);
 
 		return containers;
@@ -434,7 +438,10 @@ export const getNodeApplications = async (serverId?: string) => {
 			.trim()
 			.split("\n")
 			.map((line) => JSON.parse(line))
-			.filter((service) => !service.Name.startsWith("dokploy-"));
+			.filter(
+				(service) =>
+					!INTERNAL_RUNTIME_RESOURCE_NAMES.some((name) => name === service.Name),
+			);
 
 		return appArray;
 	} catch {}
