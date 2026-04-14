@@ -185,6 +185,10 @@ export const addDomainToCompose = async (
 				`The service ${serviceName} not found in the compose. Available services: ${availableServices.join(", ")}`,
 			);
 		}
+		const service = services[resolvedServiceName];
+		if (!service) {
+			throw new Error(`The service ${resolvedServiceName} not found in the compose`);
+		}
 
 		const httpLabels = createDomainLabels(appName, domain, "web");
 		if (https) {
@@ -194,21 +198,21 @@ export const addDomainToCompose = async (
 
 		let labels: DefinitionsService["labels"] = [];
 		if (compose.composeType === "docker-compose") {
-			if (!services[resolvedServiceName].labels) {
-				services[resolvedServiceName].labels = [];
+			if (!service.labels) {
+				service.labels = [];
 			}
 
-			labels = services[resolvedServiceName].labels;
+			labels = service.labels;
 		} else {
 			// Stack Case
-			if (!services[resolvedServiceName].deploy) {
-				services[resolvedServiceName].deploy = {};
+			if (!service.deploy) {
+				service.deploy = {};
 			}
-			if (!services[resolvedServiceName].deploy.labels) {
-				services[resolvedServiceName].deploy.labels = [];
+			if (!service.deploy.labels) {
+				service.deploy.labels = [];
 			}
 
-			labels = services[resolvedServiceName].deploy.labels;
+			labels = service.deploy.labels;
 		}
 
 		if (Array.isArray(labels)) {
@@ -236,9 +240,7 @@ export const addDomainToCompose = async (
 
 		if (!compose.isolatedDeployment) {
 			// Add the shared network to the service
-			services[resolvedServiceName].networks = addDokployNetworkToService(
-				services[resolvedServiceName].networks,
-			);
+			service.networks = addDokployNetworkToService(service.networks);
 		}
 	}
 
