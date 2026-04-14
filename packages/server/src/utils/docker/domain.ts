@@ -150,11 +150,13 @@ export const addDomainToCompose = async (
 		return null;
 	}
 
+	const deploymentSuffix = compose.suffix || compose.appName;
+
 	if (compose.isolatedDeployment) {
 		const randomized = randomizeDeployableSpecificationFile(
 			result,
 			compose.isolatedDeploymentsVolume,
-			compose.suffix || compose.appName,
+			deploymentSuffix,
 		);
 		result = randomized;
 	} else if (compose.randomize) {
@@ -167,8 +169,16 @@ export const addDomainToCompose = async (
 		if (!serviceName) {
 			throw new Error("Service name not found");
 		}
-		if (!result?.services?.[serviceName]) {
-			throw new Error(`The service ${serviceName} not found in the compose`);
+		const resolvedServiceName = resolveComposeServiceName(
+			result,
+			serviceName,
+			deploymentSuffix,
+		);
+		if (!resolvedServiceName) {
+			const availableServices = Object.keys(result.services || {});
+			throw new Error(
+				`The service ${serviceName} not found in the compose. Available services: ${availableServices.join(", ")}`,
+			);
 		}
 
 		const httpLabels = createDomainLabels(appName, domain, "web");
@@ -179,21 +189,21 @@ export const addDomainToCompose = async (
 
 		let labels: DefinitionsService["labels"] = [];
 		if (compose.composeType === "docker-compose") {
-			if (!result.services[serviceName].labels) {
-				result.services[serviceName].labels = [];
+			if (!result.services[resolvedServiceName].labels) {
+				result.services[resolvedServiceName].labels = [];
 			}
 
-			labels = result.services[serviceName].labels;
+			labels = result.services[resolvedServiceName].labels;
 		} else {
 			// Stack Case
-			if (!result.services[serviceName].deploy) {
-				result.services[serviceName].deploy = {};
+			if (!result.services[resolvedServiceName].deploy) {
+				result.services[resolvedServiceName].deploy = {};
 			}
-			if (!result.services[serviceName].deploy.labels) {
-				result.services[serviceName].deploy.labels = [];
+			if (!result.services[resolvedServiceName].deploy.labels) {
+				result.services[resolvedServiceName].deploy.labels = [];
 			}
 
-			labels = result.services[serviceName].deploy.labels;
+			labels = result.services[resolvedServiceName].deploy.labels;
 		}
 
 		if (Array.isArray(labels)) {
@@ -221,8 +231,8 @@ export const addDomainToCompose = async (
 
 		if (!compose.isolatedDeployment) {
 			// Add the shared network to the service
-			result.services[serviceName].networks = addDokployNetworkToService(
-				result.services[serviceName].networks,
+			result.services[resolvedServiceName].networks = addDokployNetworkToService(
+				result.services[resolvedServiceName].networks,
 			);
 		}
 	}
@@ -233,6 +243,80 @@ export const addDomainToCompose = async (
 	}
 
 	return result;
+};
+
+const resolveComposeServiceName = (
+	composeSpec: ComposeSpecification,
+	requestedServiceName: string,
+	deploymentSuffix?: string,
+) => {
+	const services = composeSpec.services || {};
+	const serviceNames = Object.keys(services);
+
+	if (serviceNames.length === 0) {
+		return null;
+	}
+
+	if (services[requestedServiceName]) {
+		return requestedServiceName;
+	}
+
+	if (deploymentSuffix) {
+		const suffixedServiceName = `${requestedServiceName}-${deploymentSuffix}`;
+		if (services[suffixedServiceName]) {
+			return suffixedServiceName;
+		}
+	}
+
+	const requestedImageName = requestedServiceName
+		.split("/")
+		.at(-1)
+		?.split(":")[0];
+
+	const matchingServiceNames = serviceNames.filter((serviceKey) => {
+		if (deploymentSuffix && serviceKey === `${requestedServiceName}-${deploymentSuffix}`) {
+			return true;
+		}
+
+		if (deploymentSuffix && serviceKey.endsWith(`-${deploymentSuffix}`)) {
+			const originalServiceName = serviceKey.slice(
+				0,
+				-(deploymentSuffix.length + 1),
+			);
+			if (originalServiceName === requestedServiceName) {
+				return true;
+			}
+		}
+
+		const service = services[serviceKey];
+		if (!service) {
+			return false;
+		}
+
+		if (service.container_name === requestedServiceName) {
+			return true;
+		}
+
+		if (
+			deploymentSuffix &&
+			service.container_name === `${requestedServiceName}-${deploymentSuffix}`
+		) {
+			return true;
+		}
+
+		const serviceImageName = service.image?.split("/").at(-1)?.split(":")[0];
+		return !!requestedImageName && serviceImageName === requestedImageName;
+	});
+
+	if (matchingServiceNames.length === 1) {
+		return matchingServiceNames[0];
+	}
+
+	if (serviceNames.length === 1) {
+		return serviceNames[0];
+	}
+
+	return null;
 };
 
 export const writeComposeFile = async (

@@ -6,7 +6,7 @@ import type {
 	DefinitionsService,
 } from "../types";
 
-const sharedNetworkNames = new Set(SHARED_NETWORK_NAMES);
+const sharedNetworkNames = new Set<string>(SHARED_NETWORK_NAMES);
 
 const shouldKeepSharedNetworkName = (networkName: string) =>
 	sharedNetworkNames.has(networkName);
