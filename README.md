@@ -67,6 +67,7 @@ We thank our contributors and people who help us a lot
 
 - Hakim Riad "SRE Engineer and Sysadmin"
 - Mohammed Adda Benkosseir "PHP/Laravel Senior Developer"
+- Azzeddine Djemai "Cybersecurity Engineer"
 - Dokploy Developers 
 - FF15 Community
 
