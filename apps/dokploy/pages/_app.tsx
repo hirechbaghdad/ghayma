@@ -10,6 +10,7 @@ import { ThemeProvider } from "next-themes";
 import type { ReactElement, ReactNode } from "react";
 import { SearchCommand } from "@/components/dashboard/search-command";
 import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { Languages } from "@/lib/languages";
 import { api } from "@/utils/api";
 
@@ -58,9 +59,11 @@ const MyApp = ({
 				disableTransitionOnChange
 				forcedTheme={Component.theme}
 			>
-				<Toaster richColors />
-				<SearchCommand />
-				{getLayout(<Component {...pageProps} />)}
+				<TooltipProvider delayDuration={0}>
+					<Toaster richColors />
+					<SearchCommand />
+					{getLayout(<Component {...pageProps} />)}
+				</TooltipProvider>
 			</ThemeProvider>
 		</>
 	);

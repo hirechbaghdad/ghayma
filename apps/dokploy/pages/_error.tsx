@@ -81,7 +81,7 @@ export default function Custom404({ statusCode, error }: Props) {
 					<div className="max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8">
 						<p className="text-sm text-gray-500">
 							<Link
-								href="https://bugs.atlanexis.com/nodeos"
+								href="https://github.com/hirechbaghdad/ghayma/issues/new"
 								target="_blank"
 								className="underline hover:text-primary transition-colors"
 							>

@@ -80,6 +80,8 @@ COPY --from=buildpacksio/pack:0.35.0 /usr/local/bin/pack /usr/local/bin/pack
 
 # Replace the base image os-release only in the final runtime image
 COPY os-release /etc/os-release
+RUN mkdir /usr/share/atlanexis
+COPY license.txt /usr/share/atlanexis/license.txt
 
 EXPOSE 3000
 CMD [ "pnpm", "start" ]

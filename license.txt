@@ -1,0 +1,247 @@
+TERMS OF SERVICE
+Atlanexis CloudOS – Ghayma
+
+Effective Date: April 2026
+Provider: Atlanexis Inc, Hirech Baghdad Belkheir
+Website: https://ghayma.atlanexis.com
+Contact: support@atlanexis.com
+
+1. Introduction
+
+These Terms of Service (“Terms”) govern access to and use of Atlanexis CloudOS – Ghayma (“Ghayma,” “Service,” or “Platform”), a cloud operating system and platform-as-a-service solution developed and provided by Atlanexis (“Atlanexis,” “we,” “us,” or “our”).
+
+By accessing, installing, deploying, or using Ghayma, you (“User,” “Customer,” “you”) agree to be bound by these Terms.
+
+If you are using the Service on behalf of an organization, you represent that you are authorized to bind that entity to these Terms.
+
+2. Service Description
+
+Ghayma is a cloud operating platform designed to enable deployment, orchestration, and management of applications and infrastructure.
+
+The Service may include:
+
+orchestration tools,
+deployment automation,
+container and service management,
+monitoring and logging,
+integrations with third-party systems,
+self-hosted and hosted deployment models,
+enterprise extensions and support services.
+3. Licensing and Usage Model
+3.1 Personal Use (Free License)
+
+Ghayma is free of charge for personal use, provided that:
+
+usage is strictly non-commercial,
+the user is an individual and not acting on behalf of a business entity,
+the platform is not used to generate revenue, directly or indirectly,
+the deployment is not used in a production environment serving customers or clients.
+
+Personal use includes:
+
+learning and experimentation,
+development and testing,
+academic and research purposes,
+personal infrastructure not tied to business operations.
+3.2 Enterprise and Commercial Use (Subscription Required)
+
+A paid subscription is mandatory for any commercial or enterprise use, including but not limited to:
+
+usage by companies, public institutions, or organizations,
+deployment in production environments,
+internal business operations (DevOps, hosting, SaaS delivery),
+offering services to third parties using Ghayma,
+integration into revenue-generating workflows,
+managed hosting or resale of services built on Ghayma.
+
+Atlanexis reserves the sole discretion to determine whether a use qualifies as commercial.
+
+3.3 Support and Managed Services
+
+All support, maintenance, and enterprise services are subject to paid agreements, including:
+
+technical support,
+SLA-backed services,
+security updates and assistance,
+deployment and integration support,
+consulting and training,
+hosted Ghayma environments.
+
+Unless explicitly stated, no support is included in the free usage model.
+
+4. GPL and Open Source Compliance
+
+Ghayma incorporates software licensed under the GNU General Public License (GPL) and other open-source licenses.
+
+4.1 Preservation of GPL Rights
+
+Nothing in these Terms limits or restricts your rights under the GPL, including:
+
+use of the software,
+modification of the software,
+redistribution of the software.
+4.2 Separation of Software and Service
+
+These Terms govern access to Atlanexis services, not your rights to the underlying GPL software.
+
+You may:
+
+self-host Ghayma,
+modify the source code,
+distribute modified versions,
+
+in accordance with the GPL.
+
+4.3 Source Code Availability
+
+Atlanexis will provide access to source code for GPL-covered components in compliance with GPL requirements.
+
+4.4 No Restriction on Redistribution
+
+Nothing in this agreement prevents you from redistributing GPL components, provided you comply with GPL obligations.
+
+5. Accounts and Security
+
+You are responsible for:
+
+maintaining account credentials,
+securing access to your systems,
+all activity under your account.
+
+You must notify Atlanexis immediately in case of unauthorized access.
+
+6. Acceptable Use Policy
+
+You agree not to use the Service to:
+
+violate applicable laws or regulations,
+conduct cyberattacks or unauthorized penetration testing,
+distribute malware or malicious code,
+infringe intellectual property rights,
+host illegal, abusive, or harmful content,
+interfere with service availability or infrastructure.
+
+Violations may result in immediate suspension or termination.
+
+7. Self-Hosting and Responsibility
+
+If you deploy Ghayma independently:
+
+you are fully responsible for infrastructure,
+Atlanexis provides no warranty for self-hosted deployments,
+enterprise obligations still apply if used commercially.
+8. Intellectual Property and Branding
+
+The following remain the exclusive property of Atlanexis:
+
+trademarks and logos,
+product names (“Atlanexis,” “Ghayma”),
+branding and visual identity,
+proprietary components and enterprise features.
+
+You may not use Atlanexis branding without prior written authorization.
+
+9. Fees and Payment
+
+Enterprise services require payment under agreed terms.
+
+Failure to comply may result in:
+
+suspension of services,
+termination of enterprise access.
+
+Fees apply only to:
+
+services and subscriptions,
+not to GPL software rights.
+10. Data and Privacy
+
+You retain ownership of your data.
+
+You are responsible for:
+
+backups,
+security,
+compliance with applicable laws.
+
+Atlanexis is not liable for:
+
+data loss,
+misconfiguration,
+unauthorized access caused by user negligence.
+11. Service Availability
+
+The Service is provided “as is” and “as available.”
+
+Atlanexis may:
+
+modify features,
+interrupt services,
+discontinue parts of the platform.
+12. Termination
+
+Atlanexis may suspend or terminate access if:
+
+Terms are violated,
+payments are overdue,
+security risks are detected.
+
+Termination of service does not affect GPL rights.
+
+13. Disclaimer of Warranties
+
+The Service is provided without warranties, including:
+
+uninterrupted operation,
+security guarantees,
+fitness for a specific purpose.
+14. Limitation of Liability
+
+Atlanexis shall not be liable for:
+
+indirect or consequential damages,
+loss of data or revenue,
+service interruptions.
+
+Liability is limited to the amount paid (if any) in the previous 12 months.
+
+15. Indemnification
+
+You agree to indemnify Atlanexis against claims arising from:
+
+misuse of the Service,
+violation of laws,
+infringement of third-party rights.
+16. Compliance with Laws
+
+You must comply with all applicable laws, including:
+
+cybersecurity regulations,
+data protection laws,
+export and trade restrictions.
+17. Governing Law
+
+These Terms are governed by the laws of:
+
+[Choose: Algeria or UAE depending on your legal entity]
+
+18. Changes to Terms
+
+Atlanexis may update these Terms at any time.
+
+Continued use constitutes acceptance.
+
+19. Contact Information
+
+Atlanexis
+Website: https://ghayma.atlanexis.com
+
+Email: support@atlanexis.com
+
+20. GPL Compliance Notice
+
+Certain components of Ghayma are licensed under the GNU General Public License.
+
+Your rights under the GPL remain fully intact.
+
+In case of conflict between these Terms and the GPL, the GPL shall prevail for GPL-covered components.

@@ -16,8 +16,7 @@
     "./constants": {
       "import": "./src/constants/index.ts",
       "require": "./dist/constants.cjs.js"
-    },
-    "./constants/runtime": "./src/constants/runtime.ts"
+    }
   },
   "scripts": {
     "build": "npm run switch:prod && rm -rf ./dist && tsc --project tsconfig.server.json && tsc-alias -p tsconfig.server.json",
