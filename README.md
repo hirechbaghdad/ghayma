@@ -62,11 +62,13 @@ The long-term goal is simple: make self-hosting feel powerful without making it 
 
 ## Author
 
-CloudOS is a proud work of **Hirech Baghdad Beklheir**.
+CloudOS is a proud work of **Hirech Baghdad Belkheir**.
 We thank our contributors and people who help us a lot 
 
-- AYRADE SPA "support@ayrade.com"
+- Hakim Riad "SRE Engineer and Sysadmin"
+- Mohammed Adda Benkosseir "PHP/Laravel Senior Developer"
 - Dokploy Developers 
+- FF15 Community
 
 
 ## Feedback
