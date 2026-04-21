@@ -33,7 +33,12 @@ export const AddNode = ({ serverId }: Props) => {
 					<DialogDescription className="flex flex-col gap-2">
 						Follow the steps to add a new node to your Distributed Workload Environment, before you start
 						using this feature, you need to understand how Atlanexis Distributed Workload works.{" "}
-						<Link>
+						<Link
+							href="https://atlanexis.com/"
+							target="_blank"
+							rel="noreferrer"
+							className="inline-flex items-center gap-1 text-primary"
+						>
 							Architecture
 							<ExternalLink className="h-4 w-4" />
 						</Link>
