@@ -492,7 +492,10 @@ export const settingsRouter = createTRPCRouter({
 
 	getOpenApiDocument: protectedProcedure.query(
 		async ({ ctx }): Promise<unknown> => {
-			const protocol = ctx.req.headers["x-forwarded-proto"];
+			const forwardedProtocol = ctx.req.headers["x-forwarded-proto"];
+			const protocol = Array.isArray(forwardedProtocol)
+				? forwardedProtocol[0]
+				: forwardedProtocol || (ctx.req.socket.encrypted ? "https" : "http");
 			const url = `${protocol}://${ctx.req.headers.host}/api`;
 			const openApiDocument = generateOpenApiDocument(appRouter, {
 				title: "tRPC OpenAPI",

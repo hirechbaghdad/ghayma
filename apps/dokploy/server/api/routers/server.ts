@@ -402,6 +402,14 @@ export const serverRouter = createTRPCRouter({
 
     // --- TERMINAL MODIFICATIONS START ---
     terminal: protectedProcedure
+        .meta({
+            openapi: {
+                path: "/server/terminal",
+                method: "POST",
+                override: true,
+                enabled: false,
+            },
+        })
         .input(apiFindOneServer)
         .subscription(async ({ input, ctx }) => {
             const serverData = await findServerById(input.serverId);
