@@ -1,34 +1,45 @@
-import { validateRequest } from "@dokploy/server";
+import { validateRequest } from "@dokploy/server/lib/auth";
 import { createServerSideHelpers } from "@trpc/react-query/server";
 import type { GetServerSidePropsContext } from "next";
 import type { ReactElement } from "react";
 import superjson from "superjson";
-import { ProfileForm } from "@/components/dashboard/settings/profile/profile-form";
+import { ShowMarketplace } from "@/components/dashboard/marketplace/show-marketplace";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
 import { appRouter } from "@/server/api/root";
-import { getLocale, serverSideTranslations } from "@/utils/i18n";
 
-const Page = () => {
-	return (
-		<div className="w-full">
-			<div className="h-full rounded-xl  max-w-5xl mx-auto flex flex-col gap-4">
-				<ProfileForm />
-			</div>
-		</div>
-	);
+const MarketplacePage = () => {
+	return <ShowMarketplace />;
 };
 
-export default Page;
+export default MarketplacePage;
 
-Page.getLayout = (page: ReactElement) => {
-	return <DashboardLayout metaName="Profile">{page}</DashboardLayout>;
+MarketplacePage.getLayout = (page: ReactElement) => {
+	return <DashboardLayout>{page}</DashboardLayout>;
 };
+
 export async function getServerSideProps(
 	ctx: GetServerSidePropsContext<{ serviceId: string }>,
 ) {
 	const { req, res } = ctx;
-	const locale = getLocale(req.cookies);
 	const { user, session } = await validateRequest(req);
+
+	if (!user) {
+		return {
+			redirect: {
+				permanent: true,
+				destination: "/",
+			},
+		};
+	}
+
+	if (user.role === "member" && !user.canCreateServices) {
+		return {
+			redirect: {
+				permanent: true,
+				destination: "/dashboard/projects",
+			},
+		};
+	}
 
 	const helpers = createServerSideHelpers({
 		router: appRouter,
@@ -42,22 +53,15 @@ export async function getServerSideProps(
 		transformer: superjson,
 	});
 
-	await helpers.settings.isCloud.prefetch();
-	await helpers.user.get.prefetch();
-
-	if (!user) {
-		return {
-			redirect: {
-				permanent: true,
-				destination: "/",
-			},
-		};
-	}
+	await Promise.all([
+		helpers.settings.isCloud.prefetch(),
+		helpers.user.get.prefetch(),
+		helpers.project.all.prefetch(),
+	]);
 
 	return {
 		props: {
 			trpcState: helpers.dehydrate(),
-			...(await serverSideTranslations(locale, ["settings"])),
 		},
 	};
 }

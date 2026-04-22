@@ -84,6 +84,16 @@ export const UserNav = () => {
 					>
 						Profile
 					</DropdownMenuItem>
+					{(data?.role === "owner" || data?.canAccessToAPI) && (
+						<DropdownMenuItem
+							className="cursor-pointer"
+							onClick={() => {
+								router.push("/dashboard/settings/api-services");
+							}}
+						>
+							API Services
+						</DropdownMenuItem>
+					)}
 					<DropdownMenuItem
 						className="cursor-pointer"
 						onClick={() => {

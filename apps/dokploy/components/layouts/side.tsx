@@ -29,6 +29,7 @@ import {
 	SettingsIcon,
 	ShieldCheck,
 	Star,
+	Store,
 	Trash2,
 	User,
 	Users,
@@ -133,6 +134,14 @@ const MENU: Menu = {
 		},
 		{
 			isSingle: true,
+			title: "Marketplace",
+			url: "/dashboard/marketplace",
+			icon: Store,
+			isEnabled: ({ auth }) =>
+				!!(auth?.role === "owner" || auth?.canCreateServices),
+		},
+		{
+			isSingle: true,
 			title: "Monitoring",
 			url: "/dashboard/monitoring",
 			icon: BarChartHorizontalBigIcon,
@@ -221,6 +230,14 @@ const MENU: Menu = {
 			url: "/dashboard/settings/servers",
 			icon: Server,
 			isEnabled: ({ auth }) => !!(auth?.role === "owner"),
+		},
+		{
+			isSingle: true,
+			title: "API Services",
+			url: "/dashboard/settings/api-services",
+			icon: KeyRound,
+			isEnabled: ({ auth }) =>
+				!!(auth?.role === "owner" || auth?.canAccessToAPI),
 		},
 		{
 			isSingle: true,
