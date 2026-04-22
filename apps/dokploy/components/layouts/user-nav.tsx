@@ -23,7 +23,6 @@ import { Languages } from "@/lib/languages";
 import { getFallbackAvatarInitials } from "@/lib/utils";
 import { api } from "@/utils/api";
 import useLocale from "@/utils/hooks/use-locale";
-import { ModeToggle } from "../ui/modeToggle";
 
 const _AUTO_CHECK_UPDATES_INTERVAL_MINUTES = 7;
 
@@ -40,7 +39,7 @@ export const UserNav = () => {
 			<DropdownMenuTrigger asChild>
 				<Button
 					variant="outline"
-					className="h-11 w-full justify-start rounded-full border-border/70 bg-card/85 px-3 shadow-sm data-[state=open]:bg-accent"
+					className="h-11 w-full justify-start rounded-[1.2rem] border-border/70 bg-card/85 px-3 shadow-sm data-[state=open]:bg-accent"
 				>
 					<Avatar className="h-8 w-8 rounded-lg">
 						<AvatarImage
@@ -53,8 +52,12 @@ export const UserNav = () => {
 						</AvatarFallback>
 					</Avatar>
 					<div className="grid flex-1 text-left text-sm leading-tight">
-						<span className="truncate font-semibold">Account</span>
-						<span className="truncate text-xs">{data?.user?.email}</span>
+						<span className="truncate font-semibold">
+							{data?.user?.name || "Account"}
+						</span>
+						<span className="truncate text-xs text-muted-foreground">
+							Manage account
+						</span>
 					</div>
 					<ChevronsUpDown className="ml-auto size-4" />
 				</Button>
@@ -65,15 +68,12 @@ export const UserNav = () => {
 				align="end"
 				sideOffset={4}
 			>
-				<div className="flex items-center justify-between px-2 py-1.5">
-					<DropdownMenuLabel className="flex flex-col">
-						My Account
-						<span className="text-xs font-normal text-muted-foreground">
-							{data?.user?.email}
-						</span>
-					</DropdownMenuLabel>
-					<ModeToggle />
-				</div>
+				<DropdownMenuLabel className="flex flex-col px-2 py-1.5">
+					My Account
+					<span className="text-xs font-normal text-muted-foreground">
+						{data?.user?.email}
+					</span>
+				</DropdownMenuLabel>
 				<DropdownMenuSeparator />
 				<DropdownMenuGroup>
 					<DropdownMenuItem

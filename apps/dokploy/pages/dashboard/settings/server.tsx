@@ -2,6 +2,7 @@ import { IS_CLOUD, validateRequest } from "@dokploy/server";
 import { createServerSideHelpers } from "@trpc/react-query/server";
 import type { GetServerSidePropsContext } from "next";
 import type { ReactElement } from "react";
+import { DashboardAppearance } from "@/components/dashboard/settings/dashboard-appearance";
 import superjson from "superjson";
 import { ShowBackups } from "@/components/dashboard/database/backups/show-backups";
 import { WebDomain } from "@/components/dashboard/settings/web-domain";
@@ -17,6 +18,7 @@ const Page = () => {
 	return (
 		<div className="w-full">
 			<div className="h-full rounded-xl  max-w-5xl mx-auto flex flex-col gap-4">
+				<DashboardAppearance />
 				<WebDomain />
 				<WebServer />
 				<div className="w-full flex flex-col gap-4">

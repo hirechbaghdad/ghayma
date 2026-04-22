@@ -9,6 +9,7 @@ import { appWithTranslation } from "next-i18next";
 import { ThemeProvider } from "next-themes";
 import type { ReactElement, ReactNode } from "react";
 import { SearchCommand } from "@/components/dashboard/search-command";
+import { DashboardToneProvider } from "@/components/shared/dashboard-tone-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Languages } from "@/lib/languages";
@@ -60,6 +61,7 @@ const MyApp = ({
 				forcedTheme={Component.theme}
 			>
 				<TooltipProvider delayDuration={0}>
+					<DashboardToneProvider />
 					<Toaster richColors />
 					<SearchCommand />
 					{getLayout(<Component {...pageProps} />)}

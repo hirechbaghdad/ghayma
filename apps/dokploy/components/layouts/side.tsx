@@ -2,6 +2,7 @@
 
 import type { inferRouterOutputs } from "@trpc/server";
 import {
+	ArrowUpRight,
 	BarChartHorizontalBigIcon,
 	Bell,
 	BlocksIcon,
@@ -20,6 +21,7 @@ import {
 	KeyRound,
 	LayoutGrid,
 	Loader2,
+	MenuIcon,
 	type LucideIcon,
 	Package,
 	PieChart,
@@ -65,6 +67,14 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
+import {
+	Sheet,
+	SheetContent,
+	SheetDescription,
+	SheetHeader,
+	SheetTitle,
+	SheetTrigger,
+} from "@/components/ui/sheet";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import type { AppRouter } from "@/server/api/root";
@@ -204,12 +214,6 @@ const MENU: Menu = {
 			url: "/dashboard/settings/server",
 			icon: SettingsIcon,
 			isEnabled: ({ auth, isCloud }) => !!(auth?.role === "owner" && !isCloud),
-		},
-		{
-			isSingle: true,
-			title: "User Account",
-			url: "/dashboard/settings/profile",
-			icon: User,
 		},
 		{
 			isSingle: true,
@@ -521,9 +525,9 @@ function NotificationsMenu() {
 					size="icon"
 					className="relative size-11 rounded-full border-border/70 bg-card/85 shadow-sm"
 				>
-					<Bell className="size-4 text-sky-600" />
+					<Bell className="size-4 text-primary" />
 					{invitations && invitations.length > 0 && (
-						<span className="absolute right-0.5 top-0.5 flex size-4 items-center justify-center rounded-full bg-sky-500 text-[10px] font-semibold text-white">
+						<span className="absolute right-0.5 top-0.5 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
 							{invitations.length}
 						</span>
 					)}
@@ -598,7 +602,7 @@ function AppLauncher({
 				className="h-11 gap-2 rounded-full border-border/70 bg-card/85 px-4 shadow-sm"
 				onClick={() => setOpen(true)}
 			>
-				<LayoutGrid className="size-4 text-sky-600" />
+				<LayoutGrid className="size-4 text-primary" />
 				<span>Apps</span>
 			</Button>
 
@@ -642,11 +646,11 @@ function AppLauncher({
 														className={cn(
 															"flex w-full items-start gap-4 rounded-3xl border p-5 transition-all",
 															isActive
-																? "border-sky-300 bg-sky-50/90 shadow-[0_18px_34px_rgba(59,130,246,0.12)] dark:border-sky-500/40 dark:bg-sky-500/10"
-																: "border-border/70 bg-card/80 hover:border-sky-200 hover:bg-accent/70 hover:shadow-[0_18px_34px_rgba(15,23,42,0.06)]",
+																? "border-primary/30 bg-primary/10 shadow-[0_18px_34px_hsl(var(--primary)/0.14)]"
+																: "border-border/70 bg-card/80 hover:border-primary/20 hover:bg-accent/70 hover:shadow-[0_18px_34px_rgba(15,23,42,0.06)]",
 														)}
 													>
-														<div className="flex size-12 items-center justify-center rounded-2xl bg-sky-100 text-sky-600 dark:bg-sky-500/15 dark:text-sky-300">
+														<div className="flex size-12 items-center justify-center rounded-2xl bg-primary/12 text-primary">
 															<Icon className="size-6" />
 														</div>
 														<div className="min-w-0">
@@ -694,8 +698,8 @@ function TopQuickLinks({
 							className={cn(
 								"inline-flex min-w-0 max-w-[13rem] items-center gap-2 rounded-full border px-3 py-2 text-sm font-medium transition-colors",
 								isActive
-									? "border-sky-300 bg-sky-50 text-sky-700 dark:border-sky-500/40 dark:bg-sky-500/10 dark:text-sky-300"
-									: "border-border/70 bg-card/65 text-muted-foreground hover:border-sky-200 hover:text-foreground",
+									? "border-primary/30 bg-primary/10 text-primary"
+									: "border-border/70 bg-card/65 text-muted-foreground hover:border-primary/20 hover:text-foreground",
 							)}
 						>
 							<Icon className="size-3.5" />
@@ -707,12 +711,167 @@ function TopQuickLinks({
 	);
 }
 
+function SidebarNavLink({
+	item,
+	pathname,
+	onNavigate,
+}: {
+	item: SingleNavItem;
+	pathname: string;
+	onNavigate?: () => void;
+}) {
+	const Icon = item.icon ?? LayoutGrid;
+	const isActive = isActiveRoute({ itemUrl: item.url, pathname });
+
+	return (
+		<Link
+			href={item.url}
+			onClick={onNavigate}
+			className={cn(
+				"group relative flex items-center gap-3 rounded-[1.35rem] border px-3.5 py-3 transition-all duration-300",
+				isActive
+					? "dashboard-sidebar-link-active text-foreground"
+					: "border-transparent text-muted-foreground hover:translate-x-1 hover:border-primary/15 hover:bg-background/75 hover:text-foreground",
+			)}
+		>
+			<div
+				className={cn(
+					"flex size-10 items-center justify-center rounded-[1rem] border transition-all duration-300",
+					isActive
+						? "border-primary/10 bg-primary text-primary-foreground"
+						: "border-border/60 bg-card/80 text-primary group-hover:border-primary/20 group-hover:bg-primary/10",
+				)}
+			>
+				<Icon className="size-4" />
+			</div>
+			<div className="min-w-0 flex-1">
+				<p className="truncate text-sm font-semibold">{item.title}</p>
+				<p className="truncate text-xs text-muted-foreground">
+					{item.url.replace("/dashboard/", "").replaceAll("/", " / ")}
+				</p>
+			</div>
+			<div
+				className={cn(
+					"h-9 w-1 rounded-full bg-gradient-to-b from-primary via-primary to-primary/40 transition-all duration-300",
+					isActive ? "opacity-100" : "opacity-0 group-hover:opacity-50",
+				)}
+			/>
+		</Link>
+	);
+}
+
+function SidebarSection({
+	title,
+	items,
+	pathname,
+	onNavigate,
+}: {
+	title: string;
+	items: SingleNavItem[];
+	pathname: string;
+	onNavigate?: () => void;
+}) {
+	return (
+		<div className="relative z-10 mt-5">
+			<div className="px-3 text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
+				{title}
+			</div>
+			<div className="mt-2 flex flex-col gap-1.5">
+				{items.map((item) => (
+					<SidebarNavLink
+						key={`${title}-${item.url}`}
+						item={item}
+						pathname={pathname}
+						onNavigate={onNavigate}
+					/>
+				))}
+			</div>
+		</div>
+	);
+}
+
+function DashboardSidebar({
+	pathname,
+	activeItem,
+	homeEntries,
+	settingsEntries,
+	onNavigate,
+}: {
+	pathname: string;
+	activeItem?: SingleNavItem;
+	homeEntries: SingleNavItem[];
+	settingsEntries: SingleNavItem[];
+	onNavigate?: () => void;
+}) {
+	return (
+		<div className="dashboard-sidebar flex h-full flex-col rounded-[2rem] p-3 text-sidebar-foreground">
+			<div className="relative z-10 flex h-full flex-col">
+				<div className="rounded-[1.65rem] border border-border/70 bg-background/70 p-4 shadow-sm">
+					<div className="flex items-center gap-3">
+						<div className="flex size-12 items-center justify-center rounded-[1.2rem] bg-primary/12 text-primary">
+							<Logo className="size-6" />
+						</div>
+						<div className="min-w-0">
+							<p className="truncate text-sm font-semibold">
+								Atlanexis CloudOS
+							</p>
+							<p className="truncate text-xs text-muted-foreground">
+								Navigation Hub
+							</p>
+						</div>
+					</div>
+					<div className="mt-4 rounded-[1.35rem] border border-border/60 bg-card/75 p-4">
+						<p className="text-[11px] font-medium uppercase tracking-[0.24em] text-primary/80">
+							Control Center
+						</p>
+						<p className="mt-2 truncate text-base font-semibold text-foreground">
+							{activeItem?.title ?? "Dashboard"}
+						</p>
+						<p className="mt-1 text-xs leading-5 text-muted-foreground">
+							A persistent control surface for infrastructure, platform
+							settings, and operations.
+						</p>
+					</div>
+				</div>
+
+				<div className="mt-4 flex-1 overflow-y-auto pr-1">
+					<SidebarSection
+						title="Platform"
+						items={homeEntries}
+						pathname={pathname}
+						onNavigate={onNavigate}
+					/>
+					<SidebarSection
+						title="Configuration"
+						items={settingsEntries}
+						pathname={pathname}
+						onNavigate={onNavigate}
+					/>
+				</div>
+
+				<div className="relative z-10 mt-4 rounded-[1.65rem] border border-border/70 bg-background/70 p-4 shadow-sm">
+					<p className="text-[11px] font-medium uppercase tracking-[0.24em] text-primary/80">
+						Atlanexis Copyright
+					</p>
+					<p className="mt-3 text-sm font-semibold text-foreground">
+						(c) 2026 Hirech Baghdad Belkheir
+					</p>
+					<p className="mt-1 text-xs leading-5 text-muted-foreground">
+						Atlanexis Inc
+					</p>
+				</div>
+			</div>
+		</div>
+	);
+}
+
 interface Props {
 	children: React.ReactNode;
 }
 
 export default function Page({ children }: Props) {
 	const pathname = usePathname();
+	const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 	const { data: auth } = api.user.get.useQuery();
 	const { data: dokployVersion } = api.settings.getDokployVersion.useQuery();
 	const { data: isCloud } = api.settings.isCloud.useQuery();
@@ -723,127 +882,166 @@ export default function Page({ children }: Props) {
 	});
 	const homeEntries = useMemo(() => flattenNavItems(home), [home]);
 	const settingsEntries = useMemo(() => flattenNavItems(settings), [settings]);
-	const launcherSections = useMemo(
-		() => [
-			{ title: "Workspace", items: homeEntries },
-			{ title: "Settings", items: settingsEntries },
-		],
-		[homeEntries, settingsEntries],
-	);
-
 	const activeItem = findActiveNavItem([...home, ...settings], pathname);
 	const includesProjects = pathname?.includes("/dashboard/project");
 
 	return (
 		<div className="dashboard-shell min-h-svh">
-			<div className="mx-auto flex min-h-svh max-w-[1720px] flex-col px-3 py-3 sm:px-4 lg:px-6">
-				<header className="dashboard-topbar sticky top-3 z-40 rounded-[1.75rem] px-4 py-3 sm:px-5">
-					<div className="flex flex-col gap-4">
-						<div className="flex flex-wrap items-center justify-between gap-3">
-							<div className="flex min-w-0 items-center gap-3">
-								<Link
-									href="/dashboard/projects"
-									className="flex items-center gap-3 rounded-full border border-border/70 bg-card/80 px-3 py-2 shadow-sm"
-								>
-									<div className="flex size-9 items-center justify-center rounded-full bg-sky-100 text-sky-600 dark:bg-sky-500/15 dark:text-sky-300">
-										<Logo className="size-5" />
-									</div>
-									<div className="hidden min-w-0 sm:block">
-										<p className="truncate text-sm font-semibold">
-											Atlanexis CloudOS
-										</p>
-										<p className="truncate text-xs text-muted-foreground">
-											Dashboard
-										</p>
-									</div>
-								</Link>
-
-								<AppLauncher pathname={pathname} sections={launcherSections} />
-								<TopQuickLinks items={homeEntries} pathname={pathname} />
-							</div>
-
-							<div className="flex flex-wrap items-center justify-end gap-2">
-								{!isCloud && (
-									<div className="hidden md:block">
-										<TimeBadge />
-									</div>
-								)}
-								<NotificationsMenu />
-								<OrganizationSwitcher />
-								<div className="min-w-[220px] max-w-full">
-									<UserNav />
-								</div>
-							</div>
-						</div>
-
-						<div className="flex flex-wrap items-center justify-between gap-3">
-							<div className="flex min-w-0 items-center gap-3">
-								<div className="flex min-w-0 flex-col">
-									<p className="text-xs font-medium uppercase tracking-[0.22em] text-sky-600 dark:text-sky-300">
-										Control Center
-									</p>
-									<p className="truncate text-lg font-semibold text-foreground">
-										{activeItem?.title ?? "Dashboard"}
-									</p>
-								</div>
-								<Separator orientation="vertical" className="hidden h-8 sm:block" />
-								<Breadcrumb className="hidden sm:block">
-									<BreadcrumbList>
-										<BreadcrumbItem className="block">
-											<BreadcrumbLink asChild>
-												<Link
-													href={activeItem?.url || "/dashboard/projects"}
-													className="text-sm text-muted-foreground hover:text-foreground"
-												>
-													{activeItem?.url || "/dashboard/projects"}
-												</Link>
-											</BreadcrumbLink>
-										</BreadcrumbItem>
-									</BreadcrumbList>
-								</Breadcrumb>
-							</div>
-
-							<div className="flex flex-wrap items-center gap-2">
-								{!isCloud && auth?.role === "owner" && <UpdateServerButton />}
-								{help.map((item) => (
-									<Link
-										key={item.name}
-										href={item.url}
-										target="_blank"
-										rel="noopener noreferrer"
-										className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/70 px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-									>
-										<item.icon className="size-4 text-sky-600 dark:text-sky-300" />
-										<span>{item.name}</span>
-									</Link>
-								))}
-								{dokployVersion && (
-									<div className="rounded-full border border-border/70 bg-card/70 px-3 py-2 text-xs font-medium text-muted-foreground">
-										Version {dokployVersion}
-									</div>
-								)}
-							</div>
-						</div>
+			<div className="mx-auto flex min-h-svh max-w-[1780px] gap-4 px-3 py-3 sm:px-4 lg:px-5">
+				<aside className="hidden lg:block lg:w-[300px] xl:w-[320px]">
+					<div className="sticky top-3 h-[calc(100svh-1.5rem)]">
+						<DashboardSidebar
+							pathname={pathname}
+							activeItem={activeItem}
+							homeEntries={homeEntries}
+							settingsEntries={settingsEntries}
+						/>
 					</div>
-				</header>
+				</aside>
 
-				<main className="dashboard-content relative flex-1 pt-4">
-					<div
-						className={cn(
-							"min-h-[calc(100svh-8rem)] rounded-[2rem] border border-border/70 bg-card/55 p-4 shadow-[0_24px_70px_rgba(15,23,42,0.06)] backdrop-blur-xl sm:p-5 lg:p-6",
-							includesProjects && "p-0 sm:p-0 lg:p-0",
-						)}
-					>
+				<div className="min-w-0 flex-1">
+					<header className="dashboard-topbar sticky top-3 z-40 rounded-[1.75rem] px-4 py-3 sm:px-5">
+						<div className="flex flex-col gap-4">
+							<div className="flex flex-wrap items-center justify-between gap-3">
+								<div className="flex min-w-0 items-center gap-3">
+									<Sheet open={isMobileNavOpen} onOpenChange={setIsMobileNavOpen}>
+										<SheetTrigger asChild>
+											<Button
+												variant="outline"
+												size="icon"
+												className="size-11 rounded-[1.2rem] border-border/70 bg-card/80 shadow-sm lg:hidden"
+											>
+												<MenuIcon className="size-4" />
+												<span className="sr-only">Open navigation</span>
+											</Button>
+										</SheetTrigger>
+										<SheetContent
+											side="left"
+											className="w-[92vw] max-w-[360px] border-none bg-transparent p-3 shadow-none"
+										>
+											<SheetHeader className="sr-only">
+												<SheetTitle>Dashboard Navigation</SheetTitle>
+												<SheetDescription>
+													Open platform and configuration sections.
+												</SheetDescription>
+											</SheetHeader>
+											<div className="h-full">
+												<DashboardSidebar
+													pathname={pathname}
+													activeItem={activeItem}
+													homeEntries={homeEntries}
+													settingsEntries={settingsEntries}
+													onNavigate={() => setIsMobileNavOpen(false)}
+												/>
+											</div>
+										</SheetContent>
+									</Sheet>
+
+									<Link
+										href="/dashboard/projects"
+										className="flex items-center gap-3 rounded-full border border-border/70 bg-card/80 px-3 py-2 shadow-sm"
+									>
+										<div className="flex size-9 items-center justify-center rounded-full bg-primary/12 text-primary">
+											<Logo className="size-5" />
+										</div>
+										<div className="hidden min-w-0 sm:block">
+											<p className="truncate text-sm font-semibold">
+												Atlanexis CloudOS
+											</p>
+											<p className="truncate text-xs text-muted-foreground">
+												Dashboard
+											</p>
+										</div>
+									</Link>
+								</div>
+
+								<div className="flex flex-wrap items-center justify-end gap-2">
+									{!isCloud && (
+										<div className="hidden md:block">
+											<TimeBadge />
+										</div>
+									)}
+									<NotificationsMenu />
+									<OrganizationSwitcher />
+									<div className="min-w-[220px] max-w-full">
+										<UserNav />
+									</div>
+								</div>
+							</div>
+
+							<div className="flex flex-wrap items-center justify-between gap-3">
+								<div className="flex min-w-0 items-center gap-3">
+									<div className="flex min-w-0 flex-col">
+										<p className="text-xs font-medium uppercase tracking-[0.22em] text-primary">
+											Control Center
+										</p>
+										<p className="truncate text-lg font-semibold text-foreground">
+											{activeItem?.title ?? "Dashboard"}
+										</p>
+									</div>
+									<Separator
+										orientation="vertical"
+										className="hidden h-8 sm:block"
+									/>
+									<Breadcrumb className="hidden sm:block">
+										<BreadcrumbList>
+											<BreadcrumbItem className="block">
+												<BreadcrumbLink asChild>
+													<Link
+														href={activeItem?.url || "/dashboard/projects"}
+														className="text-sm text-muted-foreground hover:text-foreground"
+													>
+														{activeItem?.url || "/dashboard/projects"}
+													</Link>
+												</BreadcrumbLink>
+											</BreadcrumbItem>
+										</BreadcrumbList>
+									</Breadcrumb>
+								</div>
+
+								<div className="flex flex-wrap items-center gap-2">
+									{!isCloud && auth?.role === "owner" && <UpdateServerButton />}
+									{help.map((item) => (
+										<Link
+											key={item.name}
+											href={item.url}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/70 px-3 py-2 text-sm text-muted-foreground transition-colors hover:border-primary/20 hover:text-foreground"
+										>
+											<item.icon className="size-4 text-primary" />
+											<span>{item.name}</span>
+											<ArrowUpRight className="size-3.5 text-primary/70" />
+										</Link>
+									))}
+									{dokployVersion && (
+										<div className="rounded-full border border-border/70 bg-card/70 px-3 py-2 text-xs font-medium text-muted-foreground">
+											Version {dokployVersion}
+										</div>
+									)}
+								</div>
+							</div>
+						</div>
+					</header>
+
+					<main className="dashboard-content relative flex-1 pt-4">
 						<div
 							className={cn(
-								"relative z-10 h-full",
-								includesProjects ? "" : "rounded-[1.5rem]",
+								"min-h-[calc(100svh-8rem)] rounded-[2rem] border border-border/70 bg-card/55 p-4 shadow-[0_24px_70px_rgba(15,23,42,0.06)] backdrop-blur-xl sm:p-5 lg:p-6",
+								includesProjects && "p-0 sm:p-0 lg:p-0",
 							)}
 						>
-							{children}
+							<div
+								className={cn(
+									"relative z-10 h-full",
+									includesProjects ? "" : "rounded-[1.5rem]",
+								)}
+							>
+								{children}
+							</div>
 						</div>
-					</div>
-				</main>
+					</main>
+				</div>
 			</div>
 		</div>
 	);
