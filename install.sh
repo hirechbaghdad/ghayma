@@ -195,7 +195,9 @@ ensure_path_layout() {
 		"$DYNAMIC_TRAEFIK_PATH/certificates" \
 		"$BASE_PATH/logs" \
 		"$BASE_PATH/applications" \
+		"$BASE_PATH/compose" \
 		"$BASE_PATH/monitoring" \
+		"$BASE_PATH/registry" \
 		"$BASE_PATH/schedules" \
 		"$BASE_PATH/volume-backups" \
 		"$BASE_PATH/ssh"
