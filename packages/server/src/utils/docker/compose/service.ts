@@ -12,6 +12,7 @@ type DependsOnObject = NonNullable<
 		? { [K in keyof T]: T[K] }
 		: never
 >;
+type EnvironmentValue = string | number | boolean | null;
 
 export const addSuffixToServiceNames = (
 	services: { [key: string]: DefinitionsService },
@@ -25,7 +26,7 @@ export const addSuffixToServiceNames = (
 		]),
 	);
 
-	const rewriteServiceReference = (value: unknown) => {
+	const rewriteServiceReference = (value: EnvironmentValue): EnvironmentValue => {
 		if (typeof value !== "string") {
 			return value;
 		}
@@ -54,12 +55,14 @@ export const addSuffixToServiceNames = (
 			return;
 		}
 
-		serviceConfig.environment = Object.fromEntries(
-			Object.entries(serviceConfig.environment).map(([key, value]) => [
+		const rewrittenEnvironment: Record<string, EnvironmentValue> =
+			Object.fromEntries(
+				Object.entries(serviceConfig.environment).map(([key, value]) => [
 				key,
 				rewriteServiceReference(value),
-			]),
-		);
+				]),
+			);
+		serviceConfig.environment = rewrittenEnvironment;
 	};
 
 	for (const [serviceName, serviceConfig] of Object.entries(services)) {
