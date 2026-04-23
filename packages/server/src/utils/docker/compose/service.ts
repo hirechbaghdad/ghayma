@@ -18,9 +18,52 @@ export const addSuffixToServiceNames = (
 	suffix: string,
 ): { [key: string]: DefinitionsService } => {
 	const newServices: { [key: string]: DefinitionsService } = {};
+	const serviceNameMap = new Map(
+		Object.keys(services).map((serviceName) => [
+			serviceName,
+			`${serviceName}-${suffix}`,
+		]),
+	);
+
+	const rewriteServiceReference = (value: unknown) => {
+		if (typeof value !== "string") {
+			return value;
+		}
+
+		return serviceNameMap.get(value) ?? value;
+	};
+
+	const rewriteEnvironmentReferences = (serviceConfig: DefinitionsService) => {
+		if (!serviceConfig.environment) {
+			return;
+		}
+
+		if (Array.isArray(serviceConfig.environment)) {
+			serviceConfig.environment = serviceConfig.environment.map((entry) => {
+				const separatorIndex = entry.indexOf("=");
+				if (separatorIndex === -1) {
+					return entry;
+				}
+
+				const name = entry.slice(0, separatorIndex);
+				const value = entry.slice(separatorIndex + 1);
+				const rewrittenValue = rewriteServiceReference(value);
+
+				return `${name}=${rewrittenValue}`;
+			});
+			return;
+		}
+
+		serviceConfig.environment = Object.fromEntries(
+			Object.entries(serviceConfig.environment).map(([key, value]) => [
+				key,
+				rewriteServiceReference(value),
+			]),
+		);
+	};
 
 	for (const [serviceName, serviceConfig] of Object.entries(services)) {
-		const newServiceName = `${serviceName}-${suffix}`;
+		const newServiceName = serviceNameMap.get(serviceName) ?? serviceName;
 		const newServiceConfig = _.cloneDeep(serviceConfig);
 
 		// Reemplazar nombres de servicios en depends_on
@@ -67,6 +110,8 @@ export const addSuffixToServiceNames = (
 				(vol) => `${vol}-${suffix}`,
 			);
 		}
+
+		rewriteEnvironmentReferences(newServiceConfig);
 
 		newServices[newServiceName] = newServiceConfig;
 	}
