@@ -216,12 +216,6 @@ const MENU: Menu = {
 			url: "/dashboard/version-info",
 			icon: HeartIcon,
 		},
-		{
-			isSingle: true,
-			title: "AI Agent",
-			url: "/dashboard/ai-agent",
-			icon: BotIcon,
-		},
 	],
 	settings: [
 		{
@@ -1040,7 +1034,7 @@ export default function Page({ children }: Props) {
 									))}
 									{dokployVersion && (
 										<div className="rounded-full border border-border/70 bg-card/70 px-3 py-2 text-xs font-medium text-muted-foreground">
-											Version {dokployVersion}
+											Version v1.3-preview
 										</div>
 									)}
 								</div>
