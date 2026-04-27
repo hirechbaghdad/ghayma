@@ -26,6 +26,7 @@ import { portRouter } from "./routers/port";
 import { postgresRouter } from "./routers/postgres";
 import { previewDeploymentRouter } from "./routers/preview-deployment";
 import { projectRouter } from "./routers/project";
+import { recoveryRouter } from "./routers/recovery";
 import { redirectsRouter } from "./routers/redirects";
 import { redisRouter } from "./routers/redis";
 import { registryRouter } from "./routers/registry";
@@ -51,6 +52,7 @@ export const appRouter = createTRPCRouter({
     admin: adminRouter,
     docker: dockerRouter,
     project: projectRouter,
+    recovery: recoveryRouter,
     application: applicationRouter,
     mysql: mysqlRouter,
     postgres: postgresRouter,

@@ -20,6 +20,7 @@ import {
 	HeartIcon,
 	KeyRound,
 	LayoutGrid,
+	LifeBuoy,
 	Loader2,
 	MenuIcon,
 	type LucideIcon,
@@ -202,6 +203,13 @@ const MENU: Menu = {
 			url: "/dashboard/settings/cluster",
 			icon: Boxes,
 			isEnabled: ({ auth, isCloud }) => !!(auth?.role === "owner" && !isCloud),
+		},
+		{
+			isSingle: true,
+			title: "Recovery Service",
+			url: "/dashboard/recovery-service",
+			icon: LifeBuoy,
+			isEnabled: ({ auth }) => !!(auth?.role === "owner"),
 		},
 		{
 			isSingle: true,
@@ -1033,7 +1041,7 @@ export default function Page({ children }: Props) {
 									))}
 									{dokployVersion && (
 										<div className="rounded-full border border-border/70 bg-card/70 px-3 py-2 text-xs font-medium text-muted-foreground">
-											Version {dokployVersion}
+											Version 1.3-preview
 										</div>
 									)}
 								</div>

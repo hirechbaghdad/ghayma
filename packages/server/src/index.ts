@@ -32,6 +32,7 @@ export * from "./services/postgres";
 export * from "./services/preview-deployment";
 export * from "./services/project";
 export * from "./services/redirect";
+export * from "./services/recovery";
 export * from "./services/redis";
 export * from "./services/registry";
 export * from "./services/rollbacks";
