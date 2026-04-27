@@ -253,7 +253,6 @@ export const ShowMarketplace = () => {
 				const created = await createProject({
 					name: values.projectName?.trim() || "",
 					description: "",
-					projectId: "",
 				});
 
 				targetProjectId = created.project.projectId;

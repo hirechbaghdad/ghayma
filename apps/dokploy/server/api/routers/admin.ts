@@ -113,8 +113,8 @@ export const adminRouter = createTRPCRouter({
                     // Check if project exists
                     const existing = await db
                         .select()
-                        .from(schema.project)
-                        .where(eq(schema.project.name, intent.name))
+                        .from(schema.projects)
+                        .where(eq(schema.projects.name, intent.name))
                         .limit(1);
 
                     if (existing.length > 0) {
@@ -122,7 +122,7 @@ export const adminRouter = createTRPCRouter({
                     }
 
                     // Insert new project
-                    await db.insert(schema.project).values({
+                    await db.insert(schema.projects).values({
                         name: intent.name,
                         description: "Created via AI Agent",
                         ownerId: user?.ownerId || user?.id || "",

@@ -1,3 +1,5 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertTriangle, PenBoxIcon, PlusIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -102,12 +104,13 @@ export const HandleRegistry = ({ registryId }: Props) => {
 
 	useEffect(() => {
 		if (registry) {
+			const registryData = registry as any;
 			form.reset({
-				username: registry.username,
+				username: registryData.username,
 				password: "",
-				registryUrl: registry.registryUrl,
-				imagePrefix: registry.imagePrefix || "",
-				registryName: registry.registryName,
+				registryUrl: registryData.registryUrl,
+				imagePrefix: registryData.imagePrefix || "",
+				registryName: registryData.registryName,
 			});
 		} else {
 			form.reset({
@@ -118,7 +121,7 @@ export const HandleRegistry = ({ registryId }: Props) => {
 				serverId: "",
 			});
 		}
-	}, [form, form.reset, form.formState.isSubmitSuccessful, registry]);
+	}, [form, registry]);
 
 	const onSubmit = async (data: AddRegistry) => {
 		await mutateAsync({

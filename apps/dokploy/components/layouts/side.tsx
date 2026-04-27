@@ -190,6 +190,13 @@ const MENU: Menu = {
 		},
 		{
 			isSingle: true,
+			title: "Recovery",
+			url: "/dashboard/recovery",
+			icon: Database,
+			isEnabled: ({ auth, isCloud }) => !!(auth?.role === "owner" && !isCloud),
+		},
+		{
+			isSingle: true,
 			title: "Distributed Compute Management",
 			url: "/dashboard/swarm",
 			icon: PieChart,

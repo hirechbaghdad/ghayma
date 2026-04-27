@@ -28,6 +28,7 @@ import { previewDeploymentRouter } from "./routers/preview-deployment";
 import { projectRouter } from "./routers/project";
 import { redirectsRouter } from "./routers/redirects";
 import { redisRouter } from "./routers/redis";
+import { recoveryRouter } from "./routers/recovery";
 import { registryRouter } from "./routers/registry";
 import { rollbackRouter } from "./routers/rollbacks";
 import { scheduleRouter } from "./routers/schedule";
@@ -55,6 +56,7 @@ export const appRouter = createTRPCRouter({
     mysql: mysqlRouter,
     postgres: postgresRouter,
     redis: redisRouter,
+    recovery: recoveryRouter,
     mongo: mongoRouter,
     mariadb: mariadbRouter,
     compose: composeRouter,
