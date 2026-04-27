@@ -78,3 +78,4 @@ Ideas, suggestions, bug reports, and improvement requests are welcome.
 
 - Open an issue on GitHub in this repository
 - Email: `hirechbaghdad@atlanexis.com`
+- Donations : CCP Baridimob 00799999 0022890596 53
