@@ -3,7 +3,11 @@ import { findServerById, validateRequest } from "@dokploy/server";
 import { spawn } from "node-pty";
 import { Client } from "ssh2";
 import { WebSocketServer } from "ws";
-import { getShell } from "./utils";
+
+const containerIdRegex = /^[a-zA-Z0-9_.-]+$/;
+const allowedShells = new Set(["bash", "sh", "ash", "zsh"]);
+
+const shellArg = (value: string) => `'${value.replace(/'/g, "'\\''")}'`;
 
 export const setupDockerContainerTerminalWebSocketServer = (
 	server: http.Server<typeof http.IncomingMessage, typeof http.ServerResponse>,
@@ -34,18 +38,28 @@ export const setupDockerContainerTerminalWebSocketServer = (
 		const serverId = url.searchParams.get("serverId");
 		const { user, session } = await validateRequest(req);
 
-		if (!containerId) {
+		if (!containerId || !containerIdRegex.test(containerId)) {
 			ws.close(4000, "containerId no provided");
 			return;
 		}
 
-		if (!user || !session) {
+		const shellName = activeWay || "sh";
+		if (!allowedShells.has(shellName)) {
+			ws.close(4000, "invalid shell");
+			return;
+		}
+
+		if (!user || !session || user.role !== "owner") {
 			ws.close();
 			return;
 		}
 		try {
 			if (serverId) {
 				const server = await findServerById(serverId);
+				if (server.organizationId !== session.activeOrganizationId) {
+					ws.close();
+					return;
+				}
 				if (!server.sshKeyId)
 					throw new Error("No SSH key available for this server");
 
@@ -55,7 +69,7 @@ export const setupDockerContainerTerminalWebSocketServer = (
 				conn
 					.once("ready", () => {
 						conn.exec(
-							`docker exec -it -w / ${containerId} ${activeWay}`,
+							`docker exec -it -w / ${shellArg(containerId)} ${shellArg(shellName)}`,
 							{ pty: true },
 							(err, stream) => {
 								if (err) throw err;
@@ -104,10 +118,9 @@ export const setupDockerContainerTerminalWebSocketServer = (
 						privateKey: server.sshKey?.privateKey,
 					});
 			} else {
-				const shell = getShell();
 				const ptyProcess = spawn(
-					shell,
-					["-c", `docker exec -it -w / ${containerId} ${activeWay}`],
+					"docker",
+					["exec", "-it", "-w", "/", containerId, shellName],
 					{},
 				);
 

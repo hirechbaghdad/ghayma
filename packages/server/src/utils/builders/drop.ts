@@ -11,6 +11,38 @@ import {
 } from "../filesystem/directory";
 import { execAsyncRemote } from "../process/execAsync";
 
+const normalizeZipEntryPath = (entryName: string) => {
+	const normalized = path.posix.normalize(entryName.replace(/\\/g, "/"));
+	if (
+		normalized === "." ||
+		normalized.startsWith("../") ||
+		normalized.includes("/../") ||
+		path.posix.isAbsolute(normalized) ||
+		normalized.includes("\0")
+	) {
+		throw new Error(`Unsafe ZIP entry path: ${entryName}`);
+	}
+	return normalized;
+};
+
+const resolveLocalOutputPath = (outputPath: string, filePath: string) => {
+	const basePath = path.resolve(outputPath);
+	const fullPath = path.resolve(basePath, filePath);
+	if (fullPath !== basePath && !fullPath.startsWith(`${basePath}${path.sep}`)) {
+		throw new Error(`Unsafe ZIP entry path: ${filePath}`);
+	}
+	return fullPath;
+};
+
+const resolveRemoteOutputPath = (outputPath: string, filePath: string) => {
+	const basePath = path.posix.resolve(outputPath);
+	const fullPath = path.posix.resolve(basePath, filePath);
+	if (fullPath !== basePath && !fullPath.startsWith(`${basePath}/`)) {
+		throw new Error(`Unsafe ZIP entry path: ${filePath}`);
+	}
+	return fullPath;
+};
+
 export const unzipDrop = async (zipFile: File, application: Application) => {
 	let sftp: SFTPWrapper | null = null;
 
@@ -49,7 +81,7 @@ export const unzipDrop = async (zipFile: File, application: Application) => {
 			sftp = await getSFTPConnection(application.serverId);
 		}
 		for (const entry of zipEntries) {
-			let filePath = entry.entryName;
+			let filePath = normalizeZipEntryPath(entry.entryName);
 
 			if (
 				hasSingleRootFolder &&
@@ -61,7 +93,9 @@ export const unzipDrop = async (zipFile: File, application: Application) => {
 
 			if (!filePath) continue;
 
-			const fullPath = path.join(outputPath, filePath).replace(/\\/g, "/");
+			const fullPath = application.serverId
+				? resolveRemoteOutputPath(outputPath, filePath)
+				: resolveLocalOutputPath(outputPath, filePath);
 
 			if (application.serverId) {
 				if (!entry.isDirectory) {

@@ -3,6 +3,7 @@ import {
 	execAsyncRemote,
 	execFileAsync,
 	findRegistryById,
+	findServerById,
 	IS_CLOUD,
 	removeRegistry,
 	updateRegistry,
@@ -18,7 +19,15 @@ import {
 	apiUpdateRegistry,
 	registry,
 } from "@/server/db/schema";
-import { adminProcedure, createTRPCRouter, protectedProcedure } from "../trpc";
+import { adminProcedure, createTRPCRouter } from "../trpc";
+
+const redactRegistry = <T extends { password?: string }>(registry: T) => ({
+	...registry,
+	password: "",
+});
+
+const shellArg = (value: string) => `'${value.replace(/'/g, "'\\''")}'`;
+
 export const registryRouter = createTRPCRouter({
 	create: adminProcedure
 		.input(apiCreateRegistry)
@@ -37,7 +46,7 @@ export const registryRouter = createTRPCRouter({
 			}
 			return await removeRegistry(input.registryId);
 		}),
-	update: protectedProcedure
+	update: adminProcedure
 		.input(apiUpdateRegistry)
 		.mutation(async ({ input, ctx }) => {
 			const { registryId, ...rest } = input;
@@ -61,11 +70,11 @@ export const registryRouter = createTRPCRouter({
 
 			return true;
 		}),
-	all: protectedProcedure.query(async ({ ctx }) => {
+	all: adminProcedure.query(async ({ ctx }) => {
 		const registryResponse = await db.query.registry.findMany({
 			where: eq(registry.organizationId, ctx.session.activeOrganizationId),
 		});
-		return registryResponse;
+		return registryResponse.map(redactRegistry);
 	}),
 	one: adminProcedure
 		.input(apiFindOneRegistry)
@@ -77,11 +86,11 @@ export const registryRouter = createTRPCRouter({
 					message: "You are not allowed to access this registry",
 				});
 			}
-			return registry;
+			return redactRegistry(registry);
 		}),
-	testRegistry: protectedProcedure
+	testRegistry: adminProcedure
 		.input(apiTestRegistry)
-		.mutation(async ({ input }) => {
+		.mutation(async ({ input, ctx }) => {
 			try {
 				const args = [
 					"login",
@@ -99,9 +108,18 @@ export const registryRouter = createTRPCRouter({
 				}
 
 				if (input.serverId && input.serverId !== "none") {
+					const server = await findServerById(input.serverId);
+					if (server.organizationId !== ctx.session.activeOrganizationId) {
+						throw new TRPCError({
+							code: "UNAUTHORIZED",
+							message: "You are not allowed to use this server",
+						});
+					}
 					await execAsyncRemote(
 						input.serverId,
-						`echo ${input.password} | docker ${args.join(" ")}`,
+						`printf %s ${shellArg(input.password)} | docker ${args
+							.map(shellArg)
+							.join(" ")}`,
 					);
 				} else {
 					await execFileAsync("docker", args, {

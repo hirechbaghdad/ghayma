@@ -10,8 +10,8 @@ import {
 } from "@dokploy/server";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
 import http from "http";
+import { adminProcedure, createTRPCRouter } from "../trpc";
 
 const queryDocker = (path: string, method: "GET" | "POST" | "DELETE" = "GET"): Promise<any> => {
     return new Promise((resolve, reject) => {
@@ -38,119 +38,126 @@ const queryDocker = (path: string, method: "GET" | "POST" | "DELETE" = "GET"): P
 };
 
 export const containerIdRegex = /^[a-zA-Z0-9.\-_]+$/;
+const dockerObjectId = z.string().min(1).regex(containerIdRegex);
+const optionalServerInput = z.object({ serverId: z.string().optional() }).optional();
+
+const assertServerAccess = async (serverId: string | undefined, organizationId: string) => {
+    if (!serverId) return;
+    const server = await findServerById(serverId);
+    if (server.organizationId !== organizationId) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+};
 
 export const dockerRouter = createTRPCRouter({
-    getContainers: protectedProcedure
+    getContainers: adminProcedure
         .input(z.object({ serverId: z.string().optional() }))
         .query(async ({ input, ctx }) => {
-            if (input.serverId) {
-                const server = await findServerById(input.serverId);
-                if (server.organizationId !== ctx.session?.activeOrganizationId) {
-                    throw new TRPCError({ code: "UNAUTHORIZED" });
-                }
-            }
+            await assertServerAccess(input.serverId, ctx.session.activeOrganizationId);
             return await getContainers(input.serverId);
         }),
 
-    getVolumes: protectedProcedure.query(async () => {
+    getVolumes: adminProcedure.input(optionalServerInput).query(async ({ input, ctx }) => {
+        await assertServerAccess(input?.serverId, ctx.session.activeOrganizationId);
         const result = await queryDocker("/volumes");
         return result.Volumes || [];
     }),
 
-    getNetworks: protectedProcedure.query(async () => {
+    getNetworks: adminProcedure.input(optionalServerInput).query(async ({ input, ctx }) => {
+        await assertServerAccess(input?.serverId, ctx.session.activeOrganizationId);
         return await queryDocker("/networks");
     }),
 
-    getImages: protectedProcedure.query(async () => {
+    getImages: adminProcedure.input(optionalServerInput).query(async ({ input, ctx }) => {
+        await assertServerAccess(input?.serverId, ctx.session.activeOrganizationId);
         return await queryDocker("/images/json");
     }),
 
-    startContainer: protectedProcedure
-        .input(z.object({ id: z.string() }))
+    startContainer: adminProcedure
+        .input(z.object({ id: dockerObjectId }))
         .mutation(async ({ input }) => {
             return await queryDocker(`/containers/${input.id}/start`, "POST");
         }),
 
-    stopContainer: protectedProcedure
-        .input(z.object({ id: z.string() }))
+    stopContainer: adminProcedure
+        .input(z.object({ id: dockerObjectId }))
         .mutation(async ({ input }) => {
             return await queryDocker(`/containers/${input.id}/stop`, "POST");
         }),
 
-    removeContainer: protectedProcedure
-        .input(z.object({ id: z.string() }))
+    removeContainer: adminProcedure
+        .input(z.object({ id: dockerObjectId }))
         .mutation(async ({ input }) => {
             // v=true removes associated volumes if they are anonymous
             return await queryDocker(`/containers/${input.id}?force=true&v=true`, "DELETE");
         }),
 
-    restartContainer: protectedProcedure
+    restartContainer: adminProcedure
         .input(z.object({ containerId: z.string().min(1).regex(containerIdRegex) }))
         .mutation(async ({ input }) => {
             return await containerRestart(input.containerId);
         }),
 
-    deleteImage: protectedProcedure
-        .input(z.object({ id: z.string() }))
+    deleteImage: adminProcedure
+        .input(z.object({ id: z.string().min(1).max(512) }))
         .mutation(async ({ input }) => {
-            return await queryDocker(`/images/${input.id}?force=true`, "DELETE");
+            return await queryDocker(`/images/${encodeURIComponent(input.id)}?force=true`, "DELETE");
         }),
 
-    deleteVolume: protectedProcedure
-        .input(z.object({ name: z.string() }))
+    deleteVolume: adminProcedure
+        .input(z.object({ name: dockerObjectId }))
         .mutation(async ({ input }) => {
             return await queryDocker(`/volumes/${input.name}`, "DELETE");
         }),
 
-    pruneSystem: protectedProcedure
+    pruneSystem: adminProcedure
         .mutation(async () => {
             return await queryDocker("/images/prune", "POST");
         }),
 
-    getConfig: protectedProcedure
+    getConfig: adminProcedure
         .input(z.object({
             containerId: z.string().min(1).regex(containerIdRegex),
             serverId: z.string().optional(),
         }))
         .query(async ({ input, ctx }) => {
-            if (input.serverId) {
-                const server = await findServerById(input.serverId);
-                if (server.organizationId !== ctx.session?.activeOrganizationId) {
-                    throw new TRPCError({ code: "UNAUTHORIZED" });
-                }
-            }
+            await assertServerAccess(input.serverId, ctx.session.activeOrganizationId);
             return await getConfig(input.containerId, input.serverId);
         }),
 
-    getContainersByAppNameMatch: protectedProcedure
+    getContainersByAppNameMatch: adminProcedure
         .input(z.object({
             appType: z.union([z.literal("stack"), z.literal("docker-compose")]).optional(),
             appName: z.string().min(1).regex(containerIdRegex),
             serverId: z.string().optional(),
         }))
-        .query(async ({ input }) => {
+        .query(async ({ input, ctx }) => {
+            await assertServerAccess(input.serverId, ctx.session.activeOrganizationId);
             return await getContainersByAppNameMatch(input.appName, input.appType, input.serverId);
         }),
 
-    getContainersByAppLabel: protectedProcedure
+    getContainersByAppLabel: adminProcedure
         .input(z.object({
             appName: z.string().min(1).regex(containerIdRegex),
             serverId: z.string().optional(),
             type: z.enum(["standalone", "swarm"]),
         }))
-        .query(async ({ input }) => {
+        .query(async ({ input, ctx }) => {
+            await assertServerAccess(input.serverId, ctx.session.activeOrganizationId);
             return await getContainersByAppLabel(input.appName, input.type, input.serverId);
         }),
 
-    getStackContainersByAppName: protectedProcedure
+    getStackContainersByAppName: adminProcedure
         .input(z.object({ appName: z.string().min(1), serverId: z.string().optional() }))
-        .query(async ({ input }) => {
+        .query(async ({ input, ctx }) => {
+            await assertServerAccess(input.serverId, ctx.session.activeOrganizationId);
             return await getStackContainersByAppName(input.appName, input.serverId);
         }),
 
-    getServiceContainersByAppName: protectedProcedure
+    getServiceContainersByAppName: adminProcedure
         .input(z.object({ appName: z.string().min(1), serverId: z.string().optional() }))
-        .query(async ({ input }) => {
+        .query(async ({ input, ctx }) => {
+            await assertServerAccess(input.serverId, ctx.session.activeOrganizationId);
             return await getServiceContainersByAppName(input.appName, input.serverId);
         }),
 });

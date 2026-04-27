@@ -169,11 +169,11 @@ export const uploadProcedure = async (opts: any) => {
 		return opts.next();
 	}
 
+	const maxUploadSize = 100 * 1024 * 1024;
 	const formData = await experimental_parseMultipartFormData(
 		opts.ctx.req,
 		experimental_createMemoryUploadHandler({
-			// 2GB
-			maxPartSize: 1024 * 1024 * 1024 * 2,
+			maxPartSize: maxUploadSize,
 		}),
 	);
 

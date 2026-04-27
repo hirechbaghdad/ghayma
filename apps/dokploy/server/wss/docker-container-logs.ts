@@ -3,7 +3,34 @@ import { findServerById, validateRequest } from "@dokploy/server";
 import { spawn } from "node-pty";
 import { Client } from "ssh2";
 import { WebSocketServer } from "ws";
-import { getShell } from "./utils";
+
+const dockerIdRegex = /^[a-zA-Z0-9_.-]+$/;
+const tailRegex = /^(\d{1,6}|all)$/;
+const sinceRegex = /^(all|\d+[smhdw]|[0-9TZ:_.+-]+)$/;
+
+const shellArg = (value: string) => `'${value.replace(/'/g, "'\\''")}'`;
+
+const buildDockerLogArgs = ({
+	containerId,
+	runType,
+	tail,
+	since,
+}: {
+	containerId: string;
+	runType: string | null;
+	tail: string;
+	since: string;
+}) => [
+	runType === "swarm" ? "service" : "container",
+	"logs",
+	"--timestamps",
+	...(runType === "swarm" ? ["--raw"] : []),
+	"--tail",
+	tail,
+	...(since === "all" ? [] : ["--since", since]),
+	"--follow",
+	containerId,
+];
 
 export const setupDockerContainerLogsWebSocketServer = (
 	server: http.Server<typeof http.IncomingMessage, typeof http.ServerResponse>,
@@ -37,31 +64,39 @@ export const setupDockerContainerLogsWebSocketServer = (
 		const runType = url.searchParams.get("runType");
 		const { user, session } = await validateRequest(req);
 
-		if (!containerId) {
+		const safeTail = tail && tailRegex.test(tail) ? tail : "100";
+		const safeSince = since && sinceRegex.test(since) ? since : "all";
+
+		if (!containerId || !dockerIdRegex.test(containerId)) {
 			ws.close(4000, "containerId no provided");
 			return;
 		}
 
-		if (!user || !session) {
+		if (!user || !session || user.role !== "owner") {
 			ws.close();
 			return;
 		}
 		try {
 			if (serverId) {
 				const server = await findServerById(serverId);
+				if (server.organizationId !== session.activeOrganizationId) {
+					ws.close();
+					return;
+				}
 
 				if (!server.sshKeyId) return;
 				const client = new Client();
 				client
 					.once("ready", () => {
-						const baseCommand = `docker ${runType === "swarm" ? "service" : "container"} logs --timestamps ${
-							runType === "swarm" ? "--raw" : ""
-						} --tail ${tail} ${
-							since === "all" ? "" : `--since ${since}`
-						} --follow ${containerId}`;
-						const escapedSearch = search ? search.replace(/'/g, "'\\''") : "";
+						const args = buildDockerLogArgs({
+							containerId,
+							runType,
+							tail: safeTail,
+							since: safeSince,
+						});
+						const baseCommand = `docker ${args.map(shellArg).join(" ")}`;
 						const command = search
-							? `${baseCommand} 2>&1 | grep --line-buffered -iF "${escapedSearch}"`
+							? `${baseCommand} 2>&1 | grep --line-buffered -iF ${shellArg(search)}`
 							: baseCommand;
 						client.exec(command, (err, stream) => {
 							if (err) {
@@ -99,16 +134,14 @@ export const setupDockerContainerLogsWebSocketServer = (
 					client.end();
 				});
 			} else {
-				const shell = getShell();
-				const baseCommand = `docker ${runType === "swarm" ? "service" : "container"} logs --timestamps ${
-					runType === "swarm" ? "--raw" : ""
-				} --tail ${tail} ${
-					since === "all" ? "" : `--since ${since}`
-				} --follow ${containerId}`;
-				const command = search
-					? `${baseCommand} 2>&1 | grep -iF '${search}'`
-					: baseCommand;
-				const ptyProcess = spawn(shell, ["-c", command], {
+				const args = buildDockerLogArgs({
+					containerId,
+					runType,
+					tail: safeTail,
+					since: safeSince,
+				});
+				const normalizedSearch = search?.toLocaleLowerCase();
+				const ptyProcess = spawn("docker", args, {
 					name: "xterm-256color",
 					cwd: process.env.HOME,
 					env: process.env,
@@ -118,6 +151,12 @@ export const setupDockerContainerLogsWebSocketServer = (
 				});
 
 				ptyProcess.onData((data) => {
+					if (
+						normalizedSearch &&
+						!data.toLocaleLowerCase().includes(normalizedSearch)
+					) {
+						return;
+					}
 					ws.send(data);
 				});
 				ws.on("close", () => {

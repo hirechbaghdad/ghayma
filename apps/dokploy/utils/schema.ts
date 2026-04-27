@@ -12,7 +12,9 @@ if (typeof window === "undefined") {
 
 export const uploadFileSchema = zfd.formData({
 	applicationId: z.string().optional(),
-	zip: zfd.file(),
+	zip: zfd.file().refine((file) => file.size <= 100 * 1024 * 1024, {
+		message: "ZIP file must be 100MB or smaller",
+	}),
 	dropBuildPath: z.string().optional(),
 });
 

@@ -88,7 +88,7 @@ export const setupTerminalWebSocketServer = (
 		const url = new URL(req.url || "", `http://${req.headers.host}`);
 		const serverId = url.searchParams.get("serverId");
 		const { user, session } = await validateRequest(req);
-		if (!user || !session || !serverId) {
+		if (!user || !session || user.role !== "owner" || !serverId) {
 			ws.close();
 			return;
 		}
@@ -144,7 +144,7 @@ export const setupTerminalWebSocketServer = (
 		} else {
 			const server = await findServerById(serverId);
 
-			if (!server) {
+			if (!server || server.organizationId !== session.activeOrganizationId) {
 				ws.close();
 				return;
 			}

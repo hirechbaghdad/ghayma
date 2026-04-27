@@ -7,7 +7,7 @@ import {
 } from "@dokploy/server";
 import { TRPCError } from "@trpc/server";
 import { desc, eq } from "drizzle-orm";
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import { adminProcedure, createTRPCRouter } from "@/server/api/trpc";
 import { db } from "@/server/db";
 import {
 	apiCreateSshKey,
@@ -18,8 +18,13 @@ import {
 	sshKeys,
 } from "@/server/db/schema";
 
+const redactSshKey = <T extends { privateKey?: string }>(sshKey: T) => ({
+	...sshKey,
+	privateKey: "",
+});
+
 export const sshRouter = createTRPCRouter({
-	create: protectedProcedure
+	create: adminProcedure
 		.input(apiCreateSshKey)
 		.mutation(async ({ input, ctx }) => {
 			try {
@@ -35,7 +40,7 @@ export const sshRouter = createTRPCRouter({
 				});
 			}
 		}),
-	remove: protectedProcedure
+	remove: adminProcedure
 		.input(apiRemoveSshKey)
 		.mutation(async ({ input, ctx }) => {
 			try {
@@ -52,7 +57,7 @@ export const sshRouter = createTRPCRouter({
 				throw error;
 			}
 		}),
-	one: protectedProcedure
+	one: adminProcedure
 		.input(apiFindOneSshKey)
 		.query(async ({ input, ctx }) => {
 			const sshKey = await findSSHKeyById(input.sshKeyId);
@@ -63,20 +68,21 @@ export const sshRouter = createTRPCRouter({
 					message: "You are not allowed to access this SSH key",
 				});
 			}
-			return sshKey;
+			return redactSshKey(sshKey);
 		}),
-	all: protectedProcedure.query(async ({ ctx }) => {
-		return await db.query.sshKeys.findMany({
+	all: adminProcedure.query(async ({ ctx }) => {
+		const keys = await db.query.sshKeys.findMany({
 			where: eq(sshKeys.organizationId, ctx.session.activeOrganizationId),
 			orderBy: desc(sshKeys.createdAt),
 		});
+		return keys.map(redactSshKey);
 	}),
-	generate: protectedProcedure
+	generate: adminProcedure
 		.input(apiGenerateSSHKey)
 		.mutation(async ({ input }) => {
 			return await generateSSHKey(input.type);
 		}),
-	update: protectedProcedure
+	update: adminProcedure
 		.input(apiUpdateSshKey)
 		.mutation(async ({ input, ctx }) => {
 			try {

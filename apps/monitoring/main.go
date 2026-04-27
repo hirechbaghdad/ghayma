@@ -2,8 +2,10 @@ package main
 
 import (
 	"log"
+	"net/url"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -23,8 +25,6 @@ func main() {
 	cfg := config.GetMetricsConfig()
 	token := cfg.Server.Token
 	METRICS_URL_CALLBACK := cfg.Server.UrlCallback
-	log.Printf("Environment variables:")
-	log.Printf("METRICS_CONFIG: %s", os.Getenv("METRICS_CONFIG"))
 
 	if token == "" || METRICS_URL_CALLBACK == "" {
 		log.Fatal("token and urlCallback are required in the configuration")
@@ -45,7 +45,7 @@ func main() {
 	app := fiber.New()
 
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "*",
+		AllowOrigins: getAllowedOrigins(METRICS_URL_CALLBACK),
 		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 	}))
 
@@ -63,33 +63,17 @@ func main() {
 	})
 
 	app.Get("/metrics", func(c *fiber.Ctx) error {
-		limit := c.Query("limit", "50")
+		limit := parseLimit(c.Query("limit", "50"))
 
 		var metrics []monitoring.SystemMetrics
-		if limit == "all" {
-			dbMetrics, err := db.GetAllMetrics()
-			if err != nil {
-				return c.Status(500).JSON(fiber.Map{
-					"error": "Failed to fetch metrics",
-				})
-			}
-			for _, m := range dbMetrics {
-				metrics = append(metrics, monitoring.ConvertToSystemMetrics(m))
-			}
-		} else {
-			n, err := strconv.Atoi(limit)
-			if err != nil {
-				n = 50
-			}
-			dbMetrics, err := db.GetLastNMetrics(n)
-			if err != nil {
-				return c.Status(500).JSON(fiber.Map{
-					"error": "Failed to fetch metrics",
-				})
-			}
-			for _, m := range dbMetrics {
-				metrics = append(metrics, monitoring.ConvertToSystemMetrics(m))
-			}
+		dbMetrics, err := db.GetLastNMetrics(limit)
+		if err != nil {
+			return c.Status(500).JSON(fiber.Map{
+				"error": "Failed to fetch metrics",
+			})
+		}
+		for _, m := range dbMetrics {
+			metrics = append(metrics, monitoring.ConvertToSystemMetrics(m))
 		}
 
 		return c.JSON(metrics)
@@ -105,7 +89,7 @@ func main() {
 	defer containerMonitor.Stop()
 
 	app.Get("/metrics/containers", func(c *fiber.Ctx) error {
-		limit := c.Query("limit", "50")
+		limit := parseLimit(c.Query("limit", "50"))
 		appName := c.Query("appName", "")
 
 		if appName == "" {
@@ -115,15 +99,7 @@ func main() {
 		var metrics []database.ContainerMetric
 		var err error
 
-		if limit == "all" {
-			metrics, err = db.GetAllMetricsContainer(appName)
-		} else {
-			limitNum, parseErr := strconv.Atoi(limit)
-			if parseErr != nil {
-				limitNum = 50
-			}
-			metrics, err = db.GetLastNContainerMetrics(appName, limitNum)
-		}
+		metrics, err = db.GetLastNContainerMetrics(appName, limit)
 
 		if err != nil {
 			return c.Status(500).JSON(fiber.Map{
@@ -161,4 +137,28 @@ func main() {
 
 	log.Printf("Server starting on port %d", port)
 	log.Fatal(app.Listen(":" + strconv.Itoa(port)))
+}
+
+func getAllowedOrigins(callbackURL string) string {
+	if origins := strings.TrimSpace(os.Getenv("METRICS_ALLOWED_ORIGINS")); origins != "" {
+		return origins
+	}
+
+	parsedURL, err := url.Parse(callbackURL)
+	if err != nil || parsedURL.Scheme == "" || parsedURL.Host == "" {
+		return ""
+	}
+
+	return parsedURL.Scheme + "://" + parsedURL.Host
+}
+
+func parseLimit(raw string) int {
+	limit, err := strconv.Atoi(raw)
+	if err != nil || limit <= 0 {
+		return 50
+	}
+	if limit > 1000 {
+		return 1000
+	}
+	return limit
 }

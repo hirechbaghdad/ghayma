@@ -376,7 +376,12 @@ export const userRouter = createTRPCRouter({
 	createApiKey: protectedProcedure
 		.input(apiCreateApiKey)
 		.mutation(async ({ input, ctx }) => {
-			const apiKey = await createApiKey(ctx.user.id, input);
+			const apiKey = await createApiKey(ctx.user.id, {
+				...input,
+				metadata: {
+					organizationId: ctx.session.activeOrganizationId,
+				},
+			});
 			return apiKey;
 		}),
 

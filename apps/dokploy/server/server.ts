@@ -31,6 +31,11 @@ const handle = app.getRequestHandler();
 void app.prepare().then(async () => {
 	try {
 		const server = http.createServer((req, res) => {
+			if (req.url === "/health") {
+				res.writeHead(200, { "content-type": "application/json" });
+				res.end(JSON.stringify({ ok: true }));
+				return;
+			}
 			handle(req, res);
 		});
 
