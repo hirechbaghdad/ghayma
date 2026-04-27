@@ -56,7 +56,7 @@ export const WebServer = () => {
 								Server IP: {data?.user.serverIp}
 							</span>
 							<span className="text-sm text-muted-foreground">
-								Version: v1.2.1-preview
+								Version: v1.3-preview
 							</span>
 
 							<ToggleDockerCleanup />
